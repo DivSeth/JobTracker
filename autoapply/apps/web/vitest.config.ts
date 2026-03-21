@@ -8,7 +8,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
-    passWithNoTests: true,
+    passWithNoTests: true, // TODO: remove after Task 11 writes first tests
   },
   resolve: {
     alias: { '@': path.resolve(__dirname, '.') },
