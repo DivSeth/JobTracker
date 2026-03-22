@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { PipelineKanban } from '@/components/dashboard/PipelineKanban'
 import { StatsBar } from '@/components/dashboard/StatsBar'
+import type { ApplicationWithJob } from '@/lib/types'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -26,9 +27,9 @@ export default async function DashboardPage() {
             Manage your active pursuits across strategic stages.
           </p>
         </div>
-        <StatsBar applications={(applications ?? []) as any} jobCount={jobCount ?? 0} />
+        <StatsBar applications={(applications ?? []) as ApplicationWithJob[]} jobCount={jobCount ?? 0} />
       </div>
-      <PipelineKanban applications={(applications ?? []) as any} />
+      <PipelineKanban applications={(applications ?? []) as ApplicationWithJob[]} />
     </div>
   )
 }

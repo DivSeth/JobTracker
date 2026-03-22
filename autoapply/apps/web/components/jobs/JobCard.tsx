@@ -1,79 +1,67 @@
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import type { JobWithScore } from '@/lib/types'
 
 interface Props {
   job: JobWithScore
-  onSave?: (jobId: string) => void
+  featured?: boolean
 }
 
-export function JobCard({ job, onSave }: Props) {
-  const topScore = job.job_scores?.[0]
-  const score = topScore?.score
-  const matchingSkills = topScore?.matching_skills ?? []
-  const skillGaps = topScore?.skill_gaps ?? []
+export function JobCard({ job, featured }: Props) {
+  const score = job.job_scores?.[0]?.score
 
   return (
-    <Card className="p-4 space-y-3">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            {score != null && (
-              <span className="text-sm font-semibold text-primary tabular-nums">{score}%</span>
-            )}
-            <h3 className="font-semibold truncate">{job.title}</h3>
-          </div>
-          <p className="text-on-surface-muted text-sm">{job.company}</p>
-          {job.location && (
-            <p className="text-xs text-on-surface-muted">{job.location}</p>
-          )}
+    <div className="bg-surface-card rounded-xl shadow-ambient p-5 flex flex-col gap-4 hover:shadow-[0_16px_48px_rgba(42,52,57,0.10)] transition-shadow">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3">
+        {/* Company logo placeholder */}
+        <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-sm font-semibold text-on-surface-muted shrink-0">
+          {job.company.slice(0, 2).toUpperCase()}
         </div>
-        <div className="flex gap-2 shrink-0">
-          {job.apply_url && (
-            <a
-              href={job.apply_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-3 bg-primary text-white hover:bg-primary/90 transition-colors"
-            >
-              Apply ↗
-            </a>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {featured && (
+            <span className="label-sm px-2 py-0.5 rounded-lg bg-[#0053db]/10 text-[#0053db]">
+              FEATURED
+            </span>
           )}
-          {onSave && (
-            <Button size="sm" variant="secondary" onClick={() => onSave(job.id)}>
-              Save
-            </Button>
+          {score != null && (
+            <span className="label-sm px-2 py-0.5 rounded-lg bg-green-500/10 text-green-700">
+              {score}%
+            </span>
           )}
         </div>
       </div>
 
-      {(matchingSkills.length > 0 || skillGaps.length > 0) && (
-        <div className="flex flex-wrap gap-1">
-          {matchingSkills.map(s => (
-            <Badge key={s} className="text-xs">✓ {s}</Badge>
-          ))}
-          {skillGaps.map(s => (
-            <Badge key={s} className="text-xs text-amber-600">⚠ {s}</Badge>
-          ))}
-        </div>
-      )}
-
-      <div className="flex items-center gap-2 text-xs text-on-surface-muted">
-        {job.job_type && (
-          <Badge status={job.job_type}>{job.job_type.replace('_', ' ')}</Badge>
+      {/* Title + company */}
+      <div className="space-y-0.5 flex-1">
+        <h3 className="text-sm font-semibold text-on-surface leading-snug">{job.title}</h3>
+        <p className="text-sm text-on-surface-muted">{job.company}</p>
+        {job.location && (
+          <p className="text-xs text-on-surface-muted/70">{job.location}</p>
         )}
-        {job.source_url && (
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center gap-1.5">
+          {job.job_type && (
+            <Badge className="label-sm">
+              {job.job_type.replace('_', ' ')}
+            </Badge>
+          )}
+        </div>
+        {job.apply_url ? (
           <a
-            href={job.source_url}
+            href={job.apply_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:underline"
+            className="h-8 px-4 gradient-primary text-white text-xs font-medium rounded-xl inline-flex items-center hover:opacity-90 transition-opacity"
           >
-            {job.source_url.split('/').slice(-2).join('/')}
+            Apply ↗
           </a>
+        ) : (
+          <span className="text-xs text-on-surface-muted/50">No link</span>
         )}
       </div>
-    </Card>
+    </div>
   )
 }

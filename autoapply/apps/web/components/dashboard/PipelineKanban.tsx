@@ -1,6 +1,5 @@
 'use client'
 import type { ApplicationWithJob, ApplicationStatus } from '@/lib/types'
-import { cn } from '@/lib/utils'
 
 const COLUMNS: { id: ApplicationStatus; label: string; color: string }[] = [
   { id: 'applied',      label: 'APPLIED',      color: '#2563eb' },
