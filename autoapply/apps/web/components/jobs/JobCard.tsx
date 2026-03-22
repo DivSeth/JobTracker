@@ -41,7 +41,7 @@ export function JobCard({ job, onSave }: Props) {
             </a>
           )}
           {onSave && (
-            <Button size="sm" variant="outline" onClick={() => onSave(job.id)}>
+            <Button size="sm" variant="secondary" onClick={() => onSave(job.id)}>
               Save
             </Button>
           )}
@@ -51,17 +51,17 @@ export function JobCard({ job, onSave }: Props) {
       {(matchingSkills.length > 0 || skillGaps.length > 0) && (
         <div className="flex flex-wrap gap-1">
           {matchingSkills.map(s => (
-            <Badge key={s} variant="secondary" className="text-xs">✓ {s}</Badge>
+            <Badge key={s} className="text-xs">✓ {s}</Badge>
           ))}
           {skillGaps.map(s => (
-            <Badge key={s} variant="outline" className="text-xs text-amber-600">⚠ {s}</Badge>
+            <Badge key={s} className="text-xs text-amber-600">⚠ {s}</Badge>
           ))}
         </div>
       )}
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {job.job_type && (
-          <Badge variant="outline">{job.job_type.replace('_', ' ')}</Badge>
+          <Badge status={job.job_type}>{job.job_type.replace('_', ' ')}</Badge>
         )}
         {job.source_url && (
           <a

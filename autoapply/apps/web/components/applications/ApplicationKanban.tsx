@@ -40,7 +40,7 @@ export function ApplicationKanban({ applications, onStatusChange }: Props) {
           <div key={col.id} className="min-w-[180px] space-y-2">
             <div className="flex items-center gap-2">
               <h3 className="font-medium text-sm">{col.label}</h3>
-              <Badge variant="secondary" className="text-xs">{cards.length}</Badge>
+              <Badge className="text-xs">{cards.length}</Badge>
             </div>
             {cards.map(app => {
               const next = STATUS_TRANSITIONS[app.status]
@@ -55,7 +55,7 @@ export function ApplicationKanban({ applications, onStatusChange }: Props) {
                   {next && (
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="secondary"
                       className="w-full text-xs h-7"
                       onClick={() => onStatusChange(app.id, next)}
                     >
