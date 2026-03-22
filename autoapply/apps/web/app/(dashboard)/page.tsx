@@ -1,7 +1,11 @@
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
-import { ApplicationFunnel } from '@/components/dashboard/ApplicationFunnel'
+import { DashboardView } from '@/components/dashboard/DashboardView'
+
+export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
+  cookies() // ensure dynamic rendering
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -16,27 +20,9 @@ export default async function DashboardPage() {
     .eq('is_active', true)
 
   return (
-    <div className="p-8 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          {jobCount ?? 0} active job listings
-        </p>
-      </div>
-
-      <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-1 border rounded-lg p-4">
-          <ApplicationFunnel applications={applications ?? []} />
-        </div>
-        <div className="col-span-2 space-y-3">
-          <p className="text-sm text-muted-foreground">
-            <strong>Phase 1 complete.</strong> Browse jobs and track applications manually.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Email intelligence (OA detection, interview tracking) arrives in Phase 2.
-          </p>
-        </div>
-      </div>
-    </div>
+    <DashboardView
+      applications={applications ?? []}
+      jobCount={jobCount ?? 0}
+    />
   )
 }

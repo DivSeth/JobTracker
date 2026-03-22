@@ -12,10 +12,10 @@ export function JobFilters({ active, onChange }: Props) {
   return (
     <Tabs value={active} onValueChange={v => onChange(v as FilterTab)}>
       <TabsList>
-        <TabsTrigger value="all">All</TabsTrigger>
-        <TabsTrigger value="new_grad">New Grad</TabsTrigger>
-        <TabsTrigger value="internship">Internship</TabsTrigger>
-        <TabsTrigger value="fulltime">Fulltime</TabsTrigger>
+        <TabsTrigger value="all" onClick={() => onChange('all')}>All</TabsTrigger>
+        <TabsTrigger value="new_grad" onClick={() => onChange('new_grad')}>New Grad</TabsTrigger>
+        <TabsTrigger value="internship" onClick={() => onChange('internship')}>Internship</TabsTrigger>
+        <TabsTrigger value="fulltime" onClick={() => onChange('fulltime')}>Fulltime</TabsTrigger>
       </TabsList>
     </Tabs>
   )

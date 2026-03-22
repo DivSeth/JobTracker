@@ -31,11 +31,14 @@ export function JobCard({ job, onSave }: Props) {
         </div>
         <div className="flex gap-2 shrink-0">
           {job.apply_url && (
-            <Button asChild size="sm">
-              <a href={job.apply_url} target="_blank" rel="noopener noreferrer">
-                Apply ↗
-              </a>
-            </Button>
+            <a
+              href={job.apply_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              Apply ↗
+            </a>
           )}
           {onSave && (
             <Button size="sm" variant="outline" onClick={() => onSave(job.id)}>
