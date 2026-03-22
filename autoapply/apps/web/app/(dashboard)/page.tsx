@@ -1,11 +1,7 @@
-import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardView } from '@/components/dashboard/DashboardView'
 
-export const dynamic = 'force-dynamic'
-
 export default async function DashboardPage() {
-  cookies() // ensure dynamic rendering
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
