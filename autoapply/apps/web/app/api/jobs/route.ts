@@ -1,10 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-
-export function parseJobFilters(params: URLSearchParams) {
-  const type = params.get('type')
-  return { job_type: (type && type !== 'all') ? type : null }
-}
+import { parseJobFilters } from '@/lib/jobs/filters'
 
 export async function GET(request: Request) {
   const supabase = await createClient()

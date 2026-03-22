@@ -1,4 +1,4 @@
-import { parseJobFilters } from '@/app/api/jobs/route'
+import { parseJobFilters } from '@/lib/jobs/filters'
 
 it('returns null job_type for "all"', () => {
   const params = new URLSearchParams('type=all')
