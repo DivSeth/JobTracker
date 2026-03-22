@@ -1,41 +1,35 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { ProfileForm } from '@/components/profile/ProfileForm'
+import type { Profile } from '@/lib/types'
+
+const emptyProfile: Partial<Profile> = {}
+
+it('renders all section headings', () => {
+  render(<ProfileForm initialProfile={emptyProfile} />)
+  expect(screen.getByText(/personal details/i)).toBeInTheDocument()
+  expect(screen.getByText(/work experience/i)).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /education/i })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /skills/i })).toBeInTheDocument()
+  expect(screen.getByText(/preferences/i)).toBeInTheDocument()
+})
 
 it('renders skills input', () => {
-  render(<ProfileForm onSubmit={async () => {}} />)
+  render(<ProfileForm initialProfile={emptyProfile} />)
   expect(screen.getByLabelText(/skills/i)).toBeInTheDocument()
 })
 
-it('calls onSubmit with parsed skills array', async () => {
-  const onSubmit = vi.fn().mockResolvedValue(undefined)
-  render(<ProfileForm onSubmit={onSubmit} />)
-
-  fireEvent.change(screen.getByLabelText(/skills/i), {
-    target: { value: 'React, TypeScript, Python' },
-  })
-  fireEvent.click(screen.getByRole('button', { name: /save/i }))
-
+it('calls POST /api/profile on submit', async () => {
+  const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({ ok: true } as any)
+  render(<ProfileForm initialProfile={emptyProfile} />)
+  fireEvent.click(screen.getByRole('button', { name: /save profile/i }))
   await waitFor(() => {
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        skills: ['React', 'TypeScript', 'Python'],
-      })
-    )
+    expect(fetchSpy).toHaveBeenCalledWith('/api/profile', expect.objectContaining({ method: 'POST' }))
   })
+  fetchSpy.mockRestore()
 })
 
-it('strips empty strings from skills', async () => {
-  const onSubmit = vi.fn().mockResolvedValue(undefined)
-  render(<ProfileForm onSubmit={onSubmit} />)
-
-  fireEvent.change(screen.getByLabelText(/skills/i), {
-    target: { value: 'React,  , TypeScript' },
-  })
-  fireEvent.click(screen.getByRole('button', { name: /save/i }))
-
-  await waitFor(() => {
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ skills: ['React', 'TypeScript'] })
-    )
-  })
+it('can add a work experience entry', () => {
+  render(<ProfileForm initialProfile={emptyProfile} />)
+  fireEvent.click(screen.getByRole('button', { name: /add position/i }))
+  expect(screen.getByPlaceholderText(/company name/i)).toBeInTheDocument()
 })
