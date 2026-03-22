@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 const STATUS_STYLES: Record<string, string> = {
@@ -13,7 +14,7 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 interface BadgeProps {
-  children: React.ReactNode
+  children: ReactNode
   status?: string
   className?: string
 }

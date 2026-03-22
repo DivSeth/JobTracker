@@ -24,9 +24,9 @@ export function JobCard({ job, onSave }: Props) {
             )}
             <h3 className="font-semibold truncate">{job.title}</h3>
           </div>
-          <p className="text-muted-foreground text-sm">{job.company}</p>
+          <p className="text-on-surface-muted text-sm">{job.company}</p>
           {job.location && (
-            <p className="text-xs text-muted-foreground">{job.location}</p>
+            <p className="text-xs text-on-surface-muted">{job.location}</p>
           )}
         </div>
         <div className="flex gap-2 shrink-0">
@@ -35,7 +35,7 @@ export function JobCard({ job, onSave }: Props) {
               href={job.apply_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-3 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 px-3 bg-primary text-white hover:bg-primary/90 transition-colors"
             >
               Apply ↗
             </a>
@@ -59,7 +59,7 @@ export function JobCard({ job, onSave }: Props) {
         </div>
       )}
 
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 text-xs text-on-surface-muted">
         {job.job_type && (
           <Badge status={job.job_type}>{job.job_type.replace('_', ' ')}</Badge>
         )}

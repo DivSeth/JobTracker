@@ -49,7 +49,7 @@ export function ApplicationKanban({ applications, onStatusChange }: Props) {
                   <p className="font-medium text-sm line-clamp-1">
                     {app.job?.company ?? 'Unknown'}
                   </p>
-                  <p className="text-xs text-muted-foreground line-clamp-1">
+                  <p className="text-xs text-on-surface-muted line-clamp-1">
                     {app.job?.title ?? 'Manual Entry'}
                   </p>
                   {next && (
