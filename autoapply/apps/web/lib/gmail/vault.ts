@@ -42,9 +42,9 @@ export async function storeGmailTokens(
     .maybeSingle()
 
   if (existing?.id) {
-    await adminClient.rpc('vault.update_secret', { secret_id: existing.id, new_secret: payload })
+    await adminClient.rpc('vault_update_secret', { secret_id: existing.id, new_secret: payload })
   } else {
-    await adminClient.rpc('vault.create_secret', { secret: payload, name: key })
+    await adminClient.rpc('vault_create_secret', { secret: payload, name: key })
   }
 }
 
