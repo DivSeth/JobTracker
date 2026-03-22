@@ -21,6 +21,7 @@ export function ProfileForm({ initialProfile }: Props) {
   const [details, setDetails] = useState<ProfileDetails>({
     full_name: null, phone: null, location: null,
     bio: null, resume_url: null, portfolio_url: null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...((initialProfile as any)?.profile_details ?? {}),
   })
   const [skills, setSkills] = useState(
@@ -181,6 +182,7 @@ export function ProfileForm({ initialProfile }: Props) {
                 <Input label="Graduation Year" id={`edu_year_${i}`} type="number"
                   value={edu.graduation_year} onChange={e => setEducation(ed => ed.map((x, j) => j === i ? { ...x, graduation_year: Number(e.target.value) } : x))} />
                 <Input label="GPA (optional)" id={`edu_gpa_${i}`} type="number" step="0.01"
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   value={(edu as any).gpa ?? ''} onChange={e => setEducation(ed => ed.map((x, j) => j === i ? { ...x, gpa: e.target.value ? Number(e.target.value) : undefined } : x))} />
               </div>
               <div className="flex items-center justify-end">
