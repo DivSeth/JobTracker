@@ -14,8 +14,17 @@ export interface EducationEntry {
 }
 
 export interface ExperienceEntry {
-  company: string; role: string; start: string
-  end: string | null; bullets: string[]
+  company: string; role: string; employment_type: 'full_time' | 'internship' | 'part_time' | 'contract'
+  start: string; end: string | null; bullets: string[]
+}
+
+export interface ProfileDetails {
+  full_name: string | null
+  phone: string | null
+  location: string | null
+  bio: string | null
+  resume_url: string | null
+  portfolio_url: string | null
 }
 
 export interface UserPreferences {
@@ -24,9 +33,9 @@ export interface UserPreferences {
 }
 
 export interface Profile {
-  id: string; user_id: string; skills: string[]
-  education: EducationEntry[]; experience: ExperienceEntry[]
-  preferences: UserPreferences
+  id: string; user_id: string; details: ProfileDetails
+  skills: string[]; education: EducationEntry[]
+  experience: ExperienceEntry[]; preferences: UserPreferences
 }
 
 export interface JobSource {

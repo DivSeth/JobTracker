@@ -6,8 +6,12 @@ import {
 } from '@/lib/github/sync'
 
 export async function POST(request: Request) {
-  const auth = request.headers.get('authorization')
-  if (auth !== `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`) {
+  const authHeader = request.headers.get('authorization')
+  const authToken = authHeader?.replace('Bearer ', '')
+  const isValid =
+    authToken === process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    (!!process.env.CRON_SECRET && authToken === process.env.CRON_SECRET)
+  if (!isValid) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

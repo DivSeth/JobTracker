@@ -6,16 +6,13 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('profiles')
     .select('*')
     .eq('user_id', user.id)
     .single()
 
-  if (error?.code === 'PGRST116') {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  }
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (!data) return NextResponse.json(null, { status: 404 })
   return NextResponse.json(data)
 }
 
@@ -27,7 +24,14 @@ export async function POST(request: Request) {
   const body = await request.json()
   const { data, error } = await supabase
     .from('profiles')
-    .upsert({ user_id: user.id, ...body }, { onConflict: 'user_id' })
+    .upsert({
+      user_id: user.id,
+      skills: body.skills ?? [],
+      education: body.education ?? [],
+      experience: body.experience ?? [],
+      preferences: body.preferences ?? {},
+      profile_details: body.profile_details ?? {},
+    }, { onConflict: 'user_id' })
     .select()
     .single()
 
