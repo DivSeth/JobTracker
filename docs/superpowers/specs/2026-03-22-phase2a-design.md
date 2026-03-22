@@ -15,47 +15,56 @@ Deliver a premium, production-quality UI matching the "Digital Curator" design s
 ## 2. Scope
 
 ### In scope
-- Design system: new tokens, Tailwind config, rebuilt shadcn primitives
+- Design system: new CSS tokens (full replacement of shadcn defaults), Tailwind config, rebuilt shadcn primitives
 - Navigation shell: 6-item sidebar (Dashboard, Jobs, Applications, Calendar, Insights, Profile)
-- Dashboard: pipeline Kanban hero + stats bar (replaces funnel widget)
+- Dashboard: pipeline Kanban hero + stats bar (replaces funnel widget, server-component fetch pattern preserved)
 - Jobs: card grid with salary/location/featured badges + Curator's Pick highlight
-- Applications: existing Kanban preserved, new detail page (`/applications/[id]`)
+- Applications: existing Kanban preserved with updated styles; new detail page (`/applications/[id]`)
 - Profile: full Workday-style (personal details, work experience, education, skills, preferences)
-- Calendar page: stub (empty state with placeholder message)
-- Insights page: stub (empty state with placeholder message)
+- Calendar page: stub
+- Insights page: stub
 - Job sync: add 2 new Summer 2026 repos, Vercel cron every 6 hours
+- Type updates: `ExperienceEntry` extended, new `ProfileDetails` interface
+- DB migration: new `profile_details` JSONB column on `profiles` table
+- Tests: component tests updated to match rebuilt components
 
 ### Out of scope
 - Gmail live parsing (Phase 2B)
 - AI job scoring (Phase 3)
 - Drag-and-drop Kanban
 - Auto-apply / browser extension
+- Deadline write path / Add Reminder (stubbed, Phase 2B)
 
 ---
 
 ## 3. Design System — "Digital Curator"
 
+### CSS Token Strategy
+**Full replacement:** The existing shadcn oklch token set in `globals.css` is retired and replaced with the Digital Curator tokens below. The Tailwind config is updated to map utility classes to the new CSS variables. All rebuilt components use the new tokens. This is a clean cut — no aliasing, no co-existence.
+
 ### Color Tokens
-| Token | Value | Usage |
-|---|---|---|
-| `--surface` | `#f7f9fb` | Page background |
-| `--surface-container` | `#e8eff3` | Sidebar, section backgrounds |
-| `--surface-card` | `#ffffff` | Cards, inputs |
-| `--primary` | `#0053db` | CTA gradient start |
-| `--primary-dim` | `#0048c1` | CTA gradient end |
-| `--on-surface` | `#2a3439` | All body text ("black") |
-| `--on-surface-muted` | `#6b7f88` | Secondary / metadata text |
-| `--outline-variant` | `#c4d0d7` | Ghost borders (15% opacity max) |
+| CSS Variable | Value | Tailwind class | Usage |
+|---|---|---|---|
+| `--surface` | `#f7f9fb` | `bg-surface` | Page background |
+| `--surface-container` | `#e8eff3` | `bg-surface-container` | Sidebar, section backgrounds |
+| `--surface-card` | `#ffffff` | `bg-surface-card` | Cards, inputs |
+| `--surface-container-highest` | `#c9d8e0` | `bg-surface-container-highest` | Selected nav state |
+| `--primary` | `#0053db` | `bg-primary` | CTA gradient start, links |
+| `--primary-dim` | `#0048c1` | `bg-primary-dim` | CTA gradient end |
+| `--on-surface` | `#2a3439` | `text-on-surface` | All body text ("black") |
+| `--on-surface-muted` | `#6b7f88` | `text-on-surface-muted` | Secondary / metadata text |
+| `--outline-variant` | `#c4d0d7` | `border-outline-variant` | Ghost borders (15% opacity max) |
 
 ### Rules
-- **No-Line Rule:** Zero 1px solid borders for layout. Separation via background color shifts only.
-- **Ghost Border Fallback:** `outline-variant` at 15% opacity only when accessibility requires it.
-- **Rounded corners:** `rounded-xl` (12px) cards, `rounded-2xl` (16px) modals/dropdowns.
+- **No-Line Rule:** Zero 1px solid borders for layout separation. Use background color shifts only.
+- **Ghost Border Fallback:** `outline-variant` at 15% opacity only when accessibility strictly requires it.
+- **Rounded corners:** `rounded-xl` (12px) for cards, `rounded-2xl` (16px) for modals/dropdowns.
 - **Shadows:** Ambient only — `0 12px 40px rgba(42,52,57,0.06)`. No heavy drop shadows.
-- **Glassmorphism:** Floating elements (modals, dropdowns) use `surface-card` at 80% opacity + `backdrop-blur-xl`.
+- **Glassmorphism:** Floating elements use `surface-card` at 80% opacity + `backdrop-blur-xl`.
 - **Primary CTA:** Linear gradient `#0053db → #0048c1` at 135°.
+- **No pure black:** All text uses `--on-surface` (#2a3439).
 
-### Typography (Inter)
+### Typography (Inter — already installed)
 | Role | Size | Weight | Notes |
 |---|---|---|---|
 | Display | 3.5rem | Regular | Empty states only, tracking -0.02em |
@@ -64,9 +73,9 @@ Deliver a premium, production-quality UI matching the "Digital Curator" design s
 | Label | 0.6875rem | Medium | Uppercase, 0.05em tracking — status tags |
 
 ### Component Patterns
-- **Buttons:** Primary = gradient; Secondary = `surface-container` bg, no border; Tertiary = ghost
-- **Cards:** `surface-card` on `surface-container` background for natural lift; hover shifts to `surface-container-high`
-- **Inputs:** `surface-card` bg, label 0.5rem above field, focus = 2px `primary` glow at 20% opacity
+- **Buttons:** Primary = 135° gradient; Secondary = `surface-container` bg, no border; Tertiary = ghost
+- **Cards:** `surface-card` on `surface-container`; hover shifts bg slightly darker
+- **Inputs:** `surface-card` bg, label 0.5rem above, focus = 2px `primary` glow at 20% opacity
 - **Kanban tile:** `surface-card` + 4px left-accent bar in status color
 - **Status tags:** uppercase label-sm, colored bg at 15% opacity
 - **Timeline rail:** vertical `outline-variant` line at 20% opacity with tinted dots
@@ -75,81 +84,145 @@ Deliver a premium, production-quality UI matching the "Digital Curator" design s
 
 ## 4. Navigation Shell
 
-**Sidebar** (`w-52`, `surface-container` background, no border):
+**Sidebar** (`w-52`, `surface-container` background, no visible border):
 - Logo + "Job OS" wordmark top-left
 - Nav items: Dashboard / Jobs / Applications / Calendar / Insights / Profile
 - Selected state: `surface-container-highest` background pill
-- User avatar + name bottom-left
-- "New Application" primary CTA button bottom
+- User avatar (initials fallback) + name bottom-left
+- "New Application" primary CTA button at bottom
 
 ---
 
 ## 5. Pages
 
 ### 5.1 Dashboard (`/`)
-**Hero:** Pipeline Kanban with columns: Applied → OA → Interview → Offer → Rejected
-- Each column shows count badge
-- Cards show company logo placeholder, job title, company name, status tag, days-ago label
+
+**Architecture:** Server component (`page.tsx`) — preserves existing pattern of direct Supabase queries, passes data as props to client component children. No change to fetch strategy.
+
+**Hero:** `PipelineKanban` client component (replaces `DashboardView`/`ApplicationFunnel`)
+- Columns: Applied → OA → Interview → Offer → Rejected
+- Each column: count badge + scrollable card list
+- Cards: company name, job title, status tag (uppercase label-sm), days-ago
 - Cards use 4px left-accent bar colored by status
 
-**Stats bar** (top right): OA Rate %, total application volume
+**Stats bar** (top-right of hero): OA Rate % + total application count — computed server-side from applications array
 
-**Data source:** `GET /api/applications` — client component, fetches on load
+**Data:** `page.tsx` fetches applications directly via Supabase client (existing pattern)
 
 ### 5.2 Jobs (`/jobs`)
+
+**Architecture:** Existing server component pattern preserved
+
 **Layout:** Responsive card grid (3 columns desktop, 2 tablet, 1 mobile)
 
-**Job card:** company logo placeholder, title, company, location, salary range (if available), job type badge, posted date, Apply button (gradient CTA)
+**Job card (rebuilt):** company name, title, location, job type badge, posted date, Apply button (gradient CTA). Salary range shown if `null` values are not present (currently not in schema — omit for now).
 
-**Curator's Pick:** First card slot on initial load shows a highlighted pick card (highest-scored job or most recent featured)
+**Curator's Pick:** Highlighted card in first slot — the first element of the existing `GET /api/jobs` response (already ordered `first_seen_at DESC`). No separate query needed — derive client-side from the response array. AI scoring in Phase 3 will replace this logic.
 
-**Filters:** All / New Grad / Internship / Fulltime tabs (existing logic preserved)
+**Filters:** All / New Grad / Internship / Fulltime tabs (existing logic unchanged)
 
-**Data source:** `GET /api/jobs` (existing endpoint, no changes needed)
+### 5.3 Applications (`/applications` + `/applications/[id]`)
 
-### 5.3 Applications (`/applications`)
-**Kanban preserved** — existing columns and status transitions kept
+**Kanban:** Existing columns and status transitions preserved; styles updated to Digital Curator system.
 
 **New: Application Detail page** (`/applications/[id]`):
-- Header: company logo, job title, company name, status badge, Edit Details + Update Status buttons
-- **Status Timeline** (left): vertical rail showing each status transition with date, label, and checkmark
-- **Deadlines & Reminders** (right sidebar): upcoming deadline cards (red = urgent), "+ Add Reminder" button
-- **Interview Notes** (right sidebar): free-text textarea, persisted to `applications.notes`
-- **Communications** section: placeholder — shows "Connect Gmail to see emails" until Phase 2B
+- Header: job title, company name, status badge, "Edit Details" + "Update Status" buttons
+- **Status Timeline (Phase 2A scope):** Shows current status + `applied_at` date only. Full history (all transitions) is deferred to Phase 2B when an `application_events` table will be added. Display as a single-item timeline rail with the submission date.
+- **Deadlines & Reminders:** Read-only panel for Phase 2A. "+ Add Reminder" button renders as disabled with tooltip "Coming soon". No write path implemented.
+- **Interview Notes:** Free-text textarea, saved to `applications.notes` via `PATCH /api/applications`
+- **Communications:** Static placeholder — "Connect Gmail to see emails" message. Phase 2B feature.
 
-**New API:** `GET /api/applications/[id]` — returns single application with joined job data
+**New API:** `GET /api/applications/[id]`
+- Returns single application row joined with job data (`jobs.*`)
+- Response shape:
+```typescript
+{
+  application: Application,
+  job: Job | null
+}
+```
+- RLS enforced — query uses `.eq('user_id', user.id)`. Returns 404 for both "not found" and "belongs to another user" (no distinction — security by obscurity). Matches existing PATCH pattern.
 
 ### 5.4 Profile (`/profile`)
-**Layout:** Two-column — left panel (avatar, score, quick links) + right panels (form sections)
+
+**Architecture:** Server component fetches profile, renders `ProfileForm` client component with initial data. Same pattern as current implementation.
+
+**Layout:** Two-column — left panel (160px fixed) + right scrollable sections
 
 **Left panel:**
-- Avatar (initials fallback)
-- Full name, current role/title
-- Profile completeness score (% of fields filled)
-- Quick links: resume URL, portfolio URL
+- Avatar circle with initials fallback
+- Full name + role (from first experience entry or empty)
+- Profile completeness % (fields filled / total fields × 100)
+- Resume URL + Portfolio URL as clickable links (editable inline)
 
-**Right panels (accordion or stacked sections):**
-1. **Personal Details** — full name, email, phone, location, short bio
-2. **Work Experience** — list of entries, each: company, role, type (full-time/internship), start/end dates, bullet points; "+ Add Position" button
-3. **Education** — list of entries: school, degree, major, GPA, graduation year; "+ Add" button
-4. **Skills** — tag input (comma-separated, rendered as chips)
-5. **Preferences** — job types (checkboxes), locations (tag input), remote_ok toggle, min salary
+**Right sections (stacked, not accordion):**
+1. **Personal Details** — full name, email (read-only, from auth), phone, location, short bio
+2. **Work Experience** — list of `ExperienceEntry` items; each: company, role, employment type, start, end (or "Present"), bullet points; "+ Add Position" appends empty entry
+3. **Education** — list of `EducationEntry` items: school, degree, major, GPA, graduation year; "+ Add" appends empty entry
+4. **Skills** — tag chip input (type + Enter or comma to add, × to remove)
+5. **Preferences** — job types (checkbox group), locations (tag input), remote_ok toggle, min salary (number input)
 
-**Data:** All fields map to existing `profiles` table schema. No DB changes needed.
-
-**Server action:** `POST /api/profile` upsert (existing endpoint, extend to handle all new fields)
+**Save:** Single "Save Profile" button at bottom — upserts entire profile to `/api/profile`
 
 ### 5.5 Calendar (`/calendar`) — Stub
-Empty state: display icon + "Calendar integration coming soon. Connect Gmail in Phase 2B to auto-extract deadlines and interview schedules."
+Empty state: calendar icon (large, muted) + headline "Calendar coming soon" + body "Connect Gmail in Phase 2B to auto-extract interview schedules and deadlines."
 
 ### 5.6 Insights (`/insights`) — Stub
-Empty state: display icon + "Insights arrive after you've tracked 5+ applications. Keep applying!"
+Empty state: chart icon (large, muted) + headline "Insights unlock at 5 applications" + body "Keep applying — your response rate, OA conversion, and offer trends appear here."
 
 ---
 
-## 6. Job Sync Updates
+## 6. Type Changes (`lib/types.ts`)
 
-### New repos to add (migration)
+### Extended `ExperienceEntry`
+```typescript
+export interface ExperienceEntry {
+  company: string
+  role: string
+  employment_type: 'full_time' | 'internship' | 'part_time' | 'contract'  // NEW
+  start: string
+  end: string | null
+  bullets: string[]
+}
+```
+
+### New `ProfileDetails` interface
+```typescript
+export interface ProfileDetails {
+  full_name: string | null
+  phone: string | null
+  location: string | null
+  bio: string | null
+  resume_url: string | null
+  portfolio_url: string | null
+}
+```
+
+### Extended `Profile`
+```typescript
+export interface Profile {
+  id: string
+  user_id: string
+  details: ProfileDetails        // NEW — stored in profile_details JSONB column
+  skills: string[]
+  education: EducationEntry[]
+  experience: ExperienceEntry[]
+  preferences: UserPreferences   // unchanged
+}
+```
+
+---
+
+## 7. Database Migration
+
+New migration `20260322000001_profile_details.sql`:
+```sql
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS profile_details JSONB DEFAULT '{}';
+```
+
+`UserPreferences` JSONB column remains strictly for job search prefs (`job_types`, `locations`, `remote_ok`, `min_salary`). Personal details go in the new `profile_details` column. No existing data is affected.
+
+Also add new job sources:
 ```sql
 INSERT INTO job_sources (repo_url, repo_name, job_type_tag, is_active) VALUES
   ('https://github.com/SimplifyJobs/Summer2026-Internships', 'SimplifyJobs/Summer2026-Internships', 'internship', true),
@@ -157,8 +230,14 @@ INSERT INTO job_sources (repo_url, repo_name, job_type_tag, is_active) VALUES
 ON CONFLICT DO NOTHING;
 ```
 
-### Vercel Cron
-Add to `vercel.json`:
+---
+
+## 8. Job Sync — Vercel Cron
+
+### New repos
+Added via migration above.
+
+### Vercel cron config (`vercel.json`)
 ```json
 {
   "crons": [{
@@ -168,50 +247,53 @@ Add to `vercel.json`:
 }
 ```
 
-The sync endpoint already validates via service role key. Vercel passes the `CRON_SECRET` header — add a check in `POST /api/jobs/sync` that accepts either `SUPABASE_SERVICE_ROLE_KEY` or Vercel's `CRON_SECRET`.
+### Auth update (`/api/jobs/sync` route)
+Vercel automatically sends `Authorization: Bearer <CRON_SECRET>` when `CRON_SECRET` env var is set. Update the route to accept either bearer token:
+
+```typescript
+const authHeader = request.headers.get('authorization')
+const token = authHeader?.replace('Bearer ', '')
+const isValid =
+  token === process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  token === process.env.CRON_SECRET
+if (!isValid) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+```
+
+Add `CRON_SECRET` to Vercel environment variables (any strong random string).
 
 ---
 
-## 7. New Files
+## 9. New Files
 
 ```
 apps/web/
 ├── app/
 │   ├── (dashboard)/
-│   │   ├── applications/
-│   │   │   └── [id]/page.tsx           # Application detail page (new)
-│   │   ├── calendar/page.tsx           # Stub (new)
-│   │   └── insights/page.tsx           # Stub (new)
+│   │   ├── applications/[id]/page.tsx     # Application detail (new)
+│   │   ├── calendar/page.tsx              # Stub (new)
+│   │   └── insights/page.tsx             # Stub (new)
 │   └── api/
-│       └── applications/
-│           └── [id]/route.ts           # GET single application (new)
-└── components/
-    ├── ui/                             # Rebuild: button, badge, input, card, tabs
-    ├── layout/
-    │   └── Sidebar.tsx                 # New sidebar component
-    ├── dashboard/
-    │   ├── PipelineKanban.tsx          # New (replaces ApplicationFunnel)
-    │   └── StatsBar.tsx                # New
-    ├── jobs/
-    │   ├── JobCard.tsx                 # Rebuild as grid card
-    │   └── CuratorsPick.tsx            # New highlight card
-    ├── applications/
-    │   ├── ApplicationKanban.tsx       # Update styles only
-    │   └── ApplicationDetail.tsx       # New detail view
-    └── profile/
-        └── ProfileForm.tsx             # Full rebuild — all sections
+│       └── applications/[id]/route.ts    # GET single application (new)
+├── components/
+│   ├── layout/
+│   │   └── Sidebar.tsx                   # Extracted sidebar (new)
+│   ├── dashboard/
+│   │   ├── PipelineKanban.tsx            # Replaces ApplicationFunnel + DashboardView
+│   │   └── StatsBar.tsx                  # New
+│   ├── jobs/
+│   │   └── JobCard.tsx                   # Rebuild as grid card
+│   ├── applications/
+│   │   └── ApplicationDetail.tsx         # New detail view client component
+│   └── profile/
+│       └── ProfileForm.tsx               # Full rebuild
+└── lib/
+    └── types.ts                          # Extended (ExperienceEntry, ProfileDetails, Profile)
 ```
 
 ---
 
-## 8. Data Model Changes
+## 10. Testing
 
-No schema changes required. All new profile fields (`phone`, `bio`, resume/portfolio URLs) stored in existing `profiles.preferences` JSONB column as additional keys.
-
----
-
-## 9. Testing
-
-- Existing 36 unit tests must continue to pass
-- Add component tests for: `PipelineKanban`, `JobCard` (grid variant), `ProfileForm` (section rendering)
-- No E2E changes required for this phase
+- **Updated tests:** `ApplicationFunnel.test.tsx` → rewritten as `PipelineKanban.test.tsx`. `JobCard.test.tsx` updated for grid variant. `ProfileForm.test.tsx` updated for new sections.
+- **New tests:** `ApplicationDetail.test.tsx` (renders timeline + notes textarea), `GET /api/applications/[id]` route test
+- **Unchanged:** All 8 non-component tests (types, vault, github/sync, auth callback, jobs list) must continue passing without modification
