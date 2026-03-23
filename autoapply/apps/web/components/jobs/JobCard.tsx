@@ -1,6 +1,10 @@
 import { Badge } from '@/components/ui/badge'
 import type { JobWithScore } from '@/lib/types'
 
+function stripHtml(raw: string): string {
+  return raw.replace(/<[^>]*>/g, ' ').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim()
+}
+
 interface Props {
   job: JobWithScore
   featured?: boolean
@@ -35,9 +39,10 @@ export function JobCard({ job, featured }: Props) {
       <div className="space-y-0.5 flex-1">
         <h3 className="text-sm font-semibold text-on-surface leading-snug">{job.title}</h3>
         <p className="text-sm text-on-surface-muted">{job.company}</p>
-        {job.location && (
-          <p className="text-xs text-on-surface-muted/70">{job.location}</p>
-        )}
+        {job.location && (() => {
+          const loc = stripHtml(job.location)
+          return <p className="text-xs text-on-surface-muted/70">{loc.length > 60 ? loc.slice(0, 60) + '…' : loc}</p>
+        })()}
       </div>
 
       {/* Footer */}
