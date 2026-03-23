@@ -3,10 +3,20 @@
 import { useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 import type { JobWithScore } from '@/lib/types'
 
 function stripHtml(raw: string): string {
   return raw.replace(/<[^>]*>/g, ' ').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim()
+}
+
+function getCompanyDomain(applyUrl: string | null, company: string): string | null {
+  if (applyUrl) {
+    try {
+      return new URL(applyUrl).hostname.replace('www.', '')
+    } catch { /* invalid URL */ }
+  }
+  return null
 }
 
 interface Props {
@@ -16,7 +26,12 @@ interface Props {
 
 export function JobCard({ job, featured }: Props) {
   const [hidden, setHidden] = useState(false)
+  const [applied, setApplied] = useState(false)
   const score = job.job_scores?.[0]?.score
+
+  const domain = getCompanyDomain(job.apply_url, job.company)
+  const logoUrl = domain ? `https://logo.clearbit.com/${domain}` : null
+  const [logoFailed, setLogoFailed] = useState(false)
 
   if (hidden) return null
 
@@ -25,13 +40,40 @@ export function JobCard({ job, featured }: Props) {
     setHidden(true)
   }
 
+  async function handleApply() {
+    if (job.apply_url) window.open(job.apply_url, '_blank', 'noopener,noreferrer')
+    try {
+      await fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          job_id: job.id,
+          status: 'applied',
+          applied_at: new Date().toISOString(),
+          source: 'manual',
+        }),
+      })
+      setApplied(true)
+      setTimeout(() => setApplied(false), 2000)
+    } catch { /* silent — URL already opened */ }
+  }
+
   return (
     <div className="bg-surface-card rounded-xl shadow-ambient p-5 flex flex-col gap-4 hover:shadow-[0_16px_48px_rgba(42,52,57,0.10)] transition-all border-t-2 border-transparent hover:border-[#0053db]/30">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
-        {/* Company logo placeholder */}
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0053db]/20 to-[#6366f1]/20 flex items-center justify-center text-sm font-semibold text-on-surface-muted shrink-0">
-          {job.company.slice(0, 2).toUpperCase()}
+        {/* Company logo */}
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0053db]/20 to-[#6366f1]/20 flex items-center justify-center text-sm font-semibold text-[#0053db] shrink-0 overflow-hidden">
+          {logoUrl && !logoFailed ? (
+            <img
+              src={logoUrl}
+              alt={job.company}
+              className="w-full h-full object-contain p-1.5"
+              onError={() => setLogoFailed(true)}
+            />
+          ) : (
+            <span>{job.company.slice(0, 2).toUpperCase()}</span>
+          )}
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {featured && (
@@ -74,14 +116,15 @@ export function JobCard({ job, featured }: Props) {
           )}
         </div>
         {job.apply_url ? (
-          <a
-            href={job.apply_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="h-8 px-4 gradient-primary text-white text-xs font-medium rounded-xl inline-flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+          <button
+            onClick={handleApply}
+            className={cn(
+              'h-8 px-4 text-white text-xs font-medium rounded-xl inline-flex items-center gap-1.5 transition-all',
+              applied ? 'bg-green-500' : 'gradient-primary hover:opacity-90'
+            )}
           >
-            Apply <ArrowUpRight size={13} />
-          </a>
+            {applied ? '✓ Applied' : (<>Apply <ArrowUpRight size={13} /></>)}
+          </button>
         ) : (
           <span className="text-xs text-on-surface-muted/50">No link</span>
         )}
