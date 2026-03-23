@@ -152,6 +152,16 @@ export function ProfileForm({ initialProfile }: Props) {
                 <Input label="End" id={`exp_end_${i}`} placeholder="Present"
                   value={exp.end ?? ''} onChange={e => setExperience(ex => ex.map((x, j) => j === i ? { ...x, end: e.target.value || null } : x))} />
               </div>
+              <div className="space-y-1.5">
+                <label className="block label-sm text-on-surface-muted">Description / Bullet Points (one per line)</label>
+                <textarea
+                  rows={3}
+                  className="w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-[#0053db]/20 placeholder:text-on-surface-muted/50 resize-none"
+                  placeholder="• Led development of...&#10;• Improved performance by...&#10;• Built and shipped..."
+                  value={(exp.bullets ?? []).join('\n')}
+                  onChange={e => setExperience(ex => ex.map((x, j) => j === i ? { ...x, bullets: e.target.value.split('\n') } : x))}
+                />
+              </div>
               <div className="flex items-center justify-end">
                 <button type="button" onClick={() => setExperience(ex => ex.filter((_, j) => j !== i))}
                   className="text-xs text-on-surface-muted/60 hover:text-red-500 transition-colors">
@@ -198,6 +208,17 @@ export function ProfileForm({ initialProfile }: Props) {
                 <Input label="GPA (optional)" id={`edu_gpa_${i}`} type="number" step="0.01"
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   value={(edu as any).gpa ?? ''} onChange={e => setEducation(ed => ed.map((x, j) => j === i ? { ...x, gpa: e.target.value ? Number(e.target.value) : undefined } : x))} />
+                <div className="col-span-2 space-y-1.5">
+                  <label className="block label-sm text-on-surface-muted">Description (optional)</label>
+                  <textarea
+                    rows={2}
+                    className="w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-[#0053db]/20 placeholder:text-on-surface-muted/50 resize-none"
+                    placeholder="Relevant coursework, honors, activities..."
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    value={(edu as any).description ?? ''}
+                    onChange={e => setEducation(ed => ed.map((x, j) => j === i ? { ...x, description: e.target.value } : x))}
+                  />
+                </div>
               </div>
               <div className="flex items-center justify-end">
                 <button type="button" onClick={() => setEducation(ed => ed.filter((_, j) => j !== i))}
