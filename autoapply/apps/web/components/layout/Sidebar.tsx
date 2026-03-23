@@ -40,8 +40,8 @@ export function Sidebar({ userEmail }: Props) {
     <aside className="w-52 shrink-0 flex flex-col bg-surface-container min-h-screen px-3 py-5 gap-1">
       {/* Logo */}
       <div className="px-3 mb-6 flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shrink-0" />
-        <span className="text-base font-bold text-on-surface tracking-tight">
+        <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shrink-0" />
+        <span className="text-lg font-bold text-on-surface tracking-tight">
           Auto<span className="text-blue-500">Apply</span>
         </span>
       </div>
@@ -72,6 +72,9 @@ export function Sidebar({ userEmail }: Props) {
           )
         })}
       </nav>
+
+      {/* Separator */}
+      <div className="border-t border-on-surface/5 my-2" />
 
       {/* Bottom: user + CTA + logout */}
       <div className="space-y-2 pt-2">

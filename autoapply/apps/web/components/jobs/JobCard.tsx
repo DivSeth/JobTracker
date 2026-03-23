@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { ArrowUpRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import type { JobWithScore } from '@/lib/types'
 
@@ -25,11 +26,11 @@ export function JobCard({ job, featured }: Props) {
   }
 
   return (
-    <div className="bg-surface-card rounded-xl shadow-ambient p-5 flex flex-col gap-4 hover:shadow-[0_16px_48px_rgba(42,52,57,0.10)] transition-shadow">
+    <div className="bg-surface-card rounded-xl shadow-ambient p-5 flex flex-col gap-4 hover:shadow-[0_16px_48px_rgba(42,52,57,0.10)] transition-all border-t-2 border-transparent hover:border-[#0053db]/30">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         {/* Company logo placeholder */}
-        <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-sm font-semibold text-on-surface-muted shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0053db]/20 to-[#6366f1]/20 flex items-center justify-center text-sm font-semibold text-on-surface-muted shrink-0">
           {job.company.slice(0, 2).toUpperCase()}
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
@@ -77,9 +78,9 @@ export function JobCard({ job, featured }: Props) {
             href={job.apply_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="h-8 px-4 gradient-primary text-white text-xs font-medium rounded-xl inline-flex items-center hover:opacity-90 transition-opacity"
+            className="h-8 px-4 gradient-primary text-white text-xs font-medium rounded-xl inline-flex items-center gap-1.5 hover:opacity-90 transition-opacity"
           >
-            Apply ↗
+            Apply <ArrowUpRight size={13} />
           </a>
         ) : (
           <span className="text-xs text-on-surface-muted/50">No link</span>
