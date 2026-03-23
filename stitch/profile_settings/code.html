@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-dim": "#0048c1",
+              "surface-variant": "#d9e4ea",
+              "primary-fixed": "#dbe1ff",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed": "#d5e3fc",
+              "on-tertiary-fixed-variant": "#006544",
+              "tertiary-fixed": "#69f6b8",
+              "background": "#f7f9fb",
+              "surface-container-low": "#f0f4f7",
+              "on-surface-variant": "#566166",
+              "surface": "#f7f9fb",
+              "on-primary-container": "#0048bf",
+              "on-tertiary": "#e6ffee",
+              "primary-fixed-dim": "#c7d3ff",
+              "tertiary": "#006d4a",
+              "on-secondary-fixed": "#324053",
+              "surface-container": "#e8eff3",
+              "outline": "#717c82",
+              "on-tertiary-fixed": "#00452d",
+              "primary": "#0053db",
+              "on-primary": "#f8f7ff",
+              "on-secondary": "#f8f8ff",
+              "tertiary-fixed-dim": "#58e7ab",
+              "secondary-dim": "#465468",
+              "tertiary-container": "#69f6b8",
+              "error-container": "#fe8983",
+              "inverse-primary": "#618bff",
+              "on-secondary-fixed-variant": "#4e5c71",
+              "error": "#9f403d",
+              "on-secondary-container": "#455367",
+              "surface-dim": "#cfdce3",
+              "surface-tint": "#0053db",
+              "on-primary-fixed-variant": "#0050d4",
+              "primary-container": "#dbe1ff",
+              "on-tertiary-container": "#005a3c",
+              "error-dim": "#4e0309",
+              "surface-container-highest": "#d9e4ea",
+              "inverse-surface": "#0b0f10",
+              "surface-container-high": "#e1e9ee",
+              "on-background": "#2a3439",
+              "on-error-container": "#752121",
+              "secondary": "#526074",
+              "outline-variant": "#a9b4b9",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-dim": "#005f40",
+              "secondary-fixed-dim": "#c7d5ed",
+              "on-surface": "#2a3439",
+              "inverse-on-surface": "#9a9d9f",
+              "secondary-container": "#d5e3fc",
+              "on-error": "#fff7f6",
+              "on-primary-fixed": "#003798"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "1rem", "xl": "1.25rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d9e4ea; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen overflow-hidden">
+<!-- SideNavBar Component -->
+<aside class="hidden md:flex flex-col h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl p-4 shrink-0">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-lg" data-icon="work">work</span>
+</div>
+<div>
+<h1 class="text-lg font-bold tracking-tighter text-slate-900 dark:text-slate-100">Job OS</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">The Digital Curator</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200 font-sans text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200 font-sans text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span>Applications</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200 font-sans text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span>Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200 font-sans text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span>Insights</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-slate-200/50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg font-sans text-sm font-medium tracking-tight scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span>Profile</span>
+</a>
+</nav>
+<div class="mt-auto pt-4">
+<button class="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-primary-dim text-on-primary py-2.5 rounded-lg font-medium text-sm shadow-sm hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+<span>New Application</span>
+</button>
+<div class="mt-6 flex items-center gap-3 px-2 py-3 bg-surface-container-low rounded-xl">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="User avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsleItlHE4piRDyw0LxEFB0KNFWjsDU_ybTOxIFX4OrgLq6a7NS9V7FmFblxm_sqdTDqe7Iltgp1Y5SmTv0037XpaCbAtTcV999kjrOO_gaNfKKs5BOa_OBaNSw6i5i4iy0EVWJXjnHODwrcwldlRu7MqwRQLJWoAj6odl9PNZooD3c98joa98UJK_ob_c8g6OeuITjahSavDwLo2s53lHZCAoppHAbLeFGoqGju1X9M3VlyD8VayLPoMPZX1kEvofR7WGJ3BMEhTY"/>
+<div class="min-w-0">
+<p class="text-xs font-bold truncate">Alex Rivera</p>
+<p class="text-[10px] text-on-surface-variant truncate">Standard Plan</p>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+<!-- TopNavBar Component -->
+<header class="sticky top-0 z-40 flex items-center justify-between px-6 w-full h-14 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search profiles or data..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 text-slate-500 transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 text-slate-500 transition-all">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant/20 mx-2"></div>
+<button class="flex items-center gap-2 pl-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-1 transition-all">
+<img class="w-7 h-7 rounded-full object-cover" data-alt="User profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsbbvpPx-EeMr-eAR8HSouSPrUeO7vwjxBA4kkGzCzZgW11EEodPECS7xDT4eohSXUNvqelan_jgJ_0E7EBwm9MQsHvxqSoAoakEGP9Xqm0qRWuvexs_AXEoGCMXhzZcrqE2aJDkJTrW4v1JC3ocQ0nCVVx-9aUJ3mLWd8QIC87xH3GdfiLUMXTCAKEACIxB9t45ZL3yfzsnLuQOhhoFmJ_caFH6Xyq5B8aIPOe_VW5S20SWGB3yO4A2C7HShTveeQzb5ayNsyHU9m"/>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto custom-scrollbar bg-surface">
+<div class="max-w-5xl mx-auto px-8 py-12">
+<!-- Header Section -->
+<div class="mb-12">
+<span class="text-[11px] font-bold tracking-[0.2em] text-primary uppercase mb-3 block">Account Management</span>
+<h2 class="text-5xl font-bold tracking-tight text-on-background mb-4">Autofill Profile</h2>
+<p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed">This data powers your automated job applications. Keep it polished and concise to increase your match rate.</p>
+</div>
+<!-- Bento-ish Grid for Profile sections -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Sidebar Column (Identity Summary) -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary opacity-20 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex flex-col items-center text-center">
+<div class="relative mb-6">
+<img class="w-24 h-24 rounded-2xl object-cover shadow-lg" data-alt="Large user portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgDv3jd_7oFbe0bffXW8ya9UL31kNEqYWRobE32HyOUimE3qjdZJOf3-nJARzvA214qhYgfoKQcaCEylaf6iXrwr5ZDMius9pMGBmOIEyPenVz9gHzKfMo8V7Lp2siGVeTLaoXnBsR3X4-Vlh-whRb_qI-i0FICxRcCTM-O-DvW8XwO-EQC4JzrTOdhTeneiSTguoNQuF3kxroRetP6erANmLa2-xzZDNOgnzyk_4Kb6lW8tp9gClKaGsxhG7wSF-0zUYNr0txq8jF"/>
+<button class="absolute -bottom-2 -right-2 bg-white p-2 rounded-lg shadow-md hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+</div>
+<h3 class="text-xl font-bold mb-1">Alex Rivera</h3>
+<p class="text-sm text-on-surface-variant mb-6">Senior Product Designer</p>
+<div class="w-full space-y-3">
+<div class="flex items-center justify-between text-xs px-4 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">Profile Score</span>
+<span class="font-bold text-primary">92%</span>
+</div>
+<div class="flex items-center justify-between text-xs px-4 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">Last Update</span>
+<span class="font-bold">2 days ago</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<h4 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4">Quick Links</h4>
+<div class="space-y-2">
+<a class="flex items-center justify-between p-3 rounded-lg hover:bg-white transition-all group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-dim" data-icon="description">description</span>
+<span class="text-sm font-medium">Resume_2024.pdf</span>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="download">download</span>
+</a>
+<a class="flex items-center justify-between p-3 rounded-lg hover:bg-white transition-all group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-dim" data-icon="link">link</span>
+<span class="text-sm font-medium">Portfolio Website</span>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Main Form Column -->
+<div class="col-span-12 lg:col-span-8 space-y-8">
+<!-- Personal Info Section -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_12px_40px_rgba(42,52,57,0.04)]">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-xl font-bold tracking-tight">Personal Details</h3>
+<span class="material-symbols-outlined text-on-surface-variant/30" data-icon="contact_page">contact_page</span>
+</div>
+<div class="grid grid-cols-2 gap-x-8 gap-y-6">
+<div class="col-span-2 sm:col-span-1">
+<label class="block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Full Legal Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all" type="text" value="Alex Rivera"/>
+</div>
+<div class="col-span-2 sm:col-span-1">
+<label class="block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Email Address</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all" type="email" value="alex.rivera@design.com"/>
+</div>
+<div class="col-span-2 sm:col-span-1">
+<label class="block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Phone Number</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all" type="tel" value="+1 (555) 000-0000"/>
+</div>
+<div class="col-span-2 sm:col-span-1">
+<label class="block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Location</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all" type="text" value="San Francisco, CA"/>
+</div>
+<div class="col-span-2">
+<label class="block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Short Bio</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all resize-none" rows="3">Product Designer specializing in design systems and high-growth fintech platforms. Focused on bridging the gap between complexity and usability.</textarea>
+</div>
+</div>
+</section>
+<!-- Experience Section -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_12px_40px_rgba(42,52,57,0.04)]">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-xl font-bold tracking-tight">Work Experience</h3>
+<button class="flex items-center gap-1 text-primary text-xs font-bold uppercase tracking-widest hover:bg-primary-container/30 px-3 py-1.5 rounded-full transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                                    Add Position
+                                </button>
+</div>
+<div class="space-y-8">
+<!-- Experience Item -->
+<div class="relative pl-8 pb-8 border-l border-outline-variant/20">
+<div class="absolute left-[-5px] top-0 w-[9px] h-[9px] bg-primary rounded-full"></div>
+<div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-3">
+<div>
+<h4 class="font-bold text-base">Senior Product Designer</h4>
+<p class="text-sm text-primary font-medium">Stripe • Full-time</p>
+</div>
+<span class="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">JAN 2021 — PRESENT</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Lead the evolution of the Billing dashboard, increasing payment success awareness by 14% through proactive UI signals.</p>
+</div>
+<!-- Experience Item -->
+<div class="relative pl-8 border-l border-outline-variant/20">
+<div class="absolute left-[-5px] top-0 w-[9px] h-[9px] bg-outline-variant/40 rounded-full"></div>
+<div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-3">
+<div>
+<h4 class="font-bold text-base">Interaction Designer</h4>
+<p class="text-sm text-on-surface-variant font-medium">Figma • Contract</p>
+</div>
+<span class="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">MAR 2019 — DEC 2020</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Contributed to the initial prototypes for Auto Layout 3.0 and refined the component property workflow.</p>
+</div>
+</div>
+</section>
+<!-- Education Section -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_12px_40px_rgba(42,52,57,0.04)]">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-xl font-bold tracking-tight">Education</h3>
+<span class="material-symbols-outlined text-on-surface-variant/30" data-icon="school">school</span>
+</div>
+<div class="flex items-start gap-6 p-4 bg-surface-container-low rounded-xl">
+<div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="account_balance">account_balance</span>
+</div>
+<div class="flex-1">
+<div class="flex flex-col sm:flex-row justify-between items-start mb-1">
+<h4 class="font-bold text-sm">Rhode Island School of Design</h4>
+<span class="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary-container rounded uppercase">Graduated</span>
+</div>
+<p class="text-sm font-medium text-on-surface mb-2">BFA in Graphic Design</p>
+<p class="text-xs text-on-surface-variant">GPA: 3.9/4.0 • Honors List 2018</p>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer Action Bar -->
+<div class="mt-12 pt-8 border-t border-outline-variant/10 flex flex-col sm:flex-row items-center justify-between gap-6">
+<p class="text-xs text-on-surface-variant">Your profile is automatically synced across 12 job boards.</p>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors">Discard Changes</button>
+<button class="px-8 py-2.5 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-xl font-bold text-sm shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all">Save Profile Changes</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Bottom Navigation (Destination Rule) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-outline-variant/10 flex items-center justify-around h-16 px-4 z-50">
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-medium">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="folder_open">folder_open</span>
+<span class="text-[10px] font-medium">Jobs</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-[10px] font-bold">Profile</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="insights">insights</span>
+<span class="text-[10px] font-medium">Insights</span>
+</a>
+</nav>
+</body></html>

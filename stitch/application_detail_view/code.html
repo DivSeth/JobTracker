@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Application Detail | Job Application OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary-dim": "#0048c1",
+                "surface-variant": "#d9e4ea",
+                "primary-fixed": "#dbe1ff",
+                "surface-bright": "#f7f9fb",
+                "secondary-fixed": "#d5e3fc",
+                "on-tertiary-fixed-variant": "#006544",
+                "tertiary-fixed": "#69f6b8",
+                "background": "#f7f9fb",
+                "surface-container-low": "#f0f4f7",
+                "on-surface-variant": "#566166",
+                "surface": "#f7f9fb",
+                "on-primary-container": "#0048bf",
+                "on-tertiary": "#e6ffee",
+                "primary-fixed-dim": "#c7d3ff",
+                "tertiary": "#006d4a",
+                "on-secondary-fixed": "#324053",
+                "surface-container": "#e8eff3",
+                "outline": "#717c82",
+                "on-tertiary-fixed": "#00452d",
+                "primary": "#0053db",
+                "on-primary": "#f8f7ff",
+                "on-secondary": "#f8f8ff",
+                "tertiary-fixed-dim": "#58e7ab",
+                "secondary-dim": "#465468",
+                "tertiary-container": "#69f6b8",
+                "error-container": "#fe8983",
+                "inverse-primary": "#618bff",
+                "on-secondary-fixed-variant": "#4e5c71",
+                "error": "#9f403d",
+                "on-secondary-container": "#455367",
+                "surface-dim": "#cfdce3",
+                "surface-tint": "#0053db",
+                "on-primary-fixed-variant": "#0050d4",
+                "primary-container": "#dbe1ff",
+                "on-tertiary-container": "#005a3c",
+                "error-dim": "#4e0309",
+                "surface-container-highest": "#d9e4ea",
+                "inverse-surface": "#0b0f10",
+                "surface-container-high": "#e1e9ee",
+                "on-background": "#2a3439",
+                "on-error-container": "#752121",
+                "secondary": "#526074",
+                "outline-variant": "#a9b4b9",
+                "surface-container-lowest": "#ffffff",
+                "tertiary-dim": "#005f40",
+                "secondary-fixed-dim": "#c7d5ed",
+                "on-surface": "#2a3439",
+                "inverse-on-surface": "#9a9d9f",
+                "secondary-container": "#d5e3fc",
+                "on-error": "#fff7f6",
+                "on-primary-fixed": "#003798"
+              },
+              fontFamily: {
+                "headline": ["Inter"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "1rem", "xl": "1.25rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col p-4 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl sticky top-0 shrink-0">
+<div class="mb-8 px-2">
+<h1 class="text-lg font-bold tracking-tighter text-slate-900 dark:text-slate-100">Job OS</h1>
+<p class="text-xs text-slate-500 font-medium">The Digital Curator</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200 font-sans text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 bg-slate-200/50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg font-sans text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+                Applications
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200 font-sans text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+                Calendar
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200 font-sans text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+                Insights
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200 font-sans text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+                Profile
+            </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-slate-200/50">
+<div class="flex items-center gap-3 px-2">
+<img alt="User avatar" class="w-8 h-8 rounded-full object-cover" data-alt="Close up professional portrait of a person" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKAO2IHBbDVFPyQWdoANRrBanLhEn8qal0JDH2SKt2Mmy0cas9Tidp3x3NuPtWcDt2tML8Y7aqU2Nzj_bu2owq1bVv9BjlA9vg8gr_dh51G8gBjAxIpQMSadO2UFI0P9r-g5-hx_BqT8eMY6urbnw_B6VGRhWr9jhXHJivhtyxdPfaFU_pJlDjY8XDisHcoSF_pH1JkvoJh7JRUjQD6OJsGxaP_SqYISzt8pasyVZ6OkoYjnxG_n0qHjR1gdrV_OOVlCptUscH6pDI"/>
+<div class="overflow-hidden">
+<p class="text-sm font-semibold truncate">Alex Rivera</p>
+<p class="text-xs text-on-surface-variant truncate">Premium Curator</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0">
+<!-- TopNavBar Component -->
+<header class="sticky top-0 z-40 flex items-center justify-between px-6 w-full h-14 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-slate-200/50 dark:border-slate-800/50">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-1.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Search applications..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 text-slate-500 transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 text-slate-500 transition-colors">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</button>
+<div class="h-6 w-px bg-slate-200 mx-2"></div>
+<button class="bg-primary text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-primary-dim transition-colors">
+                    New Application
+                </button>
+</div>
+</header>
+<!-- Content Stage -->
+<div class="p-8 max-w-7xl mx-auto w-full space-y-8">
+<!-- Hero Header Section -->
+<section class="flex flex-col md:flex-row justify-between items-start gap-6">
+<div class="flex gap-6 items-center">
+<div class="w-20 h-20 rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-center p-4">
+<img alt="Stripe Logo" class="w-full h-full object-contain grayscale opacity-80" data-alt="Sleek corporate logo of a fintech company" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTZEeDHNEzoMiudQWoBQ_E-16oWtUpLO3vcRAk_DlZIekRD-3HJHCpKlhSXMsPVbaarznSrir574ew8O03pkSPptxvvjeY7W7uxpn4_YeY4-Bn8UjkksWZE9sxIFRxK4WUIccknywFOEWxxsyfe1YmW_KXmRYdaMuA4cGRpNyNQu0vVNy2auS8AXg9LQ_cz5YVNMcgvH8S2WcfeMvQLYS2iCt_0tf59CCBhvdc7uqT3HpdEiX4IXo3YY1CKosGYe375pBsQWxEKsE0"/>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] font-bold tracking-widest px-2 py-0.5 rounded uppercase">INTERVIEWING</span>
+<span class="text-on-surface-variant text-sm font-medium">• Stripe</span>
+</div>
+<h2 class="text-4xl font-bold tracking-tight text-on-surface">Senior Product Designer</h2>
+<p class="text-on-surface-variant mt-1">Design Systems &amp; Frameworks • San Francisco, CA (Remote)</p>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 bg-surface-container-high text-on-surface rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors">
+                        Edit Details
+                    </button>
+<button class="px-6 py-2 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-lg text-sm font-bold shadow-md shadow-primary/10">
+                        Update Status
+                    </button>
+</div>
+</section>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Main Activity Rail -->
+<div class="md:col-span-8 space-y-6">
+<!-- Timeline Section -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_12px_40px_rgba(42,52,57,0.04)]">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-8">Status Timeline</h3>
+<div class="relative">
+<div class="absolute left-3 top-0 bottom-0 w-px bg-outline-variant/20"></div>
+<div class="space-y-10 relative">
+<!-- Future/Next -->
+<div class="flex gap-6 items-start group">
+<div class="z-10 w-6 h-6 rounded-full border-2 border-primary bg-surface-container-lowest flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-bold text-on-surface">On-site Interviews (Virtual)</h4>
+<span class="text-xs font-bold text-primary px-2 py-1 bg-primary/5 rounded">UPCOMING</span>
+</div>
+<p class="text-sm text-on-surface-variant mt-1">Scheduled for Oct 24, 2023 • 4 Panels</p>
+</div>
+</div>
+<!-- Current -->
+<div class="flex gap-6 items-start">
+<div class="z-10 w-6 h-6 rounded-full border-2 border-outline-variant bg-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-tertiary" data-icon="check" style="font-variation-settings: 'FILL' 0, 'wght' 700;">check</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface">Technical Design Challenge</h4>
+<p class="text-sm text-on-surface-variant mt-1">Completed Oct 15 • Reviewed by Hiring Manager</p>
+</div>
+</div>
+<!-- Past -->
+<div class="flex gap-6 items-start">
+<div class="z-10 w-6 h-6 rounded-full border-2 border-outline-variant bg-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-tertiary" data-icon="check" style="font-variation-settings: 'FILL' 0, 'wght' 700;">check</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface">Initial Screen</h4>
+<p class="text-sm text-on-surface-variant mt-1">Oct 10 • Recruiter: Sarah Jenkins</p>
+</div>
+</div>
+<!-- Start -->
+<div class="flex gap-6 items-start">
+<div class="z-10 w-6 h-6 rounded-full border-2 border-outline-variant bg-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-tertiary" data-icon="check" style="font-variation-settings: 'FILL' 0, 'wght' 700;">check</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface">Application Submitted</h4>
+<p class="text-sm text-on-surface-variant mt-1">Oct 01 • Referral via James Wilson</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Email History -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_12px_40px_rgba(42,52,57,0.04)]">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Communications</h3>
+<button class="text-primary text-xs font-bold hover:underline">Sync Outlook</button>
+</div>
+<div class="space-y-4">
+<div class="p-4 rounded-lg bg-surface-container-low/50 hover:bg-surface-container-low transition-colors cursor-pointer border border-transparent hover:border-outline-variant/10">
+<div class="flex justify-between mb-2">
+<span class="text-xs font-bold text-on-surface">Sarah Jenkins (Stripe)</span>
+<span class="text-[10px] text-on-surface-variant">2 days ago</span>
+</div>
+<h5 class="text-sm font-semibold mb-1">Interview Confirmation: On-site Panels</h5>
+<p class="text-sm text-on-surface-variant line-clamp-1">Hi Alex, we've finalized the schedule for your virtual on-site on the 24th...</p>
+</div>
+<div class="p-4 rounded-lg bg-surface-container-low/50 hover:bg-surface-container-low transition-colors cursor-pointer border border-transparent hover:border-outline-variant/10">
+<div class="flex justify-between mb-2">
+<span class="text-xs font-bold text-on-surface">Stripe Recruiting</span>
+<span class="text-[10px] text-on-surface-variant">Oct 14</span>
+</div>
+<h5 class="text-sm font-semibold mb-1">Design Exercise Materials</h5>
+<p class="text-sm text-on-surface-variant line-clamp-1">Thank you for accepting the challenge. Attached you'll find the brief for...</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Action & Metadata Sidebar -->
+<div class="md:col-span-4 space-y-6">
+<!-- Deadlines & Reminders -->
+<div class="bg-surface-container-high/50 backdrop-blur-sm p-6 rounded-xl border border-white/50">
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="alarm">alarm</span>
+                            Deadlines &amp; Reminders
+                        </h3>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-2 h-10 rounded-full bg-error shrink-0"></div>
+<div>
+<p class="text-sm font-bold text-on-surface">Submit Portfolio V2</p>
+<p class="text-xs text-error font-medium">Due in 4 hours</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-10 rounded-full bg-primary shrink-0"></div>
+<div>
+<p class="text-sm font-bold text-on-surface">Prep for App Critique</p>
+<p class="text-xs text-on-surface-variant">Oct 23 • Morning</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-2 text-xs font-bold text-primary bg-primary/5 rounded-lg border border-primary/10 hover:bg-primary/10 transition-colors">
+                            + Add Reminder
+                        </button>
+</div>
+<!-- Notes Section -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_12px_40px_rgba(42,52,57,0.04)]">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Interview Notes</h3>
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="sticky_note_2">sticky_note_2</span>
+</div>
+<div class="space-y-4">
+<div class="bg-surface-container-low p-4 rounded-lg">
+<p class="text-xs leading-relaxed text-on-surface italic">
+                                    "Sarah mentioned they are prioritizing someone with strong experience in multi-platform design systems (Web + Mobile)."
+                                </p>
+</div>
+<ul class="text-xs space-y-2 text-on-surface-variant font-medium">
+<li class="flex items-start gap-2">
+<span class="text-primary">•</span>
+                                    Highlight the 'Core UI' project from 2022.
+                                </li>
+<li class="flex items-start gap-2">
+<span class="text-primary">•</span>
+                                    Ask about team structure for Stripe Connect.
+                                </li>
+<li class="flex items-start gap-2">
+<span class="text-primary">•</span>
+                                    Mention experience with Figma Tokens/API.
+                                </li>
+</ul>
+<textarea class="w-full bg-surface-container-low border-none rounded-lg p-3 text-xs focus:ring-1 focus:ring-primary/20 min-h-[100px] resize-none" placeholder="Type a new note..."></textarea>
+</div>
+</div>
+<!-- Quick Links -->
+<div class="grid grid-cols-2 gap-3">
+<a class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="description">description</span>
+<span class="text-[10px] font-bold text-on-surface">Resume Sent</span>
+</a>
+<a class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-colors group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="link">link</span>
+<span class="text-[10px] font-bold text-on-surface">Job Posting</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

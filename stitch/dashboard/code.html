@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-dim": "#0048c1",
+              "surface-variant": "#d9e4ea",
+              "primary-fixed": "#dbe1ff",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed": "#d5e3fc",
+              "on-tertiary-fixed-variant": "#006544",
+              "tertiary-fixed": "#69f6b8",
+              "background": "#f7f9fb",
+              "surface-container-low": "#f0f4f7",
+              "on-surface-variant": "#566166",
+              "surface": "#f7f9fb",
+              "on-primary-container": "#0048bf",
+              "on-tertiary": "#e6ffee",
+              "primary-fixed-dim": "#c7d3ff",
+              "tertiary": "#006d4a",
+              "on-secondary-fixed": "#324053",
+              "surface-container": "#e8eff3",
+              "outline": "#717c82",
+              "on-tertiary-fixed": "#00452d",
+              "primary": "#0053db",
+              "on-primary": "#f8f7ff",
+              "on-secondary": "#f8f8ff",
+              "tertiary-fixed-dim": "#58e7ab",
+              "secondary-dim": "#465468",
+              "tertiary-container": "#69f6b8",
+              "error-container": "#fe8983",
+              "inverse-primary": "#618bff",
+              "on-secondary-fixed-variant": "#4e5c71",
+              "error": "#9f403d",
+              "on-secondary-container": "#455367",
+              "surface-dim": "#cfdce3",
+              "surface-tint": "#0053db",
+              "on-primary-fixed-variant": "#0050d4",
+              "primary-container": "#dbe1ff",
+              "on-tertiary-container": "#005a3c",
+              "error-dim": "#4e0309",
+              "surface-container-highest": "#d9e4ea",
+              "inverse-surface": "#0b0f10",
+              "surface-container-high": "#e1e9ee",
+              "on-background": "#2a3439",
+              "on-error-container": "#752121",
+              "secondary": "#526074",
+              "outline-variant": "#a9b4b9",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-dim": "#005f40",
+              "secondary-fixed-dim": "#c7d5ed",
+              "on-surface": "#2a3439",
+              "inverse-on-surface": "#9a9d9f",
+              "secondary-container": "#d5e3fc",
+              "on-error": "#fff7f6",
+              "on-primary-fixed": "#003798"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "1rem", "xl": "1.25rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed">
+<div class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 flex flex-col p-4 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl sticky top-0 shrink-0">
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-dim flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg">layers</span>
+</div>
+<div>
+<h1 class="text-lg font-bold tracking-tighter text-slate-900 dark:text-slate-100">Job OS</h1>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">The Digital Curator</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight bg-slate-200/50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span>Applications</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span>Insights</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span>Profile</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/10">
+<button class="w-full bg-gradient-to-br from-primary to-primary-dim text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>New Application</span>
+</button>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 min-w-0 flex flex-col bg-surface overflow-hidden">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-40 flex items-center justify-between px-8 w-full h-14 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+<div class="flex items-center bg-surface-container-low px-4 py-1.5 rounded-full w-96 group focus-within:ring-2 ring-blue-500/20 transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-on-surface-variant" placeholder="Search applications..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 text-on-surface-variant relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 text-on-surface-variant">
+<span class="material-symbols-outlined">mail</span>
+</button>
+</div>
+<div class="h-8 w-px bg-outline-variant/20 mx-1"></div>
+<div class="flex items-center gap-3 group cursor-pointer">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30">
+<img class="w-full h-full object-cover" data-alt="Professional user profile headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNV16xhmIhsEEanLfU1m8Lg69lLRXHNzxSNsB0glsGnUqtvBLNwDXk9dzt7ds_Z4sS5qM9JWidiSN6PP6Zqs5Q6UaRHwG_MOUKcRjk0E1pmxxvcP1yVhVuW-C3flENLT_M3Lp8DGRRi1-GnXdjsMUT8k1A0EUa-OBNiQiMovjwtUbx6JzfqgssPlxEnhohFDM-mh0VvOpipmjHz1Mz4qOVTLiH-m5slWiU0tRw1uJAX6KdKI_iYFcU8pHMhm7B6-yJDC3XyJahYeiU"/>
+</div>
+<span class="text-sm font-medium text-on-surface">Alex Rivera</span>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-8 space-y-8 overflow-y-auto">
+<!-- Hero / Stats Section -->
+<section class="grid grid-cols-12 gap-6 items-start">
+<div class="col-span-12 lg:col-span-8">
+<h2 class="text-3xl font-headline font-bold text-on-surface tracking-tight mb-2">Application Pipeline</h2>
+<p class="text-on-surface-variant body-md">Manage your active pursuits across 5 strategic stages.</p>
+</div>
+<div class="col-span-12 lg:col-span-4 flex justify-end">
+<div class="flex gap-2">
+<div class="px-4 py-2 bg-surface-container-low rounded-xl flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">analytics</span>
+<div>
+<div class="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider">Conversion</div>
+<div class="text-sm font-bold">65% OA Rate</div>
+</div>
+</div>
+<div class="px-4 py-2 bg-surface-container-low rounded-xl flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary">send</span>
+<div>
+<div class="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider">Volume</div>
+<div class="text-sm font-bold">42 Sent</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Kanban Board -->
+<section class="grid grid-cols-5 gap-4 h-full min-h-[500px]">
+<!-- Column: Applied -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-slate-400"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Applied</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">12</span>
+</div>
+<div class="space-y-3">
+<div class="glass-card p-4 rounded-xl border-l-4 border-slate-400 shadow-sm hover:surface-container-high transition-all cursor-pointer">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center border border-outline-variant/10">
+<img class="w-6 h-6 object-contain" data-alt="Stripe corporate logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPnwb6EG9gkyxu8m1rpQLbBf-3HlmPGVGHoQX3TdHnFmxnisXY5hYMmN_aq5aaHfE8Do-csmU3pOymlOeSEvkoNYKr3LgTVHx42VhSKrJMXYT_G_OToqIfEg74rZaWKKcPyqkCycVOGCdO40Ycwu1YNLqb8PAA3Toh-DuUNgNLDmec6dgzy5vkChBG0fBUcvOv511bcxRA01ctNCl0A_12WZmMrq2KYLj8__FefvFr9eV8Ah1mc5fmkh6x92wXDEz1Ii9YRkK2P5ZN"/>
+</div>
+<div>
+<div class="text-xs font-bold">Stripe</div>
+<div class="text-[11px] text-on-surface-variant">Backend Engineer</div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="label-sm px-2 py-0.5 bg-surface-container text-on-surface-variant rounded text-[10px] font-bold">TECH</span>
+<span class="text-[10px] text-on-surface-variant italic">2d ago</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: OA -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">OA</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">4</span>
+</div>
+<div class="space-y-3">
+<div class="glass-card p-4 rounded-xl border-l-4 border-primary shadow-sm hover:surface-container-high transition-all cursor-pointer">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center border border-outline-variant/10">
+<img class="w-6 h-6 object-contain" data-alt="Figma company logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXQVxab8PSDEIAr6qLGiDTHlUuJs2hD6166hBFCw3MsWqBIP9j7g3gH9ycGVOc03Ccb0Y__Zhsb_vyZmrtyrRUApCTZPDlHryEorkQZ6ye8zJjOIvloCZOWSN8TXIPVuOCRaWMV_c2ZQlzLdB-GxoRm-FCNId-m3sor7CFALdZ7e42-Z98GPtJWUpR_QtR2NgrKvlJhcD8ozPVB0YufyqY3SZ0iEDIYeCKHQLDFvs4H1mNmZaMsigzaZdjb6Fe4_jYHmZB5gO3Uq9h"/>
+</div>
+<div>
+<div class="text-xs font-bold">Figma</div>
+<div class="text-[11px] text-on-surface-variant">Product Designer</div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="label-sm px-2 py-0.5 bg-primary-container text-on-primary-container rounded text-[10px] font-bold">URGENT</span>
+<span class="text-[10px] text-primary font-medium">Due in 14h</span>
+</div>
+</div>
+<div class="glass-card p-4 rounded-xl border-l-4 border-primary shadow-sm hover:surface-container-high transition-all cursor-pointer">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center border border-outline-variant/10">
+<img class="w-6 h-6 object-contain" data-alt="Datadog logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYUe2fyPnUSic6tCsZsd9hw7uieRWpcG0PHefiMZ7uCXZ8i3x-ZRcnJgSh31MuDMkYCeSOUKUeJblpGYbV-3gqA2lnUGP6b0O2hHPuUNFvJpP98u4k4tOeMolKhVKepDn7uv0UtgWzIJGbjKt7hqtG2kkzmUorw2HC8h7unjqJxtRUgv_Ofi7kU9eoEB5v8hUsx_RGcdAZNIeDVIhi3lE1QMAaPHgEJEw8tNP-dtsfd4o5tqjOZrONSSt2K_mKseoczbCAL_2uTmpS"/>
+</div>
+<div>
+<div class="text-xs font-bold">Datadog</div>
+<div class="text-[11px] text-on-surface-variant">Systems Dev</div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="label-sm px-2 py-0.5 bg-surface-container text-on-surface-variant rounded text-[10px] font-bold">CORE</span>
+<span class="text-[10px] text-on-surface-variant">Ends Oct 24</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Interview -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Interview</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">3</span>
+</div>
+<div class="space-y-3">
+<div class="glass-card p-4 rounded-xl border-l-4 border-secondary shadow-sm hover:surface-container-high transition-all cursor-pointer">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center border border-outline-variant/10">
+<img class="w-6 h-6 object-contain" data-alt="Apple inc logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUxj8ADzptHWJKDss63yOz0c4in2NpV-e-aWOQ4H4ArjbqKejiN8GTARhGJ5K5sAXDzEzq8bHoyLzuNwLaRl0HuncQIPHchUhenK6x6j_R5pocI4q2nfeIB5lxpe-_kAdMWBpsL0mIuqFacpH-F0DMCuMRvy_e-1XzPgzOCbnCpYAE9jNzldnbJ-BitSqYge5jqHcgS3tbfE2kdoS3hk7v9JuseT_xYazSXsRoyw6BttumLCVGRdo6upPCsWkbI7UX6d_sS23zHbSt"/>
+</div>
+<div>
+<div class="text-xs font-bold">Apple</div>
+<div class="text-[11px] text-on-surface-variant">iOS Engineer</div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="label-sm px-2 py-0.5 bg-secondary-container text-on-secondary-container rounded text-[10px] font-bold">ROUND 3</span>
+<span class="text-[10px] text-on-surface-variant">Oct 26, 10:00 AM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Offer -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Offer</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">1</span>
+</div>
+<div class="space-y-3">
+<div class="glass-card p-4 rounded-xl border-l-4 border-tertiary shadow-sm hover:surface-container-high transition-all cursor-pointer">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center border border-outline-variant/10">
+<img class="w-6 h-6 object-contain" data-alt="Vercel logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFvmb_CHVcfD2fzz0FYiHAGNWg9QTrBmL0kq1KYwo541fi60_GtNggvjc5cQiPAff1sBhyt5BOkYCRQmtwJEiyoB-4Eqpl1njI75AyWf4Tf4uSrLZbvUg7m1o_cV5PZgHIqwt0GtC4t-dyx-R6jAuvT9roo1jr7C-fp2ESg3cbNj6PFnn9cmzlqQsPVyR9kcaMhvtHt3DEeIY5sISoOq7BoD6m14tfrcHqP9QnG6CHxh2GqzTX14Lg8mbVsiaWZkr_qEv3jRgiXdgI"/>
+</div>
+<div>
+<div class="text-xs font-bold">Vercel</div>
+<div class="text-[11px] text-on-surface-variant">Front-end Lead</div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="label-sm px-2 py-0.5 bg-tertiary-container text-on-tertiary-container rounded text-[10px] font-bold">ACCEPTED</span>
+<span class="text-[10px] text-tertiary font-bold">$185k Base</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Rejected -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error/50"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Rejected</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">22</span>
+</div>
+<div class="space-y-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+<div class="glass-card p-4 rounded-xl border-l-4 border-error/20 shadow-sm cursor-pointer">
+<div class="flex items-center gap-3 mb-1">
+<div class="text-xs font-bold">Google</div>
+</div>
+<div class="text-[11px] text-on-surface-variant italic">Position Closed</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Grid: Insights & Deadlines -->
+<section class="grid grid-cols-12 gap-8 pt-4">
+<!-- Insights Panel -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-low rounded-xl p-6 relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="headline-sm font-bold mb-6">Analytics Insight</h3>
+<div class="grid grid-cols-3 gap-8">
+<div class="space-y-1">
+<div class="text-3xl font-bold text-primary">32%</div>
+<div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Response Rate</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mt-3">
+<div class="h-full bg-primary w-[32%]"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="text-3xl font-bold text-tertiary">65%</div>
+<div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">OA Conversion</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mt-3">
+<div class="h-full bg-tertiary w-[65%]"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="text-3xl font-bold text-on-surface">42</div>
+<div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total Apps</div>
+<p class="text-[10px] text-on-surface-variant mt-3">+8 this week</p>
+</div>
+</div>
+</div>
+<!-- Abstract Texture -->
+<div class="absolute -right-10 -bottom-10 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+</div>
+<!-- Upcoming Deadlines -->
+<div class="col-span-12 lg:col-span-4 space-y-4">
+<div class="flex items-center justify-between px-2">
+<h3 class="text-sm font-bold text-on-surface">Upcoming Tasks</h3>
+<button class="text-xs font-bold text-primary hover:underline">View All</button>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-4 p-3 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/5">
+<div class="w-10 h-10 rounded-lg bg-error-container/20 flex flex-col items-center justify-center text-error">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-sm font-bold">22</span>
+</div>
+<div class="flex-1">
+<div class="text-xs font-bold">Figma OA - Coding</div>
+<div class="text-[10px] text-on-surface-variant">Hard deadline in 14 hours</div>
+</div>
+<span class="material-symbols-outlined text-error text-lg">priority_high</span>
+</div>
+<div class="flex items-center gap-4 p-3 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/5">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex flex-col items-center justify-center text-primary">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-sm font-bold">24</span>
+</div>
+<div class="flex-1">
+<div class="text-xs font-bold">Datadog OA - MCQ</div>
+<div class="text-[10px] text-on-surface-variant">Recommended before weekend</div>
+</div>
+<span class="material-symbols-outlined text-primary text-lg">timer</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

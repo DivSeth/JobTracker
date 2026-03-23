@@ -10,7 +10,7 @@ function stripHtml(raw: string): string {
   return raw.replace(/<[^>]*>/g, ' ').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim()
 }
 
-function getCompanyDomain(applyUrl: string | null, company: string): string | null {
+function getCompanyDomain(applyUrl: string | null): string | null {
   if (applyUrl) {
     try {
       return new URL(applyUrl).hostname.replace('www.', '')
@@ -29,7 +29,7 @@ export function JobCard({ job, featured }: Props) {
   const [applied, setApplied] = useState(false)
   const score = job.job_scores?.[0]?.score
 
-  const domain = getCompanyDomain(job.apply_url, job.company)
+  const domain = getCompanyDomain(job.apply_url)
   const logoUrl = domain ? `https://logo.clearbit.com/${domain}` : null
   const [logoFailed, setLogoFailed] = useState(false)
 
@@ -65,6 +65,7 @@ export function JobCard({ job, featured }: Props) {
         {/* Company logo */}
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0053db]/20 to-[#6366f1]/20 flex items-center justify-center text-sm font-semibold text-[#0053db] shrink-0 overflow-hidden">
           {logoUrl && !logoFailed ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={logoUrl}
               alt={job.company}

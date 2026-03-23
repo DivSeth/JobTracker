@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-dim": "#0048c1",
+              "surface-variant": "#d9e4ea",
+              "primary-fixed": "#dbe1ff",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed": "#d5e3fc",
+              "on-tertiary-fixed-variant": "#006544",
+              "tertiary-fixed": "#69f6b8",
+              "background": "#f7f9fb",
+              "surface-container-low": "#f0f4f7",
+              "on-surface-variant": "#566166",
+              "surface": "#f7f9fb",
+              "on-primary-container": "#0048bf",
+              "on-tertiary": "#e6ffee",
+              "primary-fixed-dim": "#c7d3ff",
+              "tertiary": "#006d4a",
+              "on-secondary-fixed": "#324053",
+              "surface-container": "#e8eff3",
+              "outline": "#717c82",
+              "on-tertiary-fixed": "#00452d",
+              "primary": "#0053db",
+              "on-primary": "#f8f7ff",
+              "on-secondary": "#f8f8ff",
+              "tertiary-fixed-dim": "#58e7ab",
+              "secondary-dim": "#465468",
+              "tertiary-container": "#69f6b8",
+              "error-container": "#fe8983",
+              "inverse-primary": "#618bff",
+              "on-secondary-fixed-variant": "#4e5c71",
+              "error": "#9f403d",
+              "on-secondary-container": "#455367",
+              "surface-dim": "#cfdce3",
+              "surface-tint": "#0053db",
+              "on-primary-fixed-variant": "#0050d4",
+              "primary-container": "#dbe1ff",
+              "on-tertiary-container": "#005a3c",
+              "error-dim": "#4e0309",
+              "surface-container-highest": "#d9e4ea",
+              "inverse-surface": "#0b0f10",
+              "surface-container-high": "#e1e9ee",
+              "on-background": "#2a3439",
+              "on-error-container": "#752121",
+              "secondary": "#526074",
+              "outline-variant": "#a9b4b9",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-dim": "#005f40",
+              "secondary-fixed-dim": "#c7d5ed",
+              "on-surface": "#2a3439",
+              "inverse-on-surface": "#9a9d9f",
+              "secondary-container": "#d5e3fc",
+              "on-error": "#fff7f6",
+              "on-primary-fixed": "#003798"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "1rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container">
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full p-4 h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-dim flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">work</span>
+</div>
+<div>
+<h1 class="text-lg font-bold tracking-tighter text-slate-900 dark:text-slate-100">Job OS</h1>
+<p class="text-[10px] uppercase tracking-[0.1em] text-on-surface-variant font-semibold">The Digital Curator</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+                    Applications
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight bg-slate-200/50 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+                    Calendar
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+                    Insights
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-sans text-sm font-medium tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/30 dark:hover:bg-slate-800/30 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+                    Profile
+                </a>
+</nav>
+<button class="mt-auto mb-4 w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-lg font-semibold text-sm shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Application
+            </button>
+<div class="flex items-center gap-3 px-2 pt-4 border-t border-slate-200/50">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="User avatar professional portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDO3A5iUGIFBTjA9yhPzQnajtNhYICZZKBBorMo11UZq9jfhtj0ClkKXTEz1U6nfx5qbvRdx3PbLSFBT_jI-ZyMh7-n0_FzxU6ug8lH4_PaRd1_7qDfBhOifDtAdAYje57x7BQNs5z6raNva-Nz47wneOvFubTUugHu-AIy8qOkSDKK-Q3Nqg0Ncaj_LSoiCFtx1lZPFbkLR4JvA6V35hIMJHtQjZ5XD7EyrX6__LEfJstn3JT1GIC3jAY2GjehlfVF2nYY4cs7gTGr"/>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold truncate">Alex Rivera</p>
+<p class="text-[10px] text-on-surface-variant truncate">Pro Plan</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-surface">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-40 flex items-center justify-between px-6 w-full h-14 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative max-w-md w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-1.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/60" placeholder="Search events or applications..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 text-on-surface-variant relative transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<div class="h-6 w-px bg-slate-200 mx-2"></div>
+<span class="text-sm font-medium text-slate-700">October 2023</span>
+<div class="flex items-center gap-1 ml-4">
+<button class="p-1 hover:bg-slate-100 rounded transition-colors"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="p-1 hover:bg-slate-100 rounded transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</header>
+<!-- Calendar Canvas -->
+<div class="flex-1 flex flex-col md:flex-row overflow-hidden p-6 gap-6">
+<!-- Calendar Grid Container -->
+<div class="flex-1 flex flex-col min-w-0 bg-surface-container-lowest rounded-lg shadow-none overflow-hidden">
+<!-- Days Header -->
+<div class="grid grid-cols-7 border-b border-surface-container">
+<div class="py-4 text-center text-[10px] font-bold tracking-widest text-on-surface-variant/60 uppercase">Sun</div>
+<div class="py-4 text-center text-[10px] font-bold tracking-widest text-on-surface-variant/60 uppercase">Mon</div>
+<div class="py-4 text-center text-[10px] font-bold tracking-widest text-on-surface-variant/60 uppercase">Tue</div>
+<div class="py-4 text-center text-[10px] font-bold tracking-widest text-on-surface-variant/60 uppercase">Wed</div>
+<div class="py-4 text-center text-[10px] font-bold tracking-widest text-on-surface-variant/60 uppercase">Thu</div>
+<div class="py-4 text-center text-[10px] font-bold tracking-widest text-on-surface-variant/60 uppercase">Fri</div>
+<div class="py-4 text-center text-[10px] font-bold tracking-widest text-on-surface-variant/60 uppercase">Sat</div>
+</div>
+<!-- Grid -->
+<div class="flex-1 grid grid-cols-7 grid-rows-5 h-full divide-x divide-y divide-surface-container/30">
+<!-- Empty Previous Month Days -->
+<div class="p-2 bg-surface-container-low/30 min-h-[120px]">
+<span class="text-xs text-on-surface-variant/30 font-medium">27</span>
+</div>
+<div class="p-2 bg-surface-container-low/30 min-h-[120px]">
+<span class="text-xs text-on-surface-variant/30 font-medium">28</span>
+</div>
+<div class="p-2 bg-surface-container-low/30 min-h-[120px]">
+<span class="text-xs text-on-surface-variant/30 font-medium">29</span>
+</div>
+<div class="p-2 bg-surface-container-low/30 min-h-[120px]">
+<span class="text-xs text-on-surface-variant/30 font-medium">30</span>
+</div>
+<!-- October Days -->
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">1</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">2</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<div class="flex flex-col gap-1.5">
+<span class="text-xs text-on-surface font-medium">3</span>
+<div class="px-2 py-1 rounded bg-primary-container/40 border-l-4 border-primary text-[10px] font-bold text-primary truncate">
+                                    Google - OA Due
+                                </div>
+</div>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">4</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">5</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">6</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">7</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">8</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">9</span>
+</div>
+<div class="p-2 min-h-[120px] ring-2 ring-primary/10 bg-primary/5">
+<div class="flex flex-col gap-1.5">
+<span class="w-6 h-6 flex items-center justify-center bg-primary text-on-primary rounded-full text-xs font-bold">10</span>
+<div class="px-2 py-1 rounded bg-tertiary-container/40 border-l-4 border-tertiary text-[10px] font-bold text-tertiary-dim truncate">
+                                    Apple - Technical
+                                </div>
+</div>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">11</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">12</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">13</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<div class="flex flex-col gap-1.5">
+<span class="text-xs text-on-surface font-medium">14</span>
+<div class="px-2 py-1 rounded bg-primary-container/40 border-l-4 border-primary text-[10px] font-bold text-primary truncate">
+                                    Meta - Deadline
+                                </div>
+</div>
+</div>
+<!-- ... more days -->
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">15</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">16</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">17</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">18</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<div class="flex flex-col gap-1.5">
+<span class="text-xs text-on-surface font-medium">19</span>
+<div class="px-2 py-1 rounded bg-tertiary-container/40 border-l-4 border-tertiary text-[10px] font-bold text-tertiary-dim truncate">
+                                    Stripe - Final Round
+                                </div>
+</div>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">20</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">21</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">22</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">23</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">24</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">25</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">26</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">27</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">28</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">29</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">30</span>
+</div>
+<div class="p-2 min-h-[120px] hover:bg-surface-container-low/20 transition-colors">
+<span class="text-xs text-on-surface font-medium">31</span>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Upcoming Events -->
+<aside class="w-full md:w-80 flex flex-col gap-6">
+<div class="bg-surface-container-low rounded-lg p-5">
+<h2 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">event_note</span>
+                            Upcoming events
+                        </h2>
+<div class="space-y-4">
+<!-- Event 1 -->
+<div class="group cursor-pointer">
+<div class="flex items-start gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-white rounded-xl shadow-sm border border-outline-variant/10">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Oct</span>
+<span class="text-base font-extrabold text-on-surface">10</span>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="text-xs font-bold text-on-surface group-hover:text-primary transition-colors">Technical Interview</h3>
+<p class="text-[11px] text-on-surface-variant mt-0.5">Apple • 2:00 PM</p>
+<div class="mt-2 flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span class="text-[10px] font-semibold text-on-tertiary-fixed-variant">Interviewing</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="group cursor-pointer">
+<div class="flex items-start gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-white rounded-xl shadow-sm border border-outline-variant/10">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Oct</span>
+<span class="text-base font-extrabold text-on-surface">14</span>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="text-xs font-bold text-on-surface group-hover:text-primary transition-colors">Online Assessment</h3>
+<p class="text-[11px] text-on-surface-variant mt-0.5">Meta • End of Day</p>
+<div class="mt-2 flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="text-[10px] font-semibold text-primary">Deadline</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="group cursor-pointer opacity-60">
+<div class="flex items-start gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-white rounded-xl shadow-sm border border-outline-variant/10">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Oct</span>
+<span class="text-base font-extrabold text-on-surface">19</span>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="text-xs font-bold text-on-surface group-hover:text-primary transition-colors">Culture Fit Round</h3>
+<p class="text-[11px] text-on-surface-variant mt-0.5">Stripe • 11:30 AM</p>
+<div class="mt-2 flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span class="text-[10px] font-semibold text-on-tertiary-fixed-variant">Interviewing</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-2.5 text-[11px] font-bold text-on-surface-variant hover:text-on-surface bg-surface-container-high/50 rounded-lg transition-all">
+                            View all schedule
+                        </button>
+</div>
+<div class="bg-gradient-to-br from-primary to-primary-dim rounded-lg p-5 text-on-primary">
+<div class="flex items-center justify-between mb-4">
+<span class="material-symbols-outlined text-3xl opacity-40">tips_and_updates</span>
+</div>
+<h4 class="text-sm font-bold mb-2">Interview Prep Tip</h4>
+<p class="text-[11px] leading-relaxed opacity-90">Research Apple's "Swift" ecosystem for your technical round on the 10th. Focus on memory management.</p>
+<button class="mt-4 px-4 py-1.5 bg-white/20 hover:bg-white/30 rounded-full text-[10px] font-bold transition-colors">Set Reminder</button>
+</div>
+</aside>
+</div>
+</main>
+</div>
+<!-- Mobile Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-t border-slate-200/50 flex items-center justify-around px-6 z-50">
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-medium">Dash</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="text-[10px] font-medium">Jobs</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="text-[10px] font-bold">Plan</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">User</span>
+</a>
+</nav>
+</body></html>
