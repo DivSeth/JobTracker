@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { TagInput } from '@/components/ui/tag-input'
 import { UNIVERSITIES } from '@/lib/universities'
 import type { Profile, ExperienceEntry, EducationEntry, ProfileDetails } from '@/lib/types'
+import { createClient } from '@/lib/supabase/client'
 
 interface Props {
   initialProfile: Partial<Profile>
@@ -39,6 +40,28 @@ export function ProfileForm({ initialProfile }: Props) {
     initialProfile.preferences ?? { job_types: [], locations: [], remote_ok: false, min_salary: null }
   )
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+
+  async function handleResumeUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setUploading(false); return }
+
+    const ext = file.name.split('.').pop()
+    const path = `${user.id}/resume.${ext}`
+    const { error } = await supabase.storage
+      .from('resumes')
+      .upload(path, file, { upsert: true })
+
+    if (!error) {
+      const { data: { publicUrl } } = supabase.storage.from('resumes').getPublicUrl(path)
+      setDetails(d => ({ ...d, resume_url: publicUrl }))
+    }
+    setUploading(false)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -114,8 +137,27 @@ export function ProfileForm({ initialProfile }: Props) {
               value={details.phone ?? ''} onChange={e => setDetails(d => ({ ...d, phone: e.target.value }))} />
             <Input label="Location" id="location" placeholder="San Francisco, CA"
               value={details.location ?? ''} onChange={e => setDetails(d => ({ ...d, location: e.target.value }))} />
-            <Input label="Resume URL" id="resume_url" placeholder="https://..."
-              value={details.resume_url ?? ''} onChange={e => setDetails(d => ({ ...d, resume_url: e.target.value }))} />
+            <div className="space-y-1.5">
+              <label className="block label-sm text-on-surface-muted">Resume</label>
+              <div className="flex items-center gap-2">
+                <label className="cursor-pointer h-9 px-4 bg-surface-container text-on-surface text-sm font-medium rounded-xl inline-flex items-center hover:bg-surface-container-high transition-colors">
+                  {uploading ? 'Uploading…' : details.resume_url ? 'Change File' : 'Upload PDF / DOC'}
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    className="hidden"
+                    onChange={handleResumeUpload}
+                    disabled={uploading}
+                  />
+                </label>
+                {details.resume_url && (
+                  <a href={details.resume_url} target="_blank" rel="noopener noreferrer"
+                     className="text-xs text-primary hover:underline truncate max-w-[160px]">
+                    View Resume ↗
+                  </a>
+                )}
+              </div>
+            </div>
             <Input label="Portfolio URL" id="portfolio_url" placeholder="https://..."
               value={details.portfolio_url ?? ''} onChange={e => setDetails(d => ({ ...d, portfolio_url: e.target.value }))} />
           </div>
