@@ -26,7 +26,8 @@ export async function middleware(request: NextRequest) {
   const isPublicPath =
     request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/api/auth') ||
-    request.nextUrl.pathname.startsWith('/api/jobs/sync')
+    request.nextUrl.pathname.startsWith('/api/jobs/sync') ||
+    request.nextUrl.pathname.startsWith('/api/jobs/check-links')
 
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))
