@@ -2,6 +2,8 @@
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { TagInput } from '@/components/ui/tag-input'
+import { UNIVERSITIES } from '@/lib/universities'
 import type { Profile, ExperienceEntry, EducationEntry, ProfileDetails } from '@/lib/types'
 
 interface Props {
@@ -24,8 +26,8 @@ export function ProfileForm({ initialProfile }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...((initialProfile as any)?.profile_details ?? {}),
   })
-  const [skills, setSkills] = useState(
-    (initialProfile.skills ?? []).join(', ')
+  const [skills, setSkills] = useState<string[]>(
+    initialProfile.skills ?? []
   )
   const [experience, setExperience] = useState<ExperienceEntry[]>(
     initialProfile.experience ?? []
@@ -46,7 +48,7 @@ export function ProfileForm({ initialProfile }: Props) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         profile_details: details,
-        skills: skills.split(',').map(s => s.trim()).filter(Boolean),
+        skills,
         experience,
         education,
         preferences: prefs,
@@ -175,8 +177,20 @@ export function ProfileForm({ initialProfile }: Props) {
           {education.map((edu, i) => (
             <div key={i} className="bg-surface-container rounded-xl p-4 space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <Input label="School" id={`edu_school_${i}`} placeholder="University of..."
-                  value={edu.school} onChange={e => setEducation(ed => ed.map((x, j) => j === i ? { ...x, school: e.target.value } : x))} />
+                <div className="space-y-1.5">
+                  <label htmlFor={`edu_school_${i}`} className="block label-sm text-on-surface-muted">School</label>
+                  <input
+                    id={`edu_school_${i}`}
+                    list="universities-list"
+                    placeholder="University of..."
+                    value={edu.school}
+                    onChange={e => setEducation(ed => ed.map((x, j) => j === i ? { ...x, school: e.target.value } : x))}
+                    className="w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-[#0053db]/20 placeholder:text-on-surface-muted/50"
+                  />
+                </div>
+                <datalist id="universities-list">
+                  {UNIVERSITIES.map(u => <option key={u} value={u} />)}
+                </datalist>
                 <Input label="Degree" id={`edu_degree_${i}`} placeholder="B.S. Computer Science"
                   value={edu.degree} onChange={e => setEducation(ed => ed.map((x, j) => j === i ? { ...x, degree: e.target.value } : x))} />
                 <Input label="Graduation Year" id={`edu_year_${i}`} type="number"
@@ -198,14 +212,8 @@ export function ProfileForm({ initialProfile }: Props) {
         {/* Skills */}
         <section className="space-y-3">
           <h2 className="text-base font-semibold text-on-surface">Skills</h2>
-          <Input
-            label="Skills"
-            id="skills"
-            placeholder="React, TypeScript, Python, Go..."
-            value={skills}
-            onChange={e => setSkills(e.target.value)}
-          />
-          <p className="text-xs text-on-surface-muted">Separate with commas. Use exact tech names for better job matching.</p>
+          <TagInput value={skills} onChange={setSkills} />
+          <p className="text-xs text-on-surface-muted">Type and press Enter or comma to add. Use exact tech names for better job matching.</p>
         </section>
 
         {/* Preferences */}
