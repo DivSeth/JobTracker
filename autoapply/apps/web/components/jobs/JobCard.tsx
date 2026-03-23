@@ -27,8 +27,8 @@ export function JobCard({ job, featured }: Props) {
   const score = job.job_scores?.[0]?.score
 
   // Prefer stored logo/domain from enrichment, fallback to extraction
-  const logoUrl = (job as any).company_logo_url
-    || ((job as any).company_domain ? `https://www.google.com/s2/favicons?domain=${(job as any).company_domain}&sz=64` : null)
+  const logoUrl = job.company_logo_url
+    || (job.company_domain ? `https://www.google.com/s2/favicons?domain=${job.company_domain}&sz=64` : null)
     || (job.company.includes('↳') ? null : `https://www.google.com/s2/favicons?domain=${extractCompanyDomain(job.apply_url, job.company)}&sz=64`)
   const [logoFailed, setLogoFailed] = useState(false)
 
@@ -113,9 +113,9 @@ export function JobCard({ job, featured }: Props) {
       {/* Footer */}
       <div className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-1.5">
-          {(job as any).salary_min && (job as any).salary_max && (
+          {job.salary_min && job.salary_max && (
             <Badge className="label-sm">
-              ${Math.round((job as any).salary_min / 1000)}k-${Math.round((job as any).salary_max / 1000)}k
+              ${Math.round(job.salary_min / 1000)}k-${Math.round(job.salary_max / 1000)}k
             </Badge>
           )}
           {job.job_type && (

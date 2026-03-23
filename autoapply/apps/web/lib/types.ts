@@ -51,6 +51,9 @@ export interface Job {
   preferred_skills: string[]; experience_level: string | null
   remote_policy: string | null; apply_url: string | null
   posted_at: string | null; first_seen_at: string; is_active: boolean
+  company_domain?: string | null; company_logo_url?: string | null
+  salary_min?: number | null; salary_max?: number | null
+  enriched_at?: string | null
 }
 
 export interface JobScore {
