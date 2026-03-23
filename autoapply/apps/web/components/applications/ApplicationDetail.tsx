@@ -26,23 +26,32 @@ export function ApplicationDetail({ application: app }: Props) {
       {/* Header */}
       <div className="flex items-start justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-lg font-semibold text-on-surface-muted">
-            {(app.job?.company ?? 'U').slice(0, 2).toUpperCase()}
-          </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <Badge status={app.status}>{app.status.toUpperCase()}</Badge>
-            </div>
-            <h1 className="text-2xl font-semibold text-on-surface mt-1">
-              {app.job?.title ?? 'Manual Entry'}
-            </h1>
-            {app.job?.company && (
-              <p className="text-sm font-medium text-on-surface-muted">{app.job.company}</p>
-            )}
-            {app.job?.location && (
-              <p className="text-sm text-on-surface-muted">{app.job.location}</p>
-            )}
-          </div>
+          {(() => {
+            const displayCompany = app.job?.company?.includes('↳')
+              ? 'Unknown'
+              : (app.job?.company ?? 'Unknown')
+            return (
+              <>
+                <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-lg font-semibold text-on-surface-muted">
+                  {displayCompany.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-3">
+                    <Badge status={app.status}>{app.status.toUpperCase()}</Badge>
+                  </div>
+                  <h1 className="text-2xl font-semibold text-on-surface mt-1">
+                    {app.job?.title ?? 'Manual Entry'}
+                  </h1>
+                  {app.job?.company && (
+                    <p className="text-sm font-medium text-on-surface-muted">{displayCompany}</p>
+                  )}
+                  {app.job?.location && (
+                    <p className="text-sm text-on-surface-muted">{app.job.location}</p>
+                  )}
+                </div>
+              </>
+            )
+          })()}
         </div>
         <div className="flex gap-2 shrink-0">
           <Button variant="secondary" size="sm">Edit Details</Button>
@@ -71,7 +80,7 @@ export function ApplicationDetail({ application: app }: Props) {
             <h2 className="text-sm font-semibold text-on-surface mb-3">Communications</h2>
             <div className="bg-surface-container rounded-xl p-6 text-center">
               <p className="text-sm text-on-surface-muted">
-                Connect Gmail to see emails · Coming in Phase 2B
+                Connect Gmail to see emails · Coming soon
               </p>
             </div>
           </div>

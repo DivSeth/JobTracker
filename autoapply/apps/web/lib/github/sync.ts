@@ -36,6 +36,9 @@ export function regexParseJobRow(row: string): ParsedJobRow | null {
   const cells = row.split('|').map(c => c.trim()).filter(Boolean)
   if (cells.length < 3) return null
 
+  // Skip ↳ continuation rows — secondary ATS links for the same company
+  if (cells[0].startsWith('↳') || cells[0].trim() === '↳') return null
+
   const company = cells[0].replace(/~~/g, '').trim()
   const title   = cells[1].replace(/~~/g, '').trim()
   const location = cells[2].replace(/~~/g, '').trim() || null

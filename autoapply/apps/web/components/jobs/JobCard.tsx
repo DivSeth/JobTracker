@@ -18,7 +18,8 @@ const JOB_BOARD_DOMAINS = new Set([
   'wd1.myworkdayjobs.com', 'wd3.myworkdayjobs.com', 'wd5.myworkdayjobs.com',
 ])
 
-function getCompanyDomain(applyUrl: string | null, company: string): string {
+function getCompanyDomain(applyUrl: string | null, company: string): string | null {
+  if (company.includes('↳')) return null  // ← add this guard
   if (applyUrl) {
     try {
       const hostname = new URL(applyUrl).hostname.replace('www.', '')
@@ -49,7 +50,7 @@ export function JobCard({ job, featured }: Props) {
   const score = job.job_scores?.[0]?.score
 
   const domain = getCompanyDomain(job.apply_url, job.company)
-  const logoUrl = `https://logo.clearbit.com/${domain}`
+  const logoUrl = domain ? `https://logo.clearbit.com/${domain}` : null
   const [logoFailed, setLogoFailed] = useState(false)
 
   if (hidden) return null
@@ -78,7 +79,10 @@ export function JobCard({ job, featured }: Props) {
       })
       setApplied(true)
       setPendingApply(false)
-      setTimeout(() => setApplied(false), 2000)
+      setTimeout(() => {
+        setApplied(false)
+        setHidden(true)
+      }, 1500)
     } catch { setPendingApply(false) }
   }
 
@@ -88,16 +92,11 @@ export function JobCard({ job, featured }: Props) {
       <div className="flex items-start justify-between gap-3">
         {/* Company logo */}
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0053db]/20 to-[#6366f1]/20 flex items-center justify-center text-sm font-semibold text-[#0053db] shrink-0 overflow-hidden">
-          {!logoFailed ? (
+          {logoUrl && !logoFailed ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoUrl}
-              alt={job.company}
-              className="w-full h-full object-contain p-1.5"
-              onError={() => setLogoFailed(true)}
-            />
+            <img src={logoUrl} alt={job.company} className="w-full h-full object-contain p-1.5" onError={() => setLogoFailed(true)} />
           ) : (
-            <span>{job.company.slice(0, 2).toUpperCase()}</span>
+            <span>{job.company.includes('↳') ? '?' : job.company.slice(0, 2).toUpperCase()}</span>
           )}
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
@@ -124,7 +123,9 @@ export function JobCard({ job, featured }: Props) {
       {/* Title + company */}
       <div className="space-y-0.5 flex-1">
         <h3 className="text-sm font-semibold text-on-surface leading-snug">{job.title}</h3>
-        <p className="text-sm text-on-surface-muted">{job.company}</p>
+        <p className="text-sm text-on-surface-muted">
+          {job.company.includes('↳') ? 'Company N/A' : job.company}
+        </p>
         {job.location && (
           <p className="text-xs text-on-surface-muted/70">{formatLocation(job.location)}</p>
         )}
