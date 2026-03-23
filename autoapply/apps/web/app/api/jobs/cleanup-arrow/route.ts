@@ -14,13 +14,13 @@ export async function POST(request: Request) {
   )
 
   // Mark all jobs whose company name starts with ↳ as inactive
-  const { data, error, count } = await adminClient
+  const { data, error } = await adminClient
     .from('jobs')
     .update({ is_active: false })
     .like('company', '↳%')
-    .select('id', { count: 'exact' })
+    .select('id')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  return NextResponse.json({ cleaned: count ?? data?.length ?? 0 })
+  return NextResponse.json({ cleaned: data?.length ?? 0 })
 }
