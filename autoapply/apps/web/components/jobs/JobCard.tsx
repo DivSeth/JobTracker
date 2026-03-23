@@ -50,7 +50,8 @@ export function JobCard({ job, featured }: Props) {
   const score = job.job_scores?.[0]?.score
 
   const domain = getCompanyDomain(job.apply_url, job.company)
-  const logoUrl = domain ? `https://logo.clearbit.com/${domain}` : null
+  // Use Google's favicon service — works on nearly any domain (no API key needed)
+  const logoUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64` : null
   const [logoFailed, setLogoFailed] = useState(false)
 
   if (hidden) return null
