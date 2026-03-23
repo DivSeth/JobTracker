@@ -9,6 +9,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url)
   const { job_type } = parseJobFilters(searchParams)
+  const sort = searchParams.get('sort') ?? 'company'
 
   let query = supabase
     .from('jobs')
@@ -18,8 +19,15 @@ export async function GET(request: Request) {
       source:job_sources(repo_name, repo_url)
     `)
     .eq('is_active', true)
-    .order('first_seen_at', { ascending: false })
     .limit(100)
+
+  if (sort === 'date') {
+    query = query.order('first_seen_at', { ascending: false })
+  } else if (sort === 'title') {
+    query = query.order('title', { ascending: true })
+  } else {
+    query = query.order('company', { ascending: true })
+  }
 
   if (job_type) query = query.eq('job_type', job_type)
 

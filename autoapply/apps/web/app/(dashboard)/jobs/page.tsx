@@ -1,22 +1,30 @@
 import { createClient } from '@/lib/supabase/server'
 import { JobCard } from '@/components/jobs/JobCard'
 import { JobFiltersClient } from '@/components/jobs/JobFiltersClient'
+import { SortControl } from '@/components/jobs/SortControl'
 import type { JobType, JobWithScore } from '@/lib/types'
 
 interface Props {
-  searchParams: Promise<{ type?: string }>
+  searchParams: Promise<{ type?: string; sort?: string }>
 }
 
 export default async function JobsPage({ searchParams }: Props) {
-  const { type } = await searchParams
+  const { type, sort = 'company' } = await searchParams
   const supabase = await createClient()
 
   let query = supabase
     .from('jobs')
     .select(`*, job_scores!left(score, tier, matching_skills, skill_gaps, verdict, id, user_id, job_id, reasoning, scored_at), source:job_sources(repo_name, repo_url)`)
     .eq('is_active', true)
-    .order('first_seen_at', { ascending: false })
     .limit(100)
+
+  if (sort === 'date') {
+    query = query.order('first_seen_at', { ascending: false })
+  } else if (sort === 'title') {
+    query = query.order('title', { ascending: true })
+  } else {
+    query = query.order('company', { ascending: true })
+  }
 
   if (type && type !== 'all') query = query.eq('job_type', type)
 
@@ -34,6 +42,7 @@ export default async function JobsPage({ searchParams }: Props) {
             {list.length} opportunities matching your profile
           </p>
         </div>
+        <SortControl />
       </div>
 
       <JobFiltersClient active={(type as JobType) ?? 'all'} />
