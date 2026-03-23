@@ -25,7 +25,7 @@ export const STATUS_TRANSITIONS: Record<ApplicationStatus, ApplicationStatus | n
 
 const STATUS_ACCENT: Record<string, string> = {
   saved:        'border-gray-300',
-  applied:      'border-[#0053db]',
+  applied:      'border-primary',
   oa:           'border-amber-400',
   interviewing: 'border-purple-500',
   offer:        'border-green-500',
@@ -35,7 +35,7 @@ const STATUS_ACCENT: Record<string, string> = {
 
 const STATUS_DOT: Record<string, string> = {
   saved:        'bg-gray-300',
-  applied:      'bg-[#0053db]',
+  applied:      'bg-primary',
   oa:           'bg-amber-400',
   interviewing: 'bg-purple-500',
   offer:        'bg-green-500',
@@ -65,7 +65,7 @@ function CompanyLogo({ applyUrl, company }: { applyUrl?: string | null, company:
   const [failed, setFailed] = useState(false)
   const logoUrl = getLogoUrl(applyUrl, company)
   return (
-    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0053db]/15 to-[#6366f1]/15 flex items-center justify-center text-xs font-bold text-[#0053db] overflow-hidden shrink-0">
+    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-primary/10 flex items-center justify-center text-xs font-bold text-primary overflow-hidden shrink-0">
       {!failed ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={logoUrl} alt={company} className="w-full h-full object-contain p-1" onError={() => setFailed(true)} />

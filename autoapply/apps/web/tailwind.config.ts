@@ -22,6 +22,12 @@ const config: Config = {
           muted: 'var(--on-surface-muted)',
         },
         'outline-variant': 'var(--outline-variant)',
+        success: 'var(--success)',
+        error: 'var(--error)',
+      },
+      fontFamily: {
+        display: 'var(--font-display)',
+        body: 'var(--font-body)',
       },
       borderRadius: {
         xl: '12px',

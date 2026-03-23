@@ -18,7 +18,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         className={cn(
           'w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl',
-          'outline-none focus:ring-2 focus:ring-[#0053db]/20',
+          'outline-none focus:ring-2 focus:ring-primary/20',
           'placeholder:text-on-surface-muted/50',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           className

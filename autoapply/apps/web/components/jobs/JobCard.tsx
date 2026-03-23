@@ -3,31 +3,8 @@
 import { useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { cn, stripHtml, extractCompanyDomain } from '@/lib/utils'
 import type { JobWithScore } from '@/lib/types'
-
-function stripHtml(raw: string): string {
-  return raw.replace(/<[^>]*>/g, ' ').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim()
-}
-
-const JOB_BOARD_DOMAINS = new Set([
-  'simplify.jobs', 'lever.co', 'greenhouse.io', 'workday.com',
-  'myworkdayjobs.com', 'linkedin.com', 'indeed.com', 'glassdoor.com',
-  'jobs.lever.co', 'boards.greenhouse.io', 'apply.workable.com',
-  'smartrecruiters.com', 'icims.com', 'taleo.net', 'brassring.com',
-  'wd1.myworkdayjobs.com', 'wd3.myworkdayjobs.com', 'wd5.myworkdayjobs.com',
-])
-
-function getCompanyDomain(applyUrl: string | null, company: string): string | null {
-  if (company.includes('↳')) return null  // ← add this guard
-  if (applyUrl) {
-    try {
-      const hostname = new URL(applyUrl).hostname.replace('www.', '')
-      if (!JOB_BOARD_DOMAINS.has(hostname)) return hostname
-    } catch { /* invalid URL */ }
-  }
-  return company.toLowerCase().replace(/[^a-z0-9]/g, '') + '.com'
-}
 
 function formatLocation(raw: string): string {
   const stripped = stripHtml(raw)
@@ -49,9 +26,10 @@ export function JobCard({ job, featured }: Props) {
   const [pendingApply, setPendingApply] = useState(false)
   const score = job.job_scores?.[0]?.score
 
-  const domain = getCompanyDomain(job.apply_url, job.company)
-  // Use Google's favicon service — works on nearly any domain (no API key needed)
-  const logoUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64` : null
+  // Prefer stored logo/domain from enrichment, fallback to extraction
+  const logoUrl = (job as any).company_logo_url
+    || ((job as any).company_domain ? `https://www.google.com/s2/favicons?domain=${(job as any).company_domain}&sz=64` : null)
+    || (job.company.includes('↳') ? null : `https://www.google.com/s2/favicons?domain=${extractCompanyDomain(job.apply_url, job.company)}&sz=64`)
   const [logoFailed, setLogoFailed] = useState(false)
 
   if (hidden) return null
@@ -135,6 +113,11 @@ export function JobCard({ job, featured }: Props) {
       {/* Footer */}
       <div className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-1.5">
+          {(job as any).salary_min && (job as any).salary_max && (
+            <Badge className="label-sm">
+              ${Math.round((job as any).salary_min / 1000)}k-${Math.round((job as any).salary_max / 1000)}k
+            </Badge>
+          )}
           {job.job_type && (
             <Badge className="label-sm">
               {job.job_type.replace('_', ' ')}

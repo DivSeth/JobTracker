@@ -2,15 +2,15 @@ import { type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 const STATUS_STYLES: Record<string, string> = {
-  saved:        'bg-slate-500/15 text-slate-700',
-  applied:      'bg-blue-600/15 text-blue-700',
-  oa:           'bg-violet-600/15 text-violet-700',
-  interviewing: 'bg-cyan-600/15 text-cyan-700',
-  offer:        'bg-green-600/15 text-green-700',
-  rejected:     'bg-red-600/15 text-red-700',
-  internship:   'bg-violet-500/15 text-violet-700',
-  new_grad:     'bg-blue-500/15 text-blue-700',
-  full_time:    'bg-emerald-500/15 text-emerald-700',
+  saved:        'bg-on-surface-muted/15 text-on-surface-muted',
+  applied:      'bg-primary/15 text-primary',
+  oa:           'bg-primary/15 text-primary',
+  interviewing: 'bg-primary/10 text-primary',
+  offer:        'bg-success/15 text-success',
+  rejected:     'bg-error/15 text-error',
+  internship:   'bg-primary/15 text-primary',
+  new_grad:     'bg-primary/10 text-primary',
+  full_time:    'bg-success/15 text-success',
 }
 
 interface BadgeProps {

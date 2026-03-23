@@ -40,6 +40,7 @@ export function ProfileForm({ initialProfile }: Props) {
   )
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
 
   async function handleResumeUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -149,8 +150,26 @@ export function ProfileForm({ initialProfile }: Props) {
                     View Resume ↗
                   </a>
                 )}
+                {details.resume_url && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(!showPreview)}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    {showPreview ? 'Hide Preview' : 'Preview'}
+                  </button>
+                )}
               </div>
             </div>
+            {showPreview && details.resume_url && (
+              <div className="col-span-2 mt-2">
+                <iframe
+                  src={`https://docs.google.com/gview?url=${encodeURIComponent(details.resume_url)}&embedded=true`}
+                  className="w-full h-[600px] rounded-xl bg-surface-card"
+                  title="Resume Preview"
+                />
+              </div>
+            )}
             <Input label="Portfolio URL" id="portfolio_url" placeholder="https://..."
               value={details.portfolio_url ?? ''} onChange={e => setDetails(d => ({ ...d, portfolio_url: e.target.value }))} />
           </div>

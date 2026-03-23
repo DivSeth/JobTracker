@@ -38,14 +38,14 @@ export function TagInput({ value, onChange, placeholder = 'Add skill...' }: TagI
   }
 
   return (
-    <div className="flex flex-wrap gap-1.5 bg-surface-card rounded-xl px-3 py-2 min-h-[42px] focus-within:ring-2 focus-within:ring-[#0053db]/20">
+    <div className="flex flex-wrap gap-1.5 bg-surface-card rounded-xl px-3 py-2 min-h-[42px] focus-within:ring-2 focus-within:ring-primary/20">
       {value.map(tag => (
-        <span key={tag} className="inline-flex items-center gap-1 bg-[#0053db]/10 text-[#0053db] rounded-full px-2.5 py-0.5 text-xs font-medium">
+        <span key={tag} className="inline-flex items-center gap-1 bg-primary/10 text-primary rounded-full px-2.5 py-0.5 text-xs font-medium">
           {tag}
           <button
             type="button"
             onClick={() => onChange(value.filter(t => t !== tag))}
-            className="hover:text-red-500 transition-colors leading-none"
+            className="hover:text-error transition-colors leading-none"
           >
             ×
           </button>

@@ -4,6 +4,7 @@ import {
   getLatestCommitSha, getRepoDiff,
   parseAddedMarkdownRows, regexParseJobRow,
 } from '@/lib/github/sync'
+import { sanitizeLocation, extractCompanyDomain } from '@/lib/utils'
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get('authorization')
@@ -31,22 +32,32 @@ export async function POST(request: Request) {
     const diff = await getRepoDiff(source.repo_name, source.last_synced_sha, currentSha, token)
     const newRows = parseAddedMarkdownRows(diff)
 
+    let lastCompanyName = ''
     for (const row of newRows) {
       const parsed = regexParseJobRow(row)
       if (!parsed || !parsed.is_active) continue
+
+      // Carry forward company name for continuation rows
+      let company = parsed.company
+      if (parsed.isContinuation) {
+        company = parsed.company || lastCompanyName
+      } else {
+        lastCompanyName = parsed.company
+      }
 
       const { error } = await supabase.from('jobs').upsert({
         source_id: source.id,
         source_url: `https://github.com/${source.repo_name}`,
         title: parsed.title,
-        company: parsed.company,
-        location: parsed.location,
+        company,
+        location: parsed.location ? sanitizeLocation(parsed.location) : null,
         job_type: source.job_type_tag,
         apply_url: parsed.apply_url,
         required_skills: [],
         preferred_skills: [],
         is_active: true,
         first_seen_at: new Date().toISOString(),
+        company_domain: extractCompanyDomain(parsed.apply_url, company),
       }, { onConflict: 'source_id,apply_url', ignoreDuplicates: true })
 
       if (!error) totalNew++

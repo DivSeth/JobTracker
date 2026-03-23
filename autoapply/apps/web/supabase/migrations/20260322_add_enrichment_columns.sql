@@ -1,0 +1,6 @@
+-- Add enrichment columns to jobs table
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS company_domain TEXT;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS company_logo_url TEXT;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS salary_min INTEGER;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS salary_max INTEGER;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS enriched_at TIMESTAMPTZ;

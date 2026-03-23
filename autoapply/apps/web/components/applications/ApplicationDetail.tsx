@@ -103,7 +103,7 @@ export function ApplicationDetail({ application: app }: Props) {
           <div className="space-y-2">
             <h3 className="text-xs font-semibold text-on-surface uppercase tracking-wider">Interview Notes</h3>
             <textarea
-              className="w-full h-36 bg-surface-card rounded-xl p-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-[#0053db]/20 resize-none placeholder:text-on-surface-muted/50"
+              className="w-full h-36 bg-surface-card rounded-xl p-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary/20 resize-none placeholder:text-on-surface-muted/50"
               placeholder="Interview notes..."
               value={notes}
               onChange={e => setNotes(e.target.value)}

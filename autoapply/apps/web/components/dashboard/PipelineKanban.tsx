@@ -1,12 +1,12 @@
 'use client'
 import type { ApplicationWithJob, ApplicationStatus } from '@/lib/types'
 
-const COLUMNS: { id: ApplicationStatus; label: string; color: string }[] = [
-  { id: 'applied',      label: 'APPLIED',      color: '#2563eb' },
-  { id: 'oa',           label: 'OA',           color: '#7c3aed' },
-  { id: 'interviewing', label: 'INTERVIEWING', color: '#0891b2' },
-  { id: 'offer',        label: 'OFFER',        color: '#16a34a' },
-  { id: 'rejected',     label: 'REJECTED',     color: '#dc2626' },
+const COLUMNS: { id: ApplicationStatus; label: string; colorClass: string }[] = [
+  { id: 'applied',      label: 'APPLIED',      colorClass: 'border-l-primary' },
+  { id: 'oa',           label: 'OA',           colorClass: 'border-l-primary-dim' },
+  { id: 'interviewing', label: 'INTERVIEWING', colorClass: 'border-l-primary' },
+  { id: 'offer',        label: 'OFFER',        colorClass: 'border-l-success' },
+  { id: 'rejected',     label: 'REJECTED',     colorClass: 'border-l-error' },
 ]
 
 interface Props { applications: ApplicationWithJob[] }
@@ -31,8 +31,7 @@ export function PipelineKanban({ applications }: Props) {
               {cards.map(app => (
                 <div
                   key={app.id}
-                  className="bg-surface-card rounded-xl p-3 shadow-ambient space-y-1"
-                  style={{ borderLeft: `4px solid ${col.color}` }}
+                  className={`bg-surface-card rounded-xl p-3 shadow-ambient space-y-1 border-l-4 ${col.colorClass}`}
                 >
                   <p className="text-sm font-medium text-on-surface truncate">
                     {app.job?.company ?? 'Unknown'}

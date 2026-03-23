@@ -10,8 +10,11 @@ import {
   BarChart2,
   User,
   LogOut,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useTheme } from '@/components/providers/ThemeProvider'
 
 const NAV_ITEMS = [
   { href: '/',             label: 'Dashboard',    icon: LayoutDashboard },
@@ -29,6 +32,7 @@ interface Props {
 export function Sidebar({ userEmail }: Props) {
   const pathname = usePathname()
   const router = useRouter()
+  const { theme, toggleTheme } = useTheme()
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -40,9 +44,9 @@ export function Sidebar({ userEmail }: Props) {
     <aside className="w-52 shrink-0 flex flex-col bg-surface-container min-h-screen px-3 py-5 gap-1">
       {/* Logo */}
       <div className="px-3 mb-6 flex items-center gap-2">
-        <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shrink-0" />
+        <span className="w-2.5 h-2.5 rounded-full gradient-primary shrink-0" />
         <span className="text-lg font-bold text-on-surface tracking-tight">
-          Auto<span className="text-blue-500">Apply</span>
+          Auto<span className="text-primary">Apply</span>
         </span>
       </div>
 
@@ -54,7 +58,7 @@ export function Sidebar({ userEmail }: Props) {
           return (
             <div key={item.href} className="relative">
               {active && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-blue-500" />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-primary" />
               )}
               <Link
                 href={item.href}
@@ -76,7 +80,7 @@ export function Sidebar({ userEmail }: Props) {
       {/* Separator */}
       <div className="border-t border-on-surface/5 my-2" />
 
-      {/* Bottom: user + CTA + logout */}
+      {/* Bottom: user + CTA + theme + logout */}
       <div className="space-y-2 pt-2">
         <Link
           href="/applications/new"
@@ -84,9 +88,21 @@ export function Sidebar({ userEmail }: Props) {
         >
           New Application
         </Link>
+
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-on-surface-muted hover:text-on-surface transition-colors rounded-xl"
+        >
+          <span className="transition-transform duration-300" style={{ transform: theme === 'dark' ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+          </span>
+          {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+        </button>
+
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-on-surface-muted hover:text-red-500 transition-colors rounded-xl"
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-on-surface-muted hover:text-error transition-colors rounded-xl"
         >
           <LogOut size={14} />
           Sign out

@@ -4,6 +4,7 @@ export interface ParsedJobRow {
   location: string | null
   apply_url: string | null
   is_active: boolean
+  isContinuation?: boolean
 }
 
 /**
@@ -36,8 +37,16 @@ export function regexParseJobRow(row: string): ParsedJobRow | null {
   const cells = row.split('|').map(c => c.trim()).filter(Boolean)
   if (cells.length < 3) return null
 
-  // Skip ↳ continuation rows — secondary ATS links for the same company
-  if (cells[0].startsWith('↳') || cells[0].trim() === '↳') return null
+  // Continuation row — strip ↳ prefix, mark as continuation
+  if (cells[0].startsWith('↳') || cells[0].trim() === '↳') {
+    const company = cells[0].replace(/↳/g, '').replace(/~~/g, '').trim()
+    const title = cells[1].replace(/~~/g, '').trim()
+    const location = cells[2].replace(/~~/g, '').trim() || null
+    const urlMatch = cells[3]?.match(/href="([^"]+)"/)
+    const apply_url = urlMatch ? urlMatch[1] : null
+    if (!title) return null
+    return { company, title, location, apply_url, is_active: isJobActive(row), isContinuation: true }
+  }
 
   const company = cells[0].replace(/~~/g, '').trim()
   const title   = cells[1].replace(/~~/g, '').trim()

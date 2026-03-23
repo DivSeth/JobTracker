@@ -19,7 +19,7 @@ export const TabsTrigger = ({ className, ...props }: ComponentPropsWithoutRef<ty
     className={cn(
       'px-4 py-1.5 text-sm font-medium text-on-surface-muted rounded-lg transition-all',
       'hover:text-on-surface',
-      'data-[state=active]:bg-surface-card data-[state=active]:text-on-surface data-[state=active]:shadow-ambient',
+      'data-[state=active]:bg-surface-container-highest data-[state=active]:text-on-surface data-[state=active]:shadow-ambient',
       className
     )}
     {...props}
