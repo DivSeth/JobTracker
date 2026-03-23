@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import type { JobWithScore } from '@/lib/types'
 
@@ -11,7 +14,15 @@ interface Props {
 }
 
 export function JobCard({ job, featured }: Props) {
+  const [hidden, setHidden] = useState(false)
   const score = job.job_scores?.[0]?.score
+
+  if (hidden) return null
+
+  async function handleHide() {
+    await fetch('/api/jobs/' + job.id + '/hide', { method: 'PATCH' })
+    setHidden(true)
+  }
 
   return (
     <div className="bg-surface-card rounded-xl shadow-ambient p-5 flex flex-col gap-4 hover:shadow-[0_16px_48px_rgba(42,52,57,0.10)] transition-shadow">
@@ -32,6 +43,13 @@ export function JobCard({ job, featured }: Props) {
               {score}%
             </span>
           )}
+          <button
+            onClick={handleHide}
+            title="Hide job"
+            className="text-on-surface-muted/30 hover:text-red-400 transition-colors text-xs leading-none ml-1"
+          >
+            ×
+          </button>
         </div>
       </div>
 
