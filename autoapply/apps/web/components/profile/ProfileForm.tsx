@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { TagInput } from '@/components/ui/tag-input'
 import { UNIVERSITIES } from '@/lib/universities'
 import type { Profile, ExperienceEntry, EducationEntry, ProfileDetails } from '@/lib/types'
-import { createClient } from '@/lib/supabase/client'
 
 interface Props {
   initialProfile: Partial<Profile>
@@ -46,20 +45,11 @@ export function ProfileForm({ initialProfile }: Props) {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setUploading(false); return }
-
-    const ext = file.name.split('.').pop()
-    const path = `${user.id}/resume.${ext}`
-    const { error } = await supabase.storage
-      .from('resumes')
-      .upload(path, file, { upsert: true })
-
-    if (!error) {
-      const { data: { publicUrl } } = supabase.storage.from('resumes').getPublicUrl(path)
-      setDetails(d => ({ ...d, resume_url: publicUrl }))
-    }
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch('/api/profile/upload-resume', { method: 'POST', body: fd })
+    const json = await res.json()
+    if (json.url) setDetails(d => ({ ...d, resume_url: json.url }))
     setUploading(false)
   }
 
@@ -113,8 +103,11 @@ export function ProfileForm({ initialProfile }: Props) {
         </div>
         {details.resume_url && (
           <a href={details.resume_url} target="_blank" rel="noopener noreferrer"
-             className="block text-xs text-primary hover:underline truncate">
-            Resume
+             className="flex items-center gap-1 text-xs text-primary hover:underline truncate">
+            <span>📄</span>
+            <span className="truncate">
+              {details.resume_url.split('/').pop()?.split('?')[0] || 'Resume'}
+            </span>
           </a>
         )}
         {details.portfolio_url && (
