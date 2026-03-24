@@ -29,7 +29,11 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/api/jobs/sync') ||
     request.nextUrl.pathname.startsWith('/api/jobs/check-links') ||
     request.nextUrl.pathname.startsWith('/api/jobs/enrich') ||
-    request.nextUrl.pathname.startsWith('/api/companies/seed')
+    request.nextUrl.pathname.startsWith('/api/companies/seed') ||
+    request.nextUrl.pathname.startsWith('/api/gmail/webhook') ||
+    request.nextUrl.pathname.startsWith('/api/jobs/score') ||
+    request.nextUrl.pathname.startsWith('/api/applications/ghost-detect') ||
+    request.nextUrl.pathname.startsWith('/api/insights/generate')
 
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))

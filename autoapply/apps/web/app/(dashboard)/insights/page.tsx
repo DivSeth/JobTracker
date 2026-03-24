@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { BarChart2, TrendingUp, CheckCircle, Trophy } from 'lucide-react'
+import type { InsightItem } from '@/lib/types'
 
 export default async function InsightsPage() {
   const supabase = await createClient()
@@ -32,6 +33,14 @@ export default async function InsightsPage() {
     { label: 'Offer', count: offers, color: 'bg-green-500' },
   ]
   const maxCount = Math.max(...funnel.map(f => f.count), 1)
+
+  const { data: latestInsight } = await supabase
+    .from('insights')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('week_start', { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   const statCards = [
     { label: 'Total Applied', value: applied > 0 ? applied : '—', icon: BarChart2, color: 'text-[#0053db] bg-[#0053db]/10' },
@@ -102,6 +111,26 @@ export default async function InsightsPage() {
               )
             })}
           </div>
+        </div>
+      )}
+
+      {latestInsight && (
+        <div className="bg-surface-card rounded-2xl p-6 shadow-ambient">
+          <h2 className="text-base font-semibold text-on-surface mb-4">AI Insights</h2>
+          <div className="space-y-3">
+            {(latestInsight.insights as InsightItem[]).map((insight: InsightItem, i: number) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                  insight.type === 'stat' ? 'bg-primary' :
+                  insight.type === 'recommendation' ? 'bg-amber-400' : 'bg-red-400'
+                }`} />
+                <p className="text-sm text-on-surface">{insight.message}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-on-surface-muted/50 mt-3">
+            Week of {new Date(latestInsight.week_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </p>
         </div>
       )}
     </div>

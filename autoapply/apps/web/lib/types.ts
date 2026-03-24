@@ -103,3 +103,56 @@ export interface JobWithScore extends Job {
   job_scores?: JobScore[]
   company_info?: Company | null
 }
+
+export interface EmailQueueItem {
+  id: string
+  user_id: string
+  gmail_message_id: string
+  subject: string | null
+  sender: string | null
+  body_preview: string | null
+  classification: EmailClassification | null
+  entities: EmailEntities | null
+  status: 'pending' | 'processing' | 'done' | 'failed'
+  error: string | null
+  created_at: string
+  processed_at: string | null
+}
+
+export interface EmailClassification {
+  category: 'oa' | 'interview_invite' | 'rejection' | 'offer' | 'application_confirm' | 'other'
+  confidence: number
+  reasoning: string
+}
+
+export interface EmailEntities {
+  company_name: string
+  role_title: string
+  job_type: 'internship' | 'new_grad' | 'fulltime' | 'unknown'
+  location: string | null
+  confidence: number
+}
+
+export interface ExtractedDeadline {
+  type: 'oa_submission' | 'interview_slot' | 'offer_deadline' | 'other'
+  datetime: string
+  is_exact: boolean
+  confidence: number
+  raw_text: string
+}
+
+export interface Insight {
+  id: string
+  user_id: string
+  insights: InsightItem[]
+  response_rate: number | null
+  avg_days_to_response: number | null
+  week_start: string
+  created_at: string
+}
+
+export interface InsightItem {
+  type: 'stat' | 'recommendation' | 'warning'
+  message: string
+  data_point: string | null
+}
