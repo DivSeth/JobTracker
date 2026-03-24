@@ -9,32 +9,74 @@ interface Props {
   searchParams: Promise<{ type?: string; sort?: string; role?: string; country?: string }>
 }
 
-// Location patterns for country filtering
-const COUNTRY_PATTERNS: Record<string, string[]> = {
-  usa: [', CA', ', NY', ', TX', ', WA', ', IL', ', MA', ', CO', ', FL', ', NC', ', MD', ', VA', ', OR', ', GA', ', PA', ', MN', ', CT', ', NJ', ', DC', ', OH', ', AZ', ', UT', ', MO', ', TN', ', MI', ', WI', ', NE', ', SC', 'United States', ', us'],
-  canada: ['Canada', 'Toronto', 'Vancouver', 'Montreal', 'Ottawa', 'Waterloo'],
-  uk: ['United Kingdom', 'London', ', UK', 'England'],
-  india: ['India', 'Bangalore', 'Bengaluru', 'Hyderabad', 'Mumbai', 'Pune', ', in'],
-  germany: ['Germany', ', DE', 'Berlin', 'Munich', 'München'],
-  remote: ['Remote'],
+// --- Server-side filter helpers ---
+
+const COUNTRY_MATCHERS: Record<string, (loc: string) => boolean> = {
+  usa: (loc) => {
+    const l = loc.toLowerCase()
+    // US state abbreviations after comma
+    if (/,\s*(ca|ny|tx|wa|il|ma|co|fl|nc|md|va|or|ga|pa|mn|ct|nj|oh|az|ut|mo|tn|mi|wi|ne|sc|dc)\b/i.test(loc)) return true
+    if (l.includes('united states')) return true
+    // Major US cities
+    return ['san francisco', 'new york', 'los angeles', 'seattle', 'austin', 'chicago', 'boston', 'denver',
+      'houston', 'dallas', 'atlanta', 'portland', 'phoenix', 'san jose', 'san diego', 'redwood city',
+      'menlo park', 'mountain view', 'palo alto', 'sunnyvale', 'cupertino', 'irvine', 'el segundo',
+      'foster city', 'fremont', 'bellevue', 'raleigh', 'morrisville', 'germantown', 'hayward',
+      'los gatos', 'buffalo', 'longmont', 'lakeland', 'lincoln'].some(c => l.includes(c))
+  },
+  canada: (loc) => {
+    const l = loc.toLowerCase()
+    return ['canada', 'toronto', 'vancouver', 'montreal', 'ottawa', 'waterloo', 'calgary', 'edmonton'].some(c => l.includes(c))
+  },
+  uk: (loc) => {
+    const l = loc.toLowerCase()
+    if (/,\s*uk\b/i.test(loc)) return true
+    return ['united kingdom', 'london', 'england', 'edinburgh', 'manchester', 'bristol', 'cambridge, uk'].some(c => l.includes(c))
+  },
+  india: (loc) => {
+    const l = loc.toLowerCase()
+    if (/,\s*in\b/i.test(loc)) return true
+    return ['india', 'bangalore', 'bengaluru', 'hyderabad', 'mumbai', 'pune', 'chennai', 'gurgaon', 'noida'].some(c => l.includes(c))
+  },
+  germany: (loc) => {
+    const l = loc.toLowerCase()
+    if (/,\s*de\b/i.test(loc)) return true
+    return ['germany', 'berlin', 'munich', 'münchen', 'frankfurt', 'hamburg'].some(c => l.includes(c))
+  },
+  remote: (loc) => loc.toLowerCase().includes('remote'),
 }
 
-// Role category title patterns
-const ROLE_PATTERNS: Record<string, string[]> = {
-  swe: ['software', 'swe', 'developer', 'backend', 'frontend', 'fullstack', 'full-stack', 'full stack', 'devops', 'sre', 'platform engineer', 'infrastructure engineer', 'systems engineer'],
-  aiml: ['machine learning', ' ml ', 'artificial intelligence', ' ai ', 'deep learning', 'nlp', 'computer vision', 'llm', 'genai', 'generative'],
-  data: ['data scien', 'data analy', 'analytics engineer', 'data engineer', 'business intelligence'],
+function matchesRole(title: string, role: string): boolean {
+  const t = title.toLowerCase()
+  switch (role) {
+    case 'swe':
+      return /\b(software|swe|developer|backend|frontend|fullstack|full-stack|full stack|devops|sre|platform engineer|infrastructure engineer|systems engineer)\b/.test(t)
+    case 'aiml':
+      return /\b(machine learning|ml engineer|artificial intelligence|ai engineer|deep learning|nlp|computer vision|llm|genai|generative)\b/.test(t)
+    case 'data':
+      return /\b(data scien|data analy|analytics engineer|data engineer|business intelligence)\b/.test(t)
+    case 'other': {
+      const isSwe = /\b(software|swe|developer|backend|frontend|fullstack|full-stack|full stack|devops|sre|platform engineer|infrastructure engineer|systems engineer)\b/.test(t)
+      const isAiml = /\b(machine learning|ml engineer|artificial intelligence|ai engineer|deep learning|nlp|computer vision|llm|genai|generative)\b/.test(t)
+      const isData = /\b(data scien|data analy|analytics engineer|data engineer|business intelligence)\b/.test(t)
+      return !isSwe && !isAiml && !isData
+    }
+    default:
+      return true
+  }
 }
 
 export default async function JobsPage({ searchParams }: Props) {
   const { type, sort = 'company', role, country } = await searchParams
   const supabase = await createClient()
 
+  const hasFilters = (country && country !== 'all') || (role && role !== 'all')
+
   let query = supabase
     .from('jobs')
     .select(`*, job_scores!left(score, tier, matching_skills, skill_gaps, verdict, id, user_id, job_id, reasoning, scored_at), source:job_sources!left(repo_name, repo_url)`)
     .eq('is_active', true)
-    .limit(100)
+    .limit(hasFilters ? 1000 : 100)
 
   if (sort === 'date') {
     query = query.order('first_seen_at', { ascending: false })
@@ -46,29 +88,22 @@ export default async function JobsPage({ searchParams }: Props) {
 
   if (type && type !== 'all') query = query.eq('job_type', type)
 
-  // Country filter — use ilike with OR patterns
-  if (country && country !== 'all' && COUNTRY_PATTERNS[country]) {
-    const patterns = COUNTRY_PATTERNS[country]
-    const orFilter = patterns.map(p => `location.ilike.%${p}%`).join(',')
-    query = query.or(orFilter)
-  }
-
-  // Role category filter — use ilike with OR patterns on title
-  if (role && role !== 'all' && ROLE_PATTERNS[role]) {
-    const patterns = ROLE_PATTERNS[role]
-    const orFilter = patterns.map(p => `title.ilike.%${p}%`).join(',')
-    query = query.or(orFilter)
-  } else if (role === 'other') {
-    // "Other" = not matching any known category — fetch all and filter client-side
-    // For server-side, we approximate with NOT matching known patterns
-    const allKnown = [...ROLE_PATTERNS.swe, ...ROLE_PATTERNS.aiml, ...ROLE_PATTERNS.data]
-    for (const p of allKnown.slice(0, 8)) {
-      query = query.not('title', 'ilike', `%${p}%`)
-    }
-  }
-
   const { data: jobs } = await query
-  const list = (jobs ?? []) as JobWithScore[]
+  let list = (jobs ?? []) as JobWithScore[]
+
+  // Apply country filter in JS (avoids Supabase .or() comma escaping issues)
+  if (country && country !== 'all' && COUNTRY_MATCHERS[country]) {
+    list = list.filter(j => j.location && COUNTRY_MATCHERS[country](j.location))
+  }
+
+  // Apply role filter in JS
+  if (role && role !== 'all') {
+    list = list.filter(j => matchesRole(j.title, role))
+  }
+
+  // Cap at 100 for display
+  list = list.slice(0, 100)
+
   const curatorsPick = list[0] ?? null
   const rest = list.slice(1)
 
