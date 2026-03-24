@@ -42,11 +42,12 @@ export async function fetchSmartRecruitersJobs(slug: string): Promise<SmartRecru
   const all: SmartRecruitersJob[] = []
   let offset = 0
   const limit = 100
+  const maxPages = 3 // Cap at 300 jobs per company to stay within timeout
 
   try {
-    while (true) {
+    for (let page = 0; page < maxPages; page++) {
       const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 15000)
+      const timeout = setTimeout(() => controller.abort(), 5000)
       const res = await fetch(
         `https://api.smartrecruiters.com/v1/companies/${slug}/postings?limit=${limit}&offset=${offset}`,
         { signal: controller.signal }
