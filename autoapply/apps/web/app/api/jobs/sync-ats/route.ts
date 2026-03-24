@@ -78,15 +78,20 @@ async function syncCompany(
 
   // 2. Filter SWE roles and classify
   const sweJobs = standardized.filter(j => isSWERole(j.title))
+  if (sweJobs.length === 0) {
+    stats.companies_synced++
+    return
+  }
 
-  // 3. Upsert each job
-  const activeAtsJobIds: string[] = []
+  // 3. Build rows and collect normalized keys
+  const now = new Date().toISOString()
+  const rows: Record<string, unknown>[] = []
+  const nkeys: string[] = []
 
   for (const job of sweJobs) {
     const nkey = normalizeKey(job.company, job.title, job.location)
-    const jobType = classifyJobType(job.title)
-
-    const row: Record<string, unknown> = {
+    nkeys.push(nkey)
+    rows.push({
       company_id: company.id,
       ats_job_id: job.ats_job_id,
       source_platform: job.source_platform,
@@ -94,7 +99,7 @@ async function syncCompany(
       company: job.company,
       location: job.location,
       department: job.department,
-      job_type: jobType,
+      job_type: classifyJobType(job.title),
       apply_url: job.apply_url,
       remote_policy: job.remote_policy,
       description: job.description,
@@ -105,31 +110,49 @@ async function syncCompany(
       preferred_skills: [],
       is_active: true,
       normalized_key: nkey,
-      updated_at: new Date().toISOString(),
-    }
-
-    // Try upsert on normalized_key
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existing } = await (adminClient.from('jobs') as any)
-      .select('id')
-      .eq('normalized_key', nkey)
-      .maybeSingle()
-
-    if (existing) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (adminClient.from('jobs') as any).update(row).eq('id', (existing as Record<string, string>).id)
-      stats.jobs_updated++
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (adminClient.from('jobs') as any).insert({
-        ...row,
-        first_seen_at: new Date().toISOString(),
-      })
-      stats.jobs_created++
-    }
-
-    activeAtsJobIds.push(job.ats_job_id)
+      updated_at: now,
+    })
   }
+
+  // 4. Batch-fetch existing keys in one query
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: existingRows } = await (adminClient.from('jobs') as any)
+    .select('id, normalized_key')
+    .in('normalized_key', nkeys)
+
+  const existingMap = new Map<string, string>()
+  for (const r of (existingRows ?? [])) {
+    existingMap.set(r.normalized_key, r.id)
+  }
+
+  // 5. Split into inserts vs updates, then batch
+  const toInsert: Record<string, unknown>[] = []
+  const toUpdate: Record<string, unknown>[] = []
+
+  for (const row of rows) {
+    const existingId = existingMap.get(row.normalized_key as string)
+    if (existingId) {
+      toUpdate.push({ ...row, id: existingId })
+    } else {
+      toInsert.push({ ...row, first_seen_at: now })
+    }
+  }
+
+  // Batch insert (Supabase handles arrays)
+  if (toInsert.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (adminClient.from('jobs') as any).upsert(toInsert, { onConflict: 'normalized_key' })
+    stats.jobs_created += toInsert.length
+  }
+
+  // Batch update via upsert on id
+  if (toUpdate.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (adminClient.from('jobs') as any).upsert(toUpdate, { onConflict: 'id' })
+    stats.jobs_updated += toUpdate.length
+  }
+
+  const activeAtsJobIds = sweJobs.map(j => j.ats_job_id)
 
   // 4. Deactivate stale jobs for this company
   if (activeAtsJobIds.length > 0) {
