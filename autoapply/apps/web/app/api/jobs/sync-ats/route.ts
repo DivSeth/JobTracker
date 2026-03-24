@@ -13,8 +13,8 @@ import type { ATSPlatform } from '@/lib/types'
 // Vercel Pro: allow up to 5 minutes for full sync across all companies
 export const maxDuration = 300
 
-const BATCH_SIZE = 5
-const BATCH_DELAY_MS = 200
+const BATCH_SIZE = 3
+const BATCH_DELAY_MS = 100
 
 interface SyncStats {
   companies_synced: number
@@ -153,6 +153,25 @@ async function syncCompany(
   stats.companies_synced++
 }
 
+/** Parse batch query params. Use for Vercel Hobby (10s limit) or manual batching. */
+function parseBatchParams(request: Request): {
+  offset: number; limit: number; phase: 'ats' | 'remoteok' | 'all'; platform: ATSPlatform | null
+} {
+  const url = new URL(request.url)
+  const offset = Math.max(0, parseInt(url.searchParams.get('offset') ?? '0', 10) || 0)
+  const limitParam = url.searchParams.get('limit')
+  const limit = limitParam == null ? Infinity : Math.max(1, parseInt(limitParam, 10) || 10)
+  const phase = (url.searchParams.get('phase') ?? 'all') as 'ats' | 'remoteok' | 'all'
+  const platformParam = url.searchParams.get('platform')
+  const validPlatforms: ATSPlatform[] = ['greenhouse', 'lever', 'ashby', 'smartrecruiters']
+  const platform = platformParam && validPlatforms.includes(platformParam as ATSPlatform)
+    ? (platformParam as ATSPlatform) : null
+  if (!['ats', 'remoteok', 'all'].includes(phase)) {
+    return { offset, limit, phase: 'all', platform }
+  }
+  return { offset, limit, phase, platform }
+}
+
 export async function POST(request: Request) {
   const authToken = request.headers.get('authorization')?.replace('Bearer ', '')
   const isValid =
@@ -165,6 +184,9 @@ export async function POST(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
+  const { offset, limit, phase, platform } = parseBatchParams(request)
+  let totalCompanies = 0
+
   const stats: SyncStats = {
     companies_synced: 0,
     companies_failed: 0,
@@ -175,59 +197,89 @@ export async function POST(request: Request) {
   }
 
   // --- Phase 1: ATS company sync ---
-  const { data: companies } = await adminClient
-    .from('companies')
-    .select('id, name, slug, ats_platform')
-    .eq('is_active', true)
+  const runAts = phase === 'ats' || phase === 'all'
+  if (runAts) {
+    let companyQuery = adminClient
+      .from('companies')
+      .select('id, name, slug, ats_platform')
+      .eq('is_active', true)
+    if (platform) companyQuery = companyQuery.eq('ats_platform', platform)
+    const { data: allCompanies } = await companyQuery
 
-  if (companies?.length) {
-    // Process in batches of BATCH_SIZE
-    for (let i = 0; i < companies.length; i += BATCH_SIZE) {
-      const batch = companies.slice(i, i + BATCH_SIZE)
-      await processBatch(batch, adminClient, stats)
-      if (i + BATCH_SIZE < companies.length) await delay(BATCH_DELAY_MS)
+    const companies = allCompanies ?? []
+    totalCompanies = companies.length
+    const slice = companies.slice(offset, offset + limit)
+
+    if (slice.length) {
+      for (let i = 0; i < slice.length; i += BATCH_SIZE) {
+        const batch = slice.slice(i, i + BATCH_SIZE)
+        await processBatch(batch, adminClient, stats)
+        if (i + BATCH_SIZE < slice.length) await delay(BATCH_DELAY_MS)
+      }
+    }
+
+    if (phase === 'ats') {
+      const hasMore = offset + limit < totalCompanies
+      const nextOffset = offset + limit
+      return NextResponse.json({
+        ...stats,
+        batch: { offset, limit, next_offset: nextOffset, has_more: hasMore, total_companies: totalCompanies },
+      })
     }
   }
 
   // --- Phase 2: RemoteOK bulk sync ---
-  const remoteJobs = await fetchRemoteOKJobs()
-  const sweRemote = remoteJobs.filter(j => isSWERole(j.position))
+  if (phase === 'remoteok' || phase === 'all') {
+    const remoteJobs = await fetchRemoteOKJobs()
+    const sweRemote = remoteJobs.filter(j => isSWERole(j.position))
 
-  for (const job of sweRemote) {
-    const std = rokStd(job)
-    const nkey = normalizeKey(std.company, std.title, std.location)
+    for (const job of sweRemote) {
+      const std = rokStd(job)
+      const nkey = normalizeKey(std.company, std.title, std.location)
 
-    // Skip if normalized_key already exists (ATS source wins)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existing } = await (adminClient.from('jobs') as any)
-      .select('id')
-      .eq('normalized_key', nkey)
-      .maybeSingle()
+      // Skip if normalized_key already exists (ATS source wins)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: existing } = await (adminClient.from('jobs') as any)
+        .select('id')
+        .eq('normalized_key', nkey)
+        .maybeSingle()
 
-    if (existing) continue
+      if (existing) continue
 
-    const jobType = classifyJobType(std.title)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (adminClient.from('jobs') as any).insert({
-      ats_job_id: std.ats_job_id,
-      source_platform: 'remoteok',
-      title: std.title,
-      company: std.company,
-      location: std.location,
-      job_type: jobType,
-      apply_url: std.apply_url,
-      remote_policy: 'remote',
-      salary_min: std.salary_min,
-      salary_max: std.salary_max,
-      required_skills: std.tags,
-      preferred_skills: [],
-      is_active: true,
-      normalized_key: nkey,
-      first_seen_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    stats.remoteok_added++
+      const jobType = classifyJobType(std.title)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (adminClient.from('jobs') as any).insert({
+        ats_job_id: std.ats_job_id,
+        source_platform: 'remoteok',
+        title: std.title,
+        company: std.company,
+        location: std.location,
+        job_type: jobType,
+        apply_url: std.apply_url,
+        remote_policy: 'remote',
+        salary_min: std.salary_min,
+        salary_max: std.salary_max,
+        required_skills: std.tags,
+        preferred_skills: [],
+        is_active: true,
+        normalized_key: nkey,
+        first_seen_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      stats.remoteok_added++
+    }
   }
 
-  return NextResponse.json(stats)
+  const batch =
+    phase === 'all' && totalCompanies > 0
+      ? {
+          offset,
+          limit,
+          next_offset: offset + limit,
+          has_more: offset + limit < totalCompanies,
+          total_companies: totalCompanies,
+        }
+      : undefined
+
+  return NextResponse.json(batch ? { ...stats, batch } : stats)
 }
