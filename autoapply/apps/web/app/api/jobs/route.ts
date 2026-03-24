@@ -17,7 +17,7 @@ export async function GET(request: Request) {
       *,
       job_scores!left(score, tier, matching_skills, skill_gaps, verdict, id, user_id, job_id, reasoning, scored_at),
       source:job_sources!left(repo_name, repo_url),
-      company:companies!left(name, slug, ats_platform, domain, logo_url)
+      company_info:companies!left(name, slug, ats_platform, domain, logo_url)
     `)
     .eq('is_active', true)
     .limit(100)

@@ -101,5 +101,5 @@ export interface JobWithScore extends Job {
   score?: JobScore | null
   source?: JobSource | null
   job_scores?: JobScore[]
-  company?: Company | null
+  company_info?: Company | null
 }
