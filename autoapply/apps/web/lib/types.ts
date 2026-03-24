@@ -1,4 +1,6 @@
 export type JobType = 'internship' | 'new_grad' | 'fulltime'
+export type ATSPlatform = 'greenhouse' | 'lever' | 'ashby' | 'smartrecruiters'
+export type SourcePlatform = ATSPlatform | 'remoteok' | 'github'
 export type ApplicationStatus =
   | 'saved' | 'applied' | 'oa' | 'interviewing'
   | 'offer' | 'rejected' | 'ghosted'
@@ -44,8 +46,20 @@ export interface JobSource {
   last_synced_at: string | null; is_active: boolean
 }
 
+export interface Company {
+  id: string
+  name: string
+  slug: string
+  ats_platform: ATSPlatform
+  domain: string | null
+  logo_url: string | null
+  is_active: boolean
+  last_synced_at: string | null
+  created_at: string
+}
+
 export interface Job {
-  id: string; source_id: string; source_url: string | null
+  id: string; source_id?: string | null; source_url: string | null
   title: string; company: string; location: string | null
   job_type: JobType | null; required_skills: string[]
   preferred_skills: string[]; experience_level: string | null
@@ -54,6 +68,13 @@ export interface Job {
   company_domain?: string | null; company_logo_url?: string | null
   salary_min?: number | null; salary_max?: number | null
   enriched_at?: string | null
+  company_id?: string | null
+  ats_job_id?: string | null
+  description?: string | null
+  department?: string | null
+  normalized_key?: string | null
+  source_platform?: SourcePlatform | null
+  updated_at?: string | null
 }
 
 export interface JobScore {
@@ -80,4 +101,5 @@ export interface JobWithScore extends Job {
   score?: JobScore | null
   source?: JobSource | null
   job_scores?: JobScore[]
+  company?: Company | null
 }
