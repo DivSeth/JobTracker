@@ -5,11 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 export function SortControl() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const type = searchParams.get('type') ?? 'all'
   const sort = searchParams.get('sort') ?? 'company'
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    router.push(`/jobs?type=${type}&sort=${e.target.value}`)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('sort', e.target.value)
+    router.push(`/jobs?${params}`)
   }
 
   return (
