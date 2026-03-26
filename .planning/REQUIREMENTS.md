@@ -21,7 +21,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **EXT-01**: Chrome extension (Manifest V3) with popup showing connection status and active profile
 - [ ] **EXT-02**: Extension authenticates with web app via token relay (OAuth through web app tab)
 - [x] **EXT-03**: Extension detects when user is on a supported ATS application page (Workday, Greenhouse)
-- [ ] **EXT-04**: Profile selection popup appears when user triggers auto-fill on a job application
+- [x] **EXT-04**: Profile selection popup appears when user triggers auto-fill on a job application
 - [x] **EXT-05**: Extension syncs profile data from web app to local storage for offline-capable fill
 
 ### Workday Auto-Fill
@@ -172,7 +172,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXT-01 | Phase 1 | Pending |
 | EXT-02 | Phase 1 | Pending |
 | EXT-03 | Phase 1 | Complete |
-| EXT-04 | Phase 1 | Pending |
+| EXT-04 | Phase 1 | Complete |
 | EXT-05 | Phase 1 | Complete |
 | GH-01 | Phase 2 | Pending |
 | GH-02 | Phase 2 | Pending |

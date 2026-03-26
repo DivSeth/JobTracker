@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-00-PLAN.md
-last_updated: "2026-03-26T05:51:44.323Z"
+stopped_at: "Completed 01-05-PLAN.md (checkpoint at Task 3: human-verify)"
+last_updated: "2026-03-26T06:09:59.210Z"
 last_activity: 2026-03-26
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 7
-  completed_plans: 2
+  completed_plans: 5
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 01 (application-profiles-extension-shell) — EXECUTING
-Plan: 3 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-03-26
 
@@ -54,6 +54,8 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-application-profiles-extension-shell P01 | 129 | 2 tasks | 6 files |
 | Phase 01 P00 | 2 | 2 tasks | 10 files |
+| Phase 01 P02 | 122 | 2 tasks | 5 files |
+| Phase 01-application-profiles-extension-shell P05 | 8 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -69,6 +71,8 @@ Recent decisions affecting current work:
 - [Phase 01-application-profiles-extension-shell]: ApplicationProfile is SEPARATE from existing Profile type: Profile is user identity, ApplicationProfile is a role-specific submission pack
 - [Phase 01-application-profiles-extension-shell]: EEO and work_authorization stored as BYTEA encrypted via pgcrypto pgp_sym_encrypt — not plaintext TEXT
 - [Phase 01]: Extension workspace created as separate npm workspace with vitest node environment (not jsdom)
+- [Phase 01-application-profiles-extension-shell]: syncProfiles fetches full profile data (select '*') and strips encrypted PII BYTEA fields before storing in chrome.storage.local
+- [Phase 01-application-profiles-extension-shell]: ATS badge and atsDetected storage cleared on tab navigation (chrome.tabs.onUpdated loading) to prevent stale detection state
 
 ### Pending Todos
 
@@ -81,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T05:51:44.320Z
-Stopped at: Completed 01-00-PLAN.md
+Last session: 2026-03-26T06:09:59.207Z
+Stopped at: Completed 01-05-PLAN.md (checkpoint at Task 3: human-verify)
 Resume file: None

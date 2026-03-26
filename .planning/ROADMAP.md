@@ -36,10 +36,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-00-PLAN.md — Wave 0 test stubs for all phase requirements (Nyquist compliance)
 - [x] 01-01-PLAN.md — Data model, Zod schema, Supabase migration, pgcrypto encryption
-- [ ] 01-02-PLAN.md — Profile CRUD API routes, file upload, duplicate, middleware update
-- [ ] 01-03-PLAN.md — Chrome extension scaffold (WXT + React), token relay auth, background worker
+- [x] 01-02-PLAN.md — Profile CRUD API routes, file upload, duplicate, middleware update
+- [x] 01-03-PLAN.md — Chrome extension scaffold (WXT + React), token relay auth, background worker
 - [ ] 01-04-PLAN.md — Profile management UI (list page, tabbed edit form, resume uploader, sidebar nav)
-- [ ] 01-05-PLAN.md — Extension ATS detection, popup mini dashboard, profile sync
+- [x] 01-05-PLAN.md — Extension ATS detection, popup mini dashboard, profile sync
 - [ ] 01-06-PLAN.md — Resume AI parsing two-step flow (Gemini extraction, editable preview, form population)
 
 ### Phase 2: Greenhouse Auto-Fill & Tracking
@@ -130,7 +130,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Application Profiles & Extension Shell | 2/7 | In Progress|  |
+| 1. Application Profiles & Extension Shell | 5/7 | In Progress|  |
 | 2. Greenhouse Auto-Fill & Tracking | 0/? | Not started | - |
 | 3. UI/UX Overhaul | 0/? | Not started | - |
 | 4. Workday Auto-Fill | 0/? | Not started | - |
