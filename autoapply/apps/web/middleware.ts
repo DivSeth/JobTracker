@@ -33,7 +33,8 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/api/gmail/webhook') ||
     request.nextUrl.pathname.startsWith('/api/jobs/score') ||
     request.nextUrl.pathname.startsWith('/api/applications/ghost-detect') ||
-    request.nextUrl.pathname.startsWith('/api/insights/generate')
+    request.nextUrl.pathname.startsWith('/api/insights/generate') ||
+    request.nextUrl.pathname.startsWith('/api/extension/')
 
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))
