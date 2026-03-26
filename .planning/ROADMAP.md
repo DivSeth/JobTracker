@@ -40,7 +40,7 @@ Plans:
 - [x] 01-03-PLAN.md — Chrome extension scaffold (WXT + React), token relay auth, background worker
 - [x] 01-04-PLAN.md — Profile management UI (list page, tabbed edit form, resume uploader, sidebar nav)
 - [x] 01-05-PLAN.md — Extension ATS detection, popup mini dashboard, profile sync
-- [ ] 01-06-PLAN.md — Resume AI parsing two-step flow (Gemini extraction, editable preview, form population)
+- [x] 01-06-PLAN.md — Resume AI parsing two-step flow (Gemini extraction, editable preview, form population)
 
 ### Phase 2: Greenhouse Auto-Fill & Tracking
 **Goal**: Users can auto-fill an entire Greenhouse application from their selected profile with a visual preview of field mappings, and completed applications automatically appear in the dashboard
