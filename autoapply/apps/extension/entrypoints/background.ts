@@ -27,8 +27,27 @@ export default defineBackground(() => {
             return true
         }
       }
+
+      if ('type' in message && message.type === 'ATS_PAGE_DETECTED') {
+        // Store the detected ATS page info so popup can read it
+        chrome.storage.local.set({
+          atsDetected: message.payload,
+        })
+        // Also store in session for badge update
+        chrome.action.setBadgeText({ text: 'ATS' })
+        chrome.action.setBadgeBackgroundColor({ color: '#22c55e' })
+      }
     }
   )
+
+  // Clear ATS detection when navigating away
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (changeInfo.status === 'loading') {
+      // Clear ATS detection on page navigation
+      chrome.storage.local.remove(['atsDetected'])
+      chrome.action.setBadgeText({ text: '' })
+    }
+  })
 
   // Token relay auth: open web app tab, intercept tokens from redirect
   async function handleSignIn(): Promise<{ success: boolean; error?: string }> {
@@ -138,11 +157,21 @@ export default defineBackground(() => {
 
       const { data: profiles } = await client
         .from('application_profiles')
-        .select('id, name, is_default, skills, updated_at')
+        .select('*')
         .order('is_default', { ascending: false })
 
       if (profiles) {
-        await chrome.storage.local.set({ profiles, lastSync: Date.now() })
+        const profilesForStorage = profiles.map((p) => ({
+          ...p,
+          // Strip encrypted BYTEA fields — extension can't decrypt them
+          // These will be fetched fresh via API at fill time
+          eeo_gender: null,
+          eeo_race: null,
+          eeo_veteran_status: null,
+          eeo_disability_status: null,
+          work_authorization: null,
+        }))
+        await chrome.storage.local.set({ profiles: profilesForStorage, lastSync: Date.now() })
         chrome.runtime
           .sendMessage({
             type: 'PROFILES_SYNCED',
