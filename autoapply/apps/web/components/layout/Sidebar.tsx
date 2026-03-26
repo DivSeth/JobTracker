@@ -9,6 +9,7 @@ import {
   Calendar,
   BarChart2,
   User,
+  Users,
   LogOut,
   Sun,
   Moon,
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: '/calendar',     label: 'Calendar',     icon: Calendar        },
   { href: '/insights',     label: 'Insights',     icon: BarChart2       },
   { href: '/profile',      label: 'Profile',      icon: User            },
+  { href: '/profiles',     label: 'App Profiles', icon: Users           },
 ]
 
 interface Props {
