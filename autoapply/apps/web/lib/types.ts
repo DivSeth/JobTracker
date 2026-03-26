@@ -156,3 +156,53 @@ export interface InsightItem {
   message: string
   data_point: string | null
 }
+
+// --- Application Profiles (Phase 1) ---
+
+export interface CertificationEntry {
+  name: string
+  issuer: string
+  date: string | null
+  expiry: string | null
+}
+
+export interface LanguageEntry {
+  language: string
+  proficiency: 'native' | 'fluent' | 'professional' | 'basic'
+}
+
+export interface ApplicationProfile {
+  id: string
+  user_id: string
+  name: string
+  is_default: boolean
+
+  // Work History
+  experience: ExperienceEntry[]
+
+  // Education
+  education: EducationEntry[]
+
+  // Skills and Certifications
+  skills: string[]
+  certifications: CertificationEntry[]
+  languages: LanguageEntry[]
+
+  // EEO / Demographics (per-profile per D-02, encrypted at rest per PROF-06)
+  eeo_gender: string | null
+  eeo_race: string | null
+  eeo_veteran_status: string | null
+  eeo_disability_status: string | null
+
+  // Work Authorization (encrypted at rest)
+  work_authorization: string | null
+  sponsorship_required: boolean | null
+
+  // Files (Supabase Storage paths per D-06)
+  resume_path: string | null
+  cover_letter_path: string | null
+
+  // Metadata
+  created_at: string
+  updated_at: string
+}
