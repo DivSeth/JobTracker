@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { TagInput } from '@/components/ui/tag-input'
 import { ResumeUploader } from '@/components/profiles/ResumeUploader'
+import { ResumeParser } from '@/components/profiles/ResumeParser'
+import type { ResumeParseData } from '@/components/profiles/ResumeParser'
 import { applicationProfileSchema } from '@/lib/schemas/application-profile'
 import type { ApplicationProfile, ExperienceEntry, EducationEntry, CertificationEntry, LanguageEntry } from '@/lib/types'
 
@@ -62,12 +64,23 @@ export function ApplicationProfileForm({ profile }: Props) {
   const [sponsorshipRequired, setSponsorshipRequired] = useState(profile.sponsorship_required ?? false)
   const [resumePath, setResumePath] = useState(profile.resume_path)
   const [coverLetterPath, setCoverLetterPath] = useState(profile.cover_letter_path)
+  const [parsedData, setParsedData] = useState<ResumeParseData | null>(null)
   const [isDirty, setIsDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [tabErrors, setTabErrors] = useState<Record<string, boolean>>({})
 
   function markDirty() {
+    setIsDirty(true)
+  }
+
+  function handleApplyParsedData(data: ResumeParseData) {
+    setExperience(data.experience)
+    setEducation(data.education)
+    setSkills(data.skills)
+    setCertifications(data.certifications)
+    setLanguages(data.languages)
+    setParsedData(null)
     setIsDirty(true)
   }
 
@@ -143,6 +156,15 @@ export function ApplicationProfileForm({ profile }: Props) {
           className="max-w-md"
         />
       </div>
+
+      {/* Resume parse preview panel — shown after upload triggers AI parsing */}
+      {parsedData && (
+        <ResumeParser
+          data={parsedData}
+          onApply={handleApplyParsedData}
+          onDismiss={() => setParsedData(null)}
+        />
+      )}
 
       <Tabs defaultValue="experience">
         <TabsList className="mb-6">
@@ -556,6 +578,7 @@ export function ApplicationProfileForm({ profile }: Props) {
             currentResumePath={resumePath}
             currentCoverLetterPath={coverLetterPath}
             onUploadComplete={handleUploadComplete}
+            onParseComplete={setParsedData}
           />
         </TabsContent>
       </Tabs>
