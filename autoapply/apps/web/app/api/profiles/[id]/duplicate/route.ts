@@ -49,17 +49,10 @@ export async function POST(request: Request, { params }: RouteParams) {
 
   // Build insert payload — copy all fields except identity/metadata fields
   // PII fields (BYTEA) are copied as-is since they are already encrypted in DB
-  const {
-    id: _id,
-    is_default: _isDefault,
-    name: _name,
-    created_at: _createdAt,
-    updated_at: _updatedAt,
-    user_id: _userId,
-    resume_path,
-    cover_letter_path,
-    ...restFields
-  } = sourceProfile as ApplicationProfile & Record<string, unknown>
+  const raw = sourceProfile as unknown as Record<string, unknown>
+  const { resume_path, cover_letter_path } = raw as { resume_path: string | null; cover_letter_path: string | null }
+  const skipKeys = new Set(['id', 'is_default', 'name', 'created_at', 'updated_at', 'user_id', 'resume_path', 'cover_letter_path'])
+  const restFields = Object.fromEntries(Object.entries(raw).filter(([k]) => !skipKeys.has(k)))
 
   // Insert new profile row first (without file paths) to get new ID
   const { data: newProfile, error: insertError } = await supabase

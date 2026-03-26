@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     parsed = applicationProfileSchema.parse(await request.json())
   } catch (err) {
     if (err instanceof ZodError) {
-      return NextResponse.json({ error: err.errors }, { status: 400 })
+      return NextResponse.json({ error: err.issues }, { status: 400 })
     }
     throw err
   }

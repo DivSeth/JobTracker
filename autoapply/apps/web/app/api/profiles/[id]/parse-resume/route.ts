@@ -1,7 +1,6 @@
-import * as pdfParseModule from 'pdf-parse'
-// pdf-parse uses CommonJS exports; handle both default and named export patterns
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const pdfParse: (buffer: Buffer) => Promise<{ text: string }> = (pdfParseModule as any).default ?? pdfParseModule
+// pdf-parse is a CommonJS module; suppress webpack default-export warning
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse: (buffer: Buffer) => Promise<{ text: string }> = require('pdf-parse')
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { callGemini, parseGeminiJSON } from '@/lib/ai/gemini'
