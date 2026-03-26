@@ -38,7 +38,7 @@ Plans:
 - [x] 01-01-PLAN.md — Data model, Zod schema, Supabase migration, pgcrypto encryption
 - [x] 01-02-PLAN.md — Profile CRUD API routes, file upload, duplicate, middleware update
 - [x] 01-03-PLAN.md — Chrome extension scaffold (WXT + React), token relay auth, background worker
-- [ ] 01-04-PLAN.md — Profile management UI (list page, tabbed edit form, resume uploader, sidebar nav)
+- [x] 01-04-PLAN.md — Profile management UI (list page, tabbed edit form, resume uploader, sidebar nav)
 - [x] 01-05-PLAN.md — Extension ATS detection, popup mini dashboard, profile sync
 - [ ] 01-06-PLAN.md — Resume AI parsing two-step flow (Gemini extraction, editable preview, form population)
 
@@ -130,7 +130,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Application Profiles & Extension Shell | 5/7 | In Progress|  |
+| 1. Application Profiles & Extension Shell | 6/7 | In Progress|  |
 | 2. Greenhouse Auto-Fill & Tracking | 0/? | Not started | - |
 | 3. UI/UX Overhaul | 0/? | Not started | - |
 | 4. Workday Auto-Fill | 0/? | Not started | - |
