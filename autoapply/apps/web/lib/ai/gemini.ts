@@ -8,7 +8,7 @@ interface GeminiResponse {
   }
 }
 
-export async function callGemini(prompt: string, systemInstruction?: string): Promise<{
+export async function callGemini(prompt: string, systemInstruction?: string, maxOutputTokens = 1024): Promise<{
   text: string
   inputTokens: number
   outputTokens: number
@@ -20,7 +20,7 @@ export async function callGemini(prompt: string, systemInstruction?: string): Pr
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       temperature: 0.1,
-      maxOutputTokens: 1024,
+      maxOutputTokens,
       responseMimeType: 'application/json',
     },
   }

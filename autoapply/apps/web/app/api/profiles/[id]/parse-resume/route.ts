@@ -1,6 +1,3 @@
-// pdf-parse is a CommonJS module; suppress webpack default-export warning
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse: (buffer: Buffer) => Promise<{ text: string }> = require('pdf-parse')
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { callGemini, parseGeminiJSON } from '@/lib/ai/gemini'
@@ -86,9 +83,11 @@ export async function POST(request: Request, { params }: RouteParams) {
     fileBuffer = Buffer.from(await fileData.arrayBuffer())
   }
 
-  // Extract text from PDF
+  // Extract text from PDF (dynamic import avoids pdf-parse fs.readFileSync at module load)
   let resumeText: string
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdfParse = require('pdf-parse') as (buf: Buffer) => Promise<{ text: string }>
     const pdfData = await pdfParse(fileBuffer)
     resumeText = pdfData.text
   } catch {
@@ -123,7 +122,7 @@ ${resumeText}
 \`\`\``
 
   try {
-    const result = await callGemini(RESUME_PARSE_PROMPT, RESUME_PARSE_SYSTEM)
+    const result = await callGemini(RESUME_PARSE_PROMPT, RESUME_PARSE_SYSTEM, 4096)
     const parsed = parseGeminiJSON<ResumeParseResult>(result.text)
     return NextResponse.json({
       data: parsed,
