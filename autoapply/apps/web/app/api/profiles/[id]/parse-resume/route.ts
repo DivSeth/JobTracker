@@ -83,11 +83,17 @@ export async function POST(request: Request, { params }: RouteParams) {
     if (!resumePath) {
       return NextResponse.json({ error: 'No file or resume_path provided' }, { status: 400 })
     }
-    const { data: fileData, error: downloadError } = await supabase.storage
-      .from('profile-documents')
-      .download(resumePath)
+    let fileData: Blob | null = null
+    let downloadError: { message: string } | null = null
+    try {
+      const result = await supabase.storage.from('profile-documents').download(resumePath)
+      fileData = result.data
+      downloadError = result.error
+    } catch (e) {
+      return NextResponse.json({ error: `download-threw: ${e instanceof Error ? e.message : String(e)}` }, { status: 500 })
+    }
     if (downloadError || !fileData) {
-      return NextResponse.json({ error: 'Failed to download resume file' }, { status: 500 })
+      return NextResponse.json({ error: `download-error: ${downloadError?.message ?? 'no data'}` }, { status: 500 })
     }
     fileBuffer = Buffer.from(await fileData.arrayBuffer())
   }
