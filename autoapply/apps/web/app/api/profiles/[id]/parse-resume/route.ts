@@ -136,7 +136,8 @@ export async function POST(request: Request, { params }: RouteParams) {
         output: geminiData.usageMetadata?.candidatesTokenCount ?? 0,
       },
     })
-  } catch {
+  } catch (err) {
+    console.error('[parse-resume] Gemini call failed:', err)
     return NextResponse.json(
       {
         error:
