@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { parseGeminiJSON } from '@/lib/ai/gemini'
+import { callGemini, parseGeminiJSON } from '@/lib/ai/gemini'
 
 interface ResumeParseResult {
   experience: Array<{
@@ -31,18 +31,7 @@ interface ResumeParseResult {
   }>
 }
 
-const RESUME_PARSE_PROMPT = `You are a resume parser. Extract structured data from this resume PDF. Be thorough — extract ALL entries. Use ISO date formats (YYYY-MM). For employment_type, infer from context: use 'internship' if the role mentions intern/internship, 'full_time' otherwise. For language proficiency, infer from context or default to 'professional'.
-
-Return JSON with these exact fields:
-{
-  "experience": [{"company": "", "role": "", "employment_type": "full_time|internship|part_time|contract", "start": "YYYY-MM", "end": "YYYY-MM or null if current", "bullets": ["achievement 1", "achievement 2"]}],
-  "education": [{"school": "", "degree": "", "major": "", "gpa": null, "graduation_year": 2024}],
-  "skills": ["skill1", "skill2"],
-  "certifications": [{"name": "", "issuer": "", "date": "YYYY-MM or null", "expiry": null}],
-  "languages": [{"language": "", "proficiency": "native|fluent|professional|basic"}]
-}
-
-If a section has no data, use an empty array. Return valid JSON only.`
+const RESUME_PARSE_SYSTEM = `You are a resume parser. Extract structured data from resume text. Be thorough — extract ALL entries. Use ISO date formats (YYYY-MM). For employment_type, infer from context: use 'internship' if the role mentions intern/internship, 'full_time' otherwise. For language proficiency, infer from context or default to 'professional'. Return valid JSON only.`
 
 type RouteParams = { params: Promise<{ id: string }> }
 
@@ -83,67 +72,66 @@ export async function POST(request: Request, { params }: RouteParams) {
     if (!resumePath) {
       return NextResponse.json({ error: 'No file or resume_path provided' }, { status: 400 })
     }
-    let fileData: Blob | null = null
-    let downloadError: { message: string } | null = null
-    try {
-      const result = await supabase.storage.from('profile-documents').download(resumePath)
-      fileData = result.data
-      downloadError = result.error
-    } catch (e) {
-      return NextResponse.json({ error: `download-threw: ${e instanceof Error ? e.message : String(e)}` }, { status: 500 })
-    }
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('profile-documents')
+      .download(resumePath)
     if (downloadError || !fileData) {
-      return NextResponse.json({ error: `download-error: ${downloadError?.message ?? 'no data'}` }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to download resume file' }, { status: 500 })
     }
     fileBuffer = Buffer.from(await fileData.arrayBuffer())
   }
 
-  // Send PDF directly to Gemini as inline base64 data — no pdf-parse needed
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'AI service not configured' }, { status: 500 })
+  // Extract text from PDF (serverExternalPackages in next.config.mjs prevents bundling issues)
+  let resumeText: string
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdfParse = require('pdf-parse') as (buf: Buffer) => Promise<{ text: string }>
+    const pdfData = await pdfParse(fileBuffer)
+    resumeText = pdfData.text
+  } catch {
+    return NextResponse.json(
+      { error: 'Could not extract text from PDF. The file may be image-based or corrupted.' },
+      { status: 422 }
+    )
   }
 
-  try {
-    const base64Pdf = fileBuffer.toString('base64')
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { inline_data: { mime_type: 'application/pdf', data: base64Pdf } },
-              { text: RESUME_PARSE_PROMPT },
-            ],
-          }],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 4096,
-            responseMimeType: 'application/json',
-          },
-        }),
-      }
+  if (resumeText.trim().length < 50) {
+    return NextResponse.json(
+      { error: 'Could not extract text from PDF. The file may be image-based or corrupted.' },
+      { status: 422 }
     )
+  }
 
-    if (!res.ok) {
-      const err = await res.text()
-      throw new Error(`Gemini API error ${res.status}: ${err}`)
-    }
+  const RESUME_PARSE_PROMPT = `Extract the following structured data from this resume text. Return JSON with these exact fields:
+{
+  "experience": [{"company": "", "role": "", "employment_type": "full_time|internship|part_time|contract", "start": "YYYY-MM", "end": "YYYY-MM or null if current", "bullets": ["achievement 1", "achievement 2"]}],
+  "education": [{"school": "", "degree": "", "major": "", "gpa": null, "graduation_year": 2024}],
+  "skills": ["skill1", "skill2"],
+  "certifications": [{"name": "", "issuer": "", "date": "YYYY-MM or null", "expiry": null}],
+  "languages": [{"language": "", "proficiency": "native|fluent|professional|basic"}]
+}
 
-    const geminiData = await res.json()
-    const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-    const parsed = parseGeminiJSON<ResumeParseResult>(text)
+If a section has no data, use an empty array. Extract ALL entries found.
+
+Resume text:
+\`\`\`
+${resumeText}
+\`\`\``
+
+  try {
+    const result = await callGemini(RESUME_PARSE_PROMPT, RESUME_PARSE_SYSTEM, 4096)
+    const parsed = parseGeminiJSON<ResumeParseResult>(result.text)
     return NextResponse.json({
       data: parsed,
-      tokens: {
-        input: geminiData.usageMetadata?.promptTokenCount ?? 0,
-        output: geminiData.usageMetadata?.candidatesTokenCount ?? 0,
-      },
+      tokens: { input: result.inputTokens, output: result.outputTokens },
     })
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    return NextResponse.json({ error: msg }, { status: 500 })
+  } catch {
+    return NextResponse.json(
+      {
+        error:
+          'Resume parsing failed. Try uploading a different file, or fill in your details manually.',
+      },
+      { status: 500 }
+    )
   }
 }
