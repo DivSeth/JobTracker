@@ -137,13 +137,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       },
     })
   } catch (err) {
-    console.error('[parse-resume] Gemini call failed:', err)
-    return NextResponse.json(
-      {
-        error:
-          'Resume parsing failed. Try uploading a different file, or fill in your details manually.',
-      },
-      { status: 500 }
-    )
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
