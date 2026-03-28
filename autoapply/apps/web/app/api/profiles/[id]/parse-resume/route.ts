@@ -81,28 +81,26 @@ export async function POST(request: Request, { params }: RouteParams) {
     fileBuffer = Buffer.from(await fileData.arrayBuffer())
   }
 
-  // Extract text from PDF (serverExternalPackages in next.config.mjs prevents bundling issues)
-  let resumeText: string
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) {
+    return NextResponse.json({ error: 'AI service not configured' }, { status: 500 })
+  }
+
+  // Try text extraction first (fast, cheap). Fall back to Gemini vision for image-based PDFs.
+  let resumeText = ''
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const pdfParse = require('pdf-parse') as (buf: Buffer) => Promise<{ text: string }>
     const pdfData = await pdfParse(fileBuffer)
-    resumeText = pdfData.text
+    resumeText = pdfData.text?.trim() ?? ''
   } catch {
-    return NextResponse.json(
-      { error: 'Could not extract text from PDF. The file may be image-based or corrupted.' },
-      { status: 422 }
-    )
+    // pdf-parse failed — will fall through to Gemini vision below
   }
 
-  if (resumeText.trim().length < 50) {
-    return NextResponse.json(
-      { error: 'Could not extract text from PDF. The file may be image-based or corrupted.' },
-      { status: 422 }
-    )
-  }
-
-  const RESUME_PARSE_PROMPT = `Extract the following structured data from this resume text. Return JSON with these exact fields:
+  try {
+    if (resumeText.length >= 50) {
+      // Text-based PDF: send extracted text to Gemini (cheap)
+      const RESUME_PARSE_PROMPT = `Extract the following structured data from this resume text. Return JSON with these exact fields:
 {
   "experience": [{"company": "", "role": "", "employment_type": "full_time|internship|part_time|contract", "start": "YYYY-MM", "end": "YYYY-MM or null if current", "bullets": ["achievement 1", "achievement 2"]}],
   "education": [{"school": "", "degree": "", "major": "", "gpa": null, "graduation_year": 2024}],
@@ -117,21 +115,47 @@ Resume text:
 \`\`\`
 ${resumeText}
 \`\`\``
+      const result = await callGemini(RESUME_PARSE_PROMPT, RESUME_PARSE_SYSTEM, 4096)
+      const parsed = parseGeminiJSON<ResumeParseResult>(result.text)
+      return NextResponse.json({ data: parsed, tokens: { input: result.inputTokens, output: result.outputTokens } })
+    }
 
-  try {
-    const result = await callGemini(RESUME_PARSE_PROMPT, RESUME_PARSE_SYSTEM, 4096)
-    const parsed = parseGeminiJSON<ResumeParseResult>(result.text)
-    return NextResponse.json({
-      data: parsed,
-      tokens: { input: result.inputTokens, output: result.outputTokens },
-    })
-  } catch {
-    return NextResponse.json(
+    // Image-based PDF: send raw PDF bytes to Gemini vision (gemini-1.5-flash)
+    const base64Pdf = fileBuffer.toString('base64')
+    const visionPrompt = `You are a resume parser. Extract ALL structured data from this resume image/PDF. Return JSON with these exact fields:
+{
+  "experience": [{"company": "", "role": "", "employment_type": "full_time|internship|part_time|contract", "start": "YYYY-MM", "end": "YYYY-MM or null if current", "bullets": ["achievement 1", "achievement 2"]}],
+  "education": [{"school": "", "degree": "", "major": "", "gpa": null, "graduation_year": 2024}],
+  "skills": ["skill1", "skill2"],
+  "certifications": [{"name": "", "issuer": "", "date": "YYYY-MM or null", "expiry": null}],
+  "languages": [{"language": "", "proficiency": "native|fluent|professional|basic"}]
+}
+If a section has no data, use an empty array. Return valid JSON only.`
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
-        error:
-          'Resume parsing failed. Try uploading a different file, or fill in your details manually.',
-      },
-      { status: 500 }
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { inline_data: { mime_type: 'application/pdf', data: base64Pdf } },
+            { text: visionPrompt },
+          ]}],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 4096, responseMimeType: 'application/json' },
+        }),
+      }
     )
+    if (!res.ok) {
+      const err = await res.text()
+      throw new Error(`Gemini vision error ${res.status}: ${err}`)
+    }
+    const geminiData = await res.json()
+    const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    const parsed = parseGeminiJSON<ResumeParseResult>(text)
+    return NextResponse.json({ data: parsed, tokens: { input: geminiData.usageMetadata?.promptTokenCount ?? 0, output: geminiData.usageMetadata?.candidatesTokenCount ?? 0 } })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
