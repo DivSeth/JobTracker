@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ApplicationProfileForm } from '@/components/profiles/ApplicationProfileForm'
+import { DeleteProfileButton } from '@/components/profiles/DeleteProfileButton'
 import type { ApplicationProfile } from '@/lib/types'
 
 interface Props {
@@ -50,10 +51,11 @@ export default async function ProfileEditPage({ params }: Props) {
 
   return (
     <div>
-      <div className="px-8 pt-8 max-w-4xl mx-auto">
+      <div className="px-8 pt-8 max-w-4xl mx-auto flex items-center justify-between">
         <h1 className="text-2xl font-semibold font-display text-on-surface">
           {typedProfile.name}
         </h1>
+        <DeleteProfileButton profileId={typedProfile.id} profileName={typedProfile.name} />
       </div>
       <ApplicationProfileForm profile={typedProfile} />
     </div>
