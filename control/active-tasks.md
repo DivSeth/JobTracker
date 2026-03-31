@@ -42,7 +42,7 @@ file-upload.ts must export: `uploadFileToInput(input, blob, filename, mimeType)`
 
 ---
 
-## TASK-03 — API routes: field-mappings + track-application (02-02, Part A)
+## TASK-03 [x] — API routes: field-mappings + track-application (02-02, Part A)
 **Files:**
 - `autoapply/apps/web/app/api/extension/field-mappings/route.ts`
 - `autoapply/apps/web/app/api/extension/track-application/route.ts`
@@ -56,6 +56,7 @@ track-application:
 Auth: use `createServerClient` + `supabase.auth.getUser()` → 401 if missing
 **Test:** Fill stubs in `field-mappings.test.ts` + `track-application.test.ts`
 **Commit:** `feat(02-02): field-mappings and track-application API routes`
+**Done:** Added both extension API route files and replaced all Task-03 `it.todo()` cases with mocked route assertions for auth, query validation, duplicate lookup, upsert, and status updates.
 
 ---
 
