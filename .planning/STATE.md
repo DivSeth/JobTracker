@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
+status: executing
 stopped_at: Completed 02-00-PLAN.md
 last_updated: "2026-03-31T06:02:56.476Z"
-last_activity: 2026-03-31
+last_activity: 2026-03-31 -- Phase 02 execution started
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 5
-  percent: 0
+  completed_phases: 1
+  total_plans: 13
+  completed_plans: 7
+  percent: 17
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** One-click application submission with full ATS form auto-fill powered by role-specific profiles
-**Current focus:** Phase 01 — application-profiles-extension-shell
+**Current focus:** Phase 02 — greenhouse-auto-fill-tracking
 
 ## Current Position
 
-Phase: 01 (application-profiles-extension-shell) — EXECUTING
-Plan: 7 of 7
-Status: Phase complete — ready for verification
-Last activity: 2026-03-31
+Phase: 02 (greenhouse-auto-fill-tracking) — EXECUTING
+Plan: 1 of 6 complete (02-00 done)
+Status: Executing Phase 02
+Last activity: 2026-03-31 -- Phase 02 execution started
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 17%
 
 ## Performance Metrics
 
@@ -87,11 +87,15 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 1]: WXT version and MV3 compatibility need verification before extension development begins
 - [Phase 4]: Workday `data-automation-id` attribute stability must be validated against live pages early
+- [Resume parsing]: Gemini free tier quota exhausted — verify end-to-end parse flow when limits reset (upload PDF → spinner → "Review Extracted Data" panel → Apply to Profile)
+
+### Reminders for Next Session
+
+- **UI/UX Overhaul (Phase 3)** needs planning discussion — currently slotted between Greenhouse (Phase 2) and Workday (Phase 4). Make sure to allocate time for this; the product needs to feel like a polished startup before the Workday push.
 
 ## Session Continuity
 
 Last session: 2026-03-31T06:02:56.473Z
-Stopped at: Completed 02-00-PLAN.md
-Resume file: None
+Stopped at: Completed 02-00-PLAN.md — execution hit usage limit, resuming from 02-01
+Resume file: .planning/phases/02-greenhouse-auto-fill-tracking/02-01-PLAN.md
