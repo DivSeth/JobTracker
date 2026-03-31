@@ -55,7 +55,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 02-00-PLAN.md — Wave 0 type contracts, Supabase migration (ats_field_mappings + apply_url), test stubs
+- [x] 02-00-PLAN.md — Wave 0 type contracts, Supabase migration (ats_field_mappings + apply_url), test stubs
 - [ ] 02-01-PLAN.md — Form scanner, profile-to-field mapper, synthetic event helpers, file upload utility
 - [ ] 02-02-PLAN.md — Field mappings API, track application API, background worker fill-flow messaging
 - [ ] 02-03-PLAN.md — Fill orchestrator engine, submission confirmation detector
@@ -135,7 +135,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Application Profiles & Extension Shell | 7/7 | Complete |  |
-| 2. Greenhouse Auto-Fill & Tracking | 0/6 | Planned | - |
+| 2. Greenhouse Auto-Fill & Tracking | 1/6 | In Progress | - |
 | 3. UI/UX Overhaul | 0/? | Not started | - |
 | 4. Workday Auto-Fill | 0/? | Not started | - |
 | 5. Q&A Intelligence | 0/? | Not started | - |
