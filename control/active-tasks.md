@@ -60,7 +60,7 @@ Auth: use `createServerClient` + `supabase.auth.getUser()` → 401 if missing
 
 ---
 
-## TASK-04 — Extend background worker (02-02, Part B)
+## TASK-04 [x] — Extend background worker (02-02, Part B)
 **Files:**
 - `autoapply/apps/extension/entrypoints/background.ts`
 - `autoapply/apps/extension/utils/messages.ts`
@@ -75,6 +75,7 @@ background.ts: on `syncProfiles` also fetch + store `userIdentity` (userId + ema
 Handle new message types — proxy to web API or return from storage.
 
 **Commit:** `feat(02-02): extend background worker with fill message routing`
+**Done:** Extended the message union, added persisted `userIdentity` helpers, synced identity during profile sync, and routed fill/mapping/tracking/duplicate messages through the background worker.
 
 ---
 

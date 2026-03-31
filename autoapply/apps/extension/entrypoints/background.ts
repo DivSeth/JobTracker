@@ -1,6 +1,13 @@
-import { getStoredAuth, setStoredAuth, clearStoredAuth } from '../utils/storage'
+import {
+  clearStoredAuth,
+  getStoredAuth,
+  getStoredProfiles,
+  getUserIdentity,
+  setStoredAuth,
+  setUserIdentity,
+} from '../utils/storage'
 import { createExtensionClient } from '../utils/supabase'
-import type { ExtensionMessage, AuthStatus } from '../utils/messages'
+import type { AuthStatus, ExtensionMessage, StoredUserIdentity } from '../utils/messages'
 
 export default defineBackground(() => {
   const WEBAPP_URL = import.meta.env.VITE_WEBAPP_URL || 'http://localhost:3000'
@@ -24,6 +31,30 @@ export default defineBackground(() => {
 
           case 'syncProfiles':
             syncProfiles().then(sendResponse)
+            return true
+
+          case 'getProfileForFill':
+            getProfileForFill(message.payload?.profileId ?? null).then(sendResponse)
+            return true
+
+          case 'getFieldMappings':
+            fetchFieldMappings(message.payload.platform).then(sendResponse)
+            return true
+
+          case 'trackApplication':
+            trackApplication(message.payload).then(sendResponse)
+            return true
+
+          case 'updateApplicationStatus':
+            updateApplicationStatus(message.payload.id, message.payload.status).then(sendResponse)
+            return true
+
+          case 'checkDuplicateApplication':
+            checkDuplicateApplication(message.payload.applyUrl).then(sendResponse)
+            return true
+
+          case 'startFill':
+            getProfileForFill(message.payload.profileId ?? null).then(sendResponse)
             return true
         }
       }
@@ -161,6 +192,15 @@ export default defineBackground(() => {
         .order('is_default', { ascending: false })
 
       if (profiles) {
+        const userIdentity: StoredUserIdentity = {
+          userId: user.id,
+          email: user.email ?? '',
+          fullName: user.user_metadata?.full_name ?? null,
+          phone: null,
+          portfolioUrl: null,
+          location: null,
+        }
+
         const profilesForStorage = profiles.map((p) => ({
           ...p,
           // Strip encrypted BYTEA fields — extension can't decrypt them
@@ -170,8 +210,14 @@ export default defineBackground(() => {
           eeo_veteran_status: null,
           eeo_disability_status: null,
           work_authorization: null,
+          sponsorship_required: null,
         }))
-        await chrome.storage.local.set({ profiles: profilesForStorage, lastSync: Date.now() })
+        await setUserIdentity(userIdentity)
+        await chrome.storage.local.set({
+          profiles: profilesForStorage,
+          userIdentity,
+          lastSync: Date.now(),
+        })
         chrome.runtime
           .sendMessage({
             type: 'PROFILES_SYNCED',
@@ -184,6 +230,73 @@ export default defineBackground(() => {
       return { success: false, count: 0 }
     } catch {
       return { success: false, count: 0 }
+    }
+  }
+
+  async function getProfileForFill(profileId?: string | null): Promise<{
+    profile: unknown | null
+    userIdentity: StoredUserIdentity | null
+  }> {
+    const [profiles, userIdentity, storageState] = await Promise.all([
+      getStoredProfiles(),
+      getUserIdentity(),
+      chrome.storage.local.get(['activeProfileId']),
+    ])
+
+    const selectedProfileId =
+      profileId ?? (storageState.activeProfileId as string | undefined) ?? null
+    const profile =
+      (profiles as Array<{ id?: string }>).find((item) => item.id === selectedProfileId) ?? null
+
+    return { profile, userIdentity }
+  }
+
+  async function fetchFieldMappings(platform: 'greenhouse' | 'workday') {
+    return fetchFromWebApi(`/api/extension/field-mappings?platform=${encodeURIComponent(platform)}`)
+  }
+
+  async function trackApplication(payload: unknown) {
+    return fetchFromWebApi('/api/extension/track-application', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  }
+
+  async function updateApplicationStatus(id: string, status: string) {
+    return fetchFromWebApi('/api/extension/track-application', {
+      method: 'PATCH',
+      body: JSON.stringify({ id, status }),
+    })
+  }
+
+  async function checkDuplicateApplication(applyUrl: string) {
+    return fetchFromWebApi(
+      `/api/extension/track-application?applyUrl=${encodeURIComponent(applyUrl)}`
+    )
+  }
+
+  async function fetchFromWebApi(path: string, init?: RequestInit) {
+    try {
+      const response = await fetch(`${WEBAPP_URL}${path}`, {
+        ...init,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(init?.headers ?? {}),
+        },
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        return { success: false, error: data.error ?? 'Request failed', status: response.status }
+      }
+
+      return data
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
