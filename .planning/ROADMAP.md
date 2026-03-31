@@ -55,8 +55,12 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [x] 02-00-PLAN.md — Wave 0 type contracts, Supabase migration (ats_field_mappings + apply_url), test stubs
+- [ ] 02-01-PLAN.md — Form scanner, profile-to-field mapper, synthetic event helpers, file upload utility
+- [ ] 02-02-PLAN.md — Field mappings API, track application API, background worker fill-flow messaging
+- [ ] 02-03-PLAN.md — Fill orchestrator engine, submission confirmation detector
+- [ ] 02-04-PLAN.md — Shadow DOM preview panel UI (PreviewPanel, MappingRow, FillProgressBar, FillResultBanner)
+- [ ] 02-05-PLAN.md — Tracking sync wiring, submission toast, end-to-end verification checkpoint
 
 ### Phase 3: UI/UX Overhaul
 **Goal**: The entire product — web app and extension — feels like a polished startup product with a cohesive visual identity, intuitive flows, and professional quality that builds user trust
@@ -131,7 +135,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Application Profiles & Extension Shell | 6/7 | In Progress|  |
-| 2. Greenhouse Auto-Fill & Tracking | 0/? | Not started | - |
+| 2. Greenhouse Auto-Fill & Tracking | 1/6 | In Progress | - |
 | 3. UI/UX Overhaul | 0/? | Not started | - |
 | 4. Workday Auto-Fill | 0/? | Not started | - |
 | 5. Q&A Intelligence | 0/? | Not started | - |
