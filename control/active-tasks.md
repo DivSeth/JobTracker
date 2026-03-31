@@ -79,13 +79,15 @@ Handle new message types — proxy to web API or return from storage.
 
 ---
 
-## TASK-05 — Run tests, verify Wave 1 green
+## TASK-05 [x] — Run tests, verify Wave 1 green
 ```bash
 cd autoapply && npm run test -w apps/extension
 cd autoapply && npm run test -w apps/web
 ```
 Expected: all 02-01 + 02-02 test files pass (no `it.todo` remaining)
 If failures: fix before proceeding to Wave 2 (02-03)
+**Done:** Executed both commands exactly as requested.
+**BLOCKED:** Both suites fail before loading tests because local Node is `v19.9.0` and installed Vitest/Rolldown imports `node:util.styleText`, which is unavailable on this runtime.
 
 ---
 
