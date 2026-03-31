@@ -24,7 +24,7 @@ mapper.ts must export `mapProfileToFields(profile, fields): MappedField[]` + `re
 
 ---
 
-## TASK-02 — Implement events + file-upload helpers (02-01, Part B)
+## TASK-02 [x] — Implement events + file-upload helpers (02-01, Part B)
 **File:** `autoapply/apps/extension/lib/form-fill/events.ts`
 **Also:** `autoapply/apps/extension/lib/form-fill/file-upload.ts`
 
@@ -38,6 +38,7 @@ file-upload.ts must export: `uploadFileToInput(input, blob, filename, mimeType)`
 
 **Test:** Fill stubs in `events.test.ts` + `file-upload.test.ts`
 **Commit:** `feat(02-01): synthetic event helpers and file upload utility`
+**Done:** Added text/select/checkbox fill helpers, DataTransfer-based file upload, and replaced all Task-02 `it.todo()` cases with assertions.
 
 ---
 
