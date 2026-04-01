@@ -3,13 +3,18 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 
 export default function LoginPage() {
-  const supabase = createClient()
-
   async function signInWithGoogle() {
+    const supabase = createClient()
+    const source = new URLSearchParams(window.location.search).get('source')
+    const redirectTo =
+      source === 'extension'
+        ? `${window.location.origin}/api/auth/callback?source=extension`
+        : `${window.location.origin}/api/auth/callback`
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/api/auth/callback`,
+        redirectTo,
         scopes: [
           'https://www.googleapis.com/auth/gmail.readonly',
           'https://www.googleapis.com/auth/calendar',
