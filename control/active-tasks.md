@@ -1,94 +1,151 @@
 # Active Tasks
 
-**Status:** Phase 02 Wave 1 resuming — 02-00 done, executing 02-01 + 02-02
+**Status:** Phase 02 Wave 4 — 02-05 Tracking sync + submission toast (final plan, checkpoint)
 
 ---
 
-## TASK-01 [x] — Implement form scanner + mapper (02-01, Part A)
-**File:** `autoapply/apps/extension/lib/greenhouse/scanner.ts`
-**Also:** `autoapply/apps/extension/lib/greenhouse/mapper.ts`
-**Depends on:** `lib/greenhouse/types.ts` (already written)
-
-scanner.ts must export `scanGreenhouseForm(): GreenhouseField[]`
-- Query `[data-field]`, `input`, `select`, `textarea` inside `#application_form`
-- Detect field type: text | select | checkbox | file | custom_question
-- Return label, selector, fieldType, required flag
-
-mapper.ts must export `mapProfileToFields(profile, fields): MappedField[]` + `resolveProfileValue`
-- Map profile keys to GreenhouseField selectors using FieldMappingConfig
-- Mark custom_question fields as unmapped if no match
-
-**Test:** Fill in `it.todo()` stubs in `scanner.test.ts` and `mapper.test.ts`
-**Commit:** `feat(02-01): greenhouse form scanner and profile mapper`
-**Done:** Added `scanGreenhouseForm`, `mapProfileToFields`, `resolveProfileValue`, and replaced all Task-01 `it.todo()` cases with assertions.
-
----
-
-## TASK-02 [x] — Implement events + file-upload helpers (02-01, Part B)
-**File:** `autoapply/apps/extension/lib/form-fill/events.ts`
-**Also:** `autoapply/apps/extension/lib/form-fill/file-upload.ts`
-
-events.ts must export: `fillTextField(el, value)`, `fillSelectField(el, value)`, `fillCheckbox(el, checked)`
-- Dispatch focus → InputEvent(input) → Event(change) → blur in sequence
-- Use `bubbles: true, composed: true` for Shadow DOM compatibility
-
-file-upload.ts must export: `uploadFileToInput(input, blob, filename, mimeType)`
-- Create `new DataTransfer()`, append File, assign to `input.files`
-- Dispatch change event after
-
-**Test:** Fill stubs in `events.test.ts` + `file-upload.test.ts`
-**Commit:** `feat(02-01): synthetic event helpers and file upload utility`
-**Done:** Added text/select/checkbox fill helpers, DataTransfer-based file upload, and replaced all Task-02 `it.todo()` cases with assertions.
-
----
-
-## TASK-03 [x] — API routes: field-mappings + track-application (02-02, Part A)
+## TASK-01 — SubmissionToast.tsx + tracking wiring in App.tsx
 **Files:**
-- `autoapply/apps/web/app/api/extension/field-mappings/route.ts`
-- `autoapply/apps/web/app/api/extension/track-application/route.ts`
+- `autoapply/apps/extension/entrypoints/greenhouse.content/SubmissionToast.tsx` ← NEW
+- `autoapply/apps/extension/entrypoints/greenhouse.content/App.tsx` ← UPDATE
 
-field-mappings: `GET ?platform=greenhouse` → query `ats_field_mappings` table → return rows
-track-application:
-- `POST` → insert into `applications` table, return created row
-- `PATCH` → update status by id
-- `GET ?applyUrl=...` → check for duplicate by apply_url + user_id
+**Read first:** `App.tsx`, `lib/greenhouse/detector.ts`, `lib/greenhouse/types.ts`, `active-context.md`
 
-Auth: use `createServerClient` + `supabase.auth.getUser()` → 401 if missing
-**Test:** Fill stubs in `field-mappings.test.ts` + `track-application.test.ts`
-**Commit:** `feat(02-02): field-mappings and track-application API routes`
-**Done:** Added both extension API route files and replaced all Task-03 `it.todo()` cases with mocked route assertions for auth, query validation, duplicate lookup, upsert, and status updates.
+**SubmissionToast.tsx** — Create new component:
+```tsx
+import { useState, useEffect } from 'react'
+import { CheckCircle2 } from 'lucide-react'
 
----
+interface Props {
+  message: string
+  duration?: number  // ms, default 4000
+  onDismiss: () => void
+}
 
-## TASK-04 [x] — Extend background worker (02-02, Part B)
-**Files:**
-- `autoapply/apps/extension/entrypoints/background.ts`
-- `autoapply/apps/extension/utils/messages.ts`
-- `autoapply/apps/extension/utils/storage.ts`
+export function SubmissionToast({ message, duration = 4000, onDismiss }: Props) {
+  const [visible, setVisible] = useState(true)
 
-messages.ts: add to `ExtensionMessage` union:
-`startFill | getProfileForFill | getFieldMappings | trackApplication | updateApplicationStatus | checkDuplicateApplication`
+  useEffect(() => {
+    const fadeTimer = setTimeout(() => setVisible(false), duration - 200)
+    const dismissTimer = setTimeout(onDismiss, duration)
+    return () => { clearTimeout(fadeTimer); clearTimeout(dismissTimer) }
+  }, [duration, onDismiss])
 
-storage.ts: add `getUserIdentity()` / `setUserIdentity()` helpers
-
-background.ts: on `syncProfiles` also fetch + store `userIdentity` (userId + email).
-Handle new message types — proxy to web API or return from storage.
-
-**Commit:** `feat(02-02): extend background worker with fill message routing`
-**Done:** Extended the message union, added persisted `userIdentity` helpers, synced identity during profile sync, and routed fill/mapping/tracking/duplicate messages through the background worker.
-
----
-
-## TASK-05 [x] — Run tests, verify Wave 1 green
-```bash
-cd autoapply && npm run test -w apps/extension
-cd autoapply && npm run test -w apps/web
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className={`fixed bottom-6 right-6 flex items-center gap-2 px-4 py-3 bg-white rounded-lg border-l-4 border-l-[#22c55e] transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', zIndex: 2147483647 }}
+    >
+      <CheckCircle2 className="w-4 h-4 text-[#22c55e]" />
+      <span className="text-sm font-medium text-[#2a3439]">{message}</span>
+    </div>
+  )
+}
 ```
-Expected: all 02-01 + 02-02 test files pass (no `it.todo` remaining)
-If failures: fix before proceeding to Wave 2 (02-03)
-**Done:** Executed both commands exactly as requested.
-**BLOCKED:** Both suites fail before loading tests because local Node is `v19.9.0` and installed Vitest/Rolldown imports `node:util.styleText`, which is unavailable on this runtime.
+
+**App.tsx updates:**
+1. Add `import { SubmissionToast } from './SubmissionToast'`
+2. Add `import { watchForSubmissionConfirmation } from '@/lib/greenhouse/detector'`
+3. Add state: `const [showToast, setShowToast] = useState(false)`
+4. In `handleConfirmFill` (after `fillForm` resolves), add:
+   ```typescript
+   // Scrape job/company from page
+   const jobTitle = document.querySelector('h1.app-title, .posting-headline h2, h1')?.textContent?.trim() ?? 'Unknown Position'
+   const companyName = document.querySelector('.company-name, .posting-headline .company')?.textContent?.trim() ?? 'Unknown Company'
+
+   // SYNC-01: track application
+   chrome.runtime.sendMessage({
+     action: 'trackApplication',
+     payload: { applyUrl: window.location.href, jobTitle, companyName, profileId, source: 'extension_autofill' as const },
+   })
+
+   // Show toast
+   setShowToast(true)
+
+   // SYNC-02: watch for submission confirmation
+   const watcher = watchForSubmissionConfirmation((_url) => {
+     chrome.runtime.sendMessage({
+       action: 'updateApplicationStatus',
+       payload: { applyUrl: window.location.href, status: 'applied' },
+     })
+   })
+   // cleanup on unmount via useEffect return or onDismiss
+   ```
+5. Render toast in JSX:
+   ```tsx
+   {showToast && (
+     <SubmissionToast message="Application tracked!" onDismiss={() => setShowToast(false)} />
+   )}
+   ```
+6. Ensure `profileId` prop is accepted and used (verify it's already threaded from index.tsx)
+
+**Exports:** `SubmissionToast` (named export)
+
+**Commit:** `feat(02-05): SubmissionToast and tracking sync wiring`
 
 ---
 
-**Next after these 5 tasks:** Wave 2 → execute 02-03 (filler + detector)
+## TASK-02 — Add SubmissionToast tests to components.test.tsx
+**Files:**
+- `autoapply/apps/extension/entrypoints/greenhouse.content/components.test.tsx` ← UPDATE
+
+**Read first:** `components.test.tsx`, `SubmissionToast.tsx`
+
+Add to `components.test.tsx`:
+```tsx
+import { SubmissionToast } from './SubmissionToast'
+
+describe('SubmissionToast', () => {
+  it('renders message and icon', () => {
+    render(<SubmissionToast message="Application tracked!" onDismiss={() => {}} />)
+    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(screen.getByText('Application tracked!')).toBeInTheDocument()
+  })
+
+  it('calls onDismiss after duration', async () => {
+    vi.useFakeTimers()
+    const onDismiss = vi.fn()
+    render(<SubmissionToast message="Done" duration={1000} onDismiss={onDismiss} />)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(onDismiss).toHaveBeenCalledOnce()
+    vi.useRealTimers()
+  })
+})
+```
+
+**Commit:** `test(02-05): SubmissionToast unit tests`
+
+---
+
+## TASK-03 — Run full test suite + build verification
+**Files:** none (verification only)
+
+```bash
+# From autoapply/apps/extension:
+/Users/divyaanshseth/.nvm/versions/node/v20.20.1/bin/node ../../node_modules/vitest/vitest.mjs run --reporter=verbose
+```
+
+Expected: ALL tests pass including new SubmissionToast tests. Zero failures.
+
+Fix any failures before proceeding.
+
+Then run build:
+```bash
+cd autoapply/apps/extension && npm run build
+```
+
+Expected: Build completes without errors. No WXT entrypoint conflicts (old .ts file was deleted).
+
+**Commit (only if fixes needed):** `fix(02-05): test + build corrections`
+
+When build and tests are green, write a summary to `control/state.md`:
+- Mark 02-05 complete
+- Note: "Phase 02 implementation complete — awaiting human E2E verification on live Greenhouse page"
+
+---
+
+**After TASK-03:** This is a checkpoint. Codex stops here.
+Claude will update state and present the human E2E checklist (from 02-05-PLAN.md Task 2).
+Phase 02 is NOT marked complete until the user verifies end-to-end on a real Greenhouse page.
