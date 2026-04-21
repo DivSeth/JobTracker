@@ -6,6 +6,7 @@ import { extractTokensFromSession, storeGmailTokens } from '@/lib/gmail/vault'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  const source = searchParams.get('source')
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`, { status: 302 })
@@ -32,6 +33,15 @@ export async function GET(request: Request) {
       // Non-fatal: log and continue — user can reconnect Gmail later
       console.error('Failed to store Gmail tokens in Vault:', vaultErr)
     }
+  }
+
+  if (source === 'extension') {
+    const tokenParams = new URLSearchParams({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    })
+
+    return NextResponse.redirect(`${origin}/login?${tokenParams.toString()}`, { status: 302 })
   }
 
   return NextResponse.redirect(`${origin}/`, { status: 302 })

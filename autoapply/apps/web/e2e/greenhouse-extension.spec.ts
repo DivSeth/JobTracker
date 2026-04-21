@@ -72,7 +72,7 @@ test('Greenhouse extension fills fields and tracks the application in a real bro
       })
     })
 
-    await context.route('http://localhost:3000/api/extension/**', async (route) => {
+    await context.route(/http:\/\/localhost:300[01]\/api\/extension\/.*/, async (route) => {
       const request = route.request()
       const url = new URL(request.url())
 

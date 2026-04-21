@@ -4,7 +4,17 @@ import { vi, it, expect } from 'vitest'
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn().mockResolvedValue({
     auth: {
-      exchangeCodeForSession: vi.fn().mockResolvedValue({ data: { session: null, user: null }, error: null }),
+      exchangeCodeForSession: vi.fn().mockResolvedValue({
+        data: {
+          session: {
+            access_token: 'access-token',
+            refresh_token: 'refresh-token',
+            provider_token: null,
+          },
+          user: { id: 'user-1' },
+        },
+        error: null,
+      }),
     },
   }),
 }))
@@ -23,4 +33,14 @@ it('redirects to /login on missing code', async () => {
   const response = await GET(req)
   expect(response.status).toBe(302)
   expect(response.headers.get('location')).toContain('/login')
+})
+
+it('redirects to /login with auth tokens in query params for extension sign-in', async () => {
+  const req = new NextRequest('http://localhost/api/auth/callback?code=test_code&source=extension')
+  const response = await GET(req)
+
+  expect(response.status).toBe(302)
+  expect(response.headers.get('location')).toContain('/login?')
+  expect(response.headers.get('location')).toContain('access_token=access-token')
+  expect(response.headers.get('location')).toContain('refresh_token=refresh-token')
 })
