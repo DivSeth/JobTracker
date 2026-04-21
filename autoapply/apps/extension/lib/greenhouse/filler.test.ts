@@ -6,12 +6,14 @@ const eventsMock = vi.hoisted(() => ({
   fillTextField: vi.fn(),
   fillSelectField: vi.fn(),
   fillCheckbox: vi.fn(),
+  fillComboboxField: vi.fn(),
 }))
 
 vi.mock('@/lib/form-fill/events', () => ({
   fillTextField: eventsMock.fillTextField,
   fillSelectField: eventsMock.fillSelectField,
   fillCheckbox: eventsMock.fillCheckbox,
+  fillComboboxField: eventsMock.fillComboboxField,
 }))
 
 import { fillForm } from './filler'
@@ -39,6 +41,7 @@ beforeEach(() => {
   eventsMock.fillTextField.mockReset()
   eventsMock.fillSelectField.mockReset()
   eventsMock.fillCheckbox.mockReset()
+  eventsMock.fillComboboxField.mockReset()
 })
 
 describe('fillForm', () => {
@@ -314,6 +317,33 @@ describe('fillForm', () => {
       3,
       3,
       expect.objectContaining({ field: expect.objectContaining({ selector: '#email' }) })
+    )
+  })
+
+  it('routes combobox fields to fillComboboxField', async () => {
+    document.body.innerHTML = `<input id="country" role="combobox" />`
+
+    await fillForm(
+      [
+        createMappedField({
+          field: {
+            selector: '#country',
+            name: 'country',
+            label: 'Country',
+            type: 'combobox',
+            required: true,
+          },
+          profileValue: 'United States',
+          profilePath: 'user_profile.country',
+        }),
+      ],
+      { delayMs: 0 }
+    )
+
+    expect(eventsMock.fillComboboxField).toHaveBeenCalledTimes(1)
+    expect(eventsMock.fillComboboxField).toHaveBeenCalledWith(
+      document.querySelector('#country'),
+      'United States'
     )
   })
 })

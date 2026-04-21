@@ -1,4 +1,4 @@
-import { fillCheckbox, fillSelectField, fillTextField } from '@/lib/form-fill/events'
+import { fillCheckbox, fillComboboxField, fillSelectField, fillTextField } from '@/lib/form-fill/events'
 import type { FillFieldResult, FillResult, MappedField } from '@/lib/greenhouse/types'
 
 interface FillOptions {
@@ -60,6 +60,12 @@ export async function fillForm(
             break
           case 'select':
             fillSelectField(target as HTMLSelectElement, mappedField.profileValue ?? '')
+            break
+          case 'combobox':
+            await fillComboboxField(
+              target as HTMLInputElement,
+              mappedField.profileValue ?? ''
+            )
             break
           case 'checkbox':
             fillCheckbox(target as HTMLInputElement, mappedField.profileValue === 'true')
