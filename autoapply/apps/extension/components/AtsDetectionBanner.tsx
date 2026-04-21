@@ -18,7 +18,7 @@ export function AtsDetectionBanner({ platform, profileName, onFill }: Props) {
         onClick={onFill}
         className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-primary to-primary-dim text-white font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity min-h-[44px]"
       >
-        Fill with {profileName}
+        Fill Application
       </button>
     </div>
   )

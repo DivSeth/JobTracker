@@ -12,6 +12,25 @@ import type { AuthStatus, ExtensionMessage, StoredUserIdentity } from '../utils/
 export default defineBackground(() => {
   const WEBAPP_URL = import.meta.env.VITE_WEBAPP_URL || 'http://localhost:3000'
 
+  function readAuthTokens(urlString: string): { accessToken: string; refreshToken: string } | null {
+    try {
+      const url = new URL(urlString)
+      const hashParams = new URLSearchParams(url.hash.substring(1))
+      const accessToken =
+        hashParams.get('access_token') || url.searchParams.get('access_token')
+      const refreshToken =
+        hashParams.get('refresh_token') || url.searchParams.get('refresh_token')
+
+      if (!accessToken || !refreshToken) {
+        return null
+      }
+
+      return { accessToken, refreshToken }
+    } catch {
+      return null
+    }
+  }
+
   // Handle messages from popup and content scripts
   chrome.runtime.onMessage.addListener(
     (message: ExtensionMessage, _sender, sendResponse) => {
@@ -54,7 +73,7 @@ export default defineBackground(() => {
             return true
 
           case 'startFill':
-            getProfileForFill(message.payload.profileId ?? null).then(sendResponse)
+            startFill(message.payload?.profileId ?? null, message.payload?.platform ?? 'greenhouse').then(sendResponse)
             return true
         }
       }
@@ -89,68 +108,88 @@ export default defineBackground(() => {
       })
 
       return new Promise((resolve) => {
+        let settled = false
+        let pollTimer: ReturnType<typeof setInterval> | null = null
+        let timeoutTimer: ReturnType<typeof setTimeout> | null = null
+
+        const cleanup = () => {
+          if (pollTimer) clearInterval(pollTimer)
+          if (timeoutTimer) clearTimeout(timeoutTimer)
+          chrome.tabs.onUpdated.removeListener(listener)
+        }
+
+        const finalize = async (accessToken: string, refreshToken: string, tabId: number) => {
+          if (settled) return
+          settled = true
+          cleanup()
+
+          await setStoredAuth({
+            accessToken,
+            refreshToken,
+            userId: '', // Will be populated on first Supabase call
+          })
+
+          // Get actual user ID
+          const client = await createExtensionClient()
+          const {
+            data: { user },
+          } = await client.auth.getUser()
+          if (user) {
+            await setStoredAuth({ accessToken, refreshToken, userId: user.id })
+          }
+
+          chrome.tabs.remove(tabId).catch(() => {})
+
+          // Notify popup
+          chrome.runtime
+            .sendMessage({
+              type: 'AUTH_STATE_CHANGED',
+              payload: { connected: true },
+            })
+            .catch(() => {}) // popup may be closed
+
+          // Initial profile sync
+          syncProfiles()
+
+          resolve({ success: true })
+        }
+
+        const tryHandleUrl = async (urlString?: string | null, tabId?: number) => {
+          if (settled || !urlString || !tabId) return
+
+          const tokens = readAuthTokens(urlString)
+          if (!tokens) return
+
+          await finalize(tokens.accessToken, tokens.refreshToken, tabId)
+        }
+
         const listener = (
           tabId: number,
           changeInfo: chrome.tabs.TabChangeInfo,
           updatedTab: chrome.tabs.Tab
         ) => {
-          if (tabId !== tab.id || changeInfo.status !== 'complete') return
-          if (!updatedTab.url) return
+          if (tabId !== tab.id) return
 
-          try {
-            const url = new URL(updatedTab.url)
-
-            // Check for tokens in URL hash (Supabase implicit flow)
-            // or in query params (custom extension callback)
-            const hashParams = new URLSearchParams(url.hash.substring(1))
-            const accessToken =
-              hashParams.get('access_token') || url.searchParams.get('access_token')
-            const refreshToken =
-              hashParams.get('refresh_token') || url.searchParams.get('refresh_token')
-
-            if (accessToken && refreshToken) {
-              // Store tokens
-              setStoredAuth({
-                accessToken,
-                refreshToken,
-                userId: '', // Will be populated on first Supabase call
-              }).then(async () => {
-                // Get actual user ID
-                const client = await createExtensionClient()
-                const {
-                  data: { user },
-                } = await client.auth.getUser()
-                if (user) {
-                  await setStoredAuth({ accessToken, refreshToken, userId: user.id })
-                }
-
-                chrome.tabs.remove(tabId)
-                chrome.tabs.onUpdated.removeListener(listener)
-
-                // Notify popup
-                chrome.runtime
-                  .sendMessage({
-                    type: 'AUTH_STATE_CHANGED',
-                    payload: { connected: true },
-                  })
-                  .catch(() => {}) // popup may be closed
-
-                // Initial profile sync
-                syncProfiles()
-
-                resolve({ success: true })
-              })
-            }
-          } catch {
-            // URL parse error — ignore, keep listening
-          }
+          void tryHandleUrl(changeInfo.url ?? updatedTab.url ?? null, tabId)
         }
 
         chrome.tabs.onUpdated.addListener(listener)
 
+        pollTimer = setInterval(async () => {
+          if (settled || !tab.id) return
+          try {
+            const currentTab = await chrome.tabs.get(tab.id)
+            await tryHandleUrl(currentTab.url ?? null, tab.id)
+          } catch {
+            // Ignore polling errors while auth tab is navigating.
+          }
+        }, 500)
+
         // Timeout after 5 minutes
-        setTimeout(() => {
-          chrome.tabs.onUpdated.removeListener(listener)
+        timeoutTimer = setTimeout(() => {
+          if (settled) return
+          settled = true
+          cleanup()
           resolve({ success: false, error: 'Authentication timed out' })
         }, 5 * 60 * 1000)
       })
@@ -253,6 +292,30 @@ export default defineBackground(() => {
 
   async function fetchFieldMappings(platform: 'greenhouse' | 'workday') {
     return fetchFromWebApi(`/api/extension/field-mappings?platform=${encodeURIComponent(platform)}`)
+  }
+
+  async function startFill(profileId?: string | null, platform: 'greenhouse' | 'workday' = 'greenhouse') {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+      if (!tab?.id) {
+        return { success: false, error: 'No active tab found' }
+      }
+
+      await chrome.tabs.sendMessage(tab.id, {
+        type: 'FILL_STARTED',
+        payload: {
+          profileId: profileId ?? null,
+          platform,
+        },
+      })
+
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to start fill',
+      }
+    }
   }
 
   async function trackApplication(payload: unknown) {
