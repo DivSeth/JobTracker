@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest'
-import { fillCheckbox, fillSelectField, fillTextField } from './events'
+import { fillCheckbox, fillComboboxField, fillSelectField, fillTextField } from './events'
 
 describe('fillTextField', () => {
   it('dispatches focus, input, change, blur events in order', () => {
@@ -64,6 +64,24 @@ describe('fillSelectField', () => {
 
     fillSelectField(select, 'full time')
     expect(select.value).toBe('full_time')
+  })
+})
+
+describe('fillComboboxField', () => {
+  it('throws when no option matches the target value (no state poisoning)', async () => {
+    document.body.innerHTML = `
+      <input id="country" role="combobox" />
+      <div role="listbox">
+        <div role="option">Canada</div>
+        <div role="option">Mexico</div>
+      </div>
+    `
+
+    const input = document.querySelector<HTMLInputElement>('#country')!
+
+    await expect(
+      fillComboboxField(input, 'United States', { openDelayMs: 0 })
+    ).rejects.toThrow(/no combobox option matched/i)
   })
 })
 

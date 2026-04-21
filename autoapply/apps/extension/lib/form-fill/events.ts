@@ -77,7 +77,8 @@ function setNativeInputValue(input: HTMLInputElement, value: string): void {
 
 function findComboboxOption(input: HTMLInputElement, value: string): HTMLElement | null {
   const listboxId = input.getAttribute('aria-controls') ?? input.getAttribute('aria-owns')
-  const root: ParentNode = (listboxId && document.getElementById(listboxId)) || document
+  const root: ParentNode =
+    listboxId != null ? (document.getElementById(listboxId) ?? document) : document
   const options = root.querySelectorAll<HTMLElement>('[role="option"]')
   const target = value.trim().toLowerCase()
 
@@ -107,11 +108,13 @@ export async function fillComboboxField(
   await new Promise((resolve) => setTimeout(resolve, openDelayMs))
 
   const option = findComboboxOption(el, value)
-  if (option) {
-    option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
-    option.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-    option.click()
+  if (!option) {
+    throw new Error(`No combobox option matched "${value}"`)
   }
+
+  option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+  option.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+  option.click()
 
   dispatchChange(el)
   dispatchBlur(el)
