@@ -14,16 +14,19 @@ type Supa = {
 
 function buildSupa(user: { id: string } | null, rows: {
   profile?: Record<string, unknown> | null
+  profileError?: { message: string; code: string } | null
   regional?: Array<Record<string, unknown>>
-  updatedProfile?: Record<string, unknown> | null
-  updateError?: { message: string } | null
+  regionalError?: { message: string } | null
 }): Supa {
   const from = vi.fn((table: string) => {
     if (table === 'profiles') {
       return {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: rows.profile ?? null }),
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: rows.profile ?? null,
+          error: rows.profileError ?? null,
+        }),
         update: vi.fn().mockReturnThis(),
       } as unknown as ReturnType<typeof vi.fn>
     }
@@ -33,7 +36,7 @@ function buildSupa(user: { id: string } | null, rows: {
         eq: vi.fn().mockReturnThis(),
         order: vi
           .fn()
-          .mockResolvedValue({ data: rows.regional ?? [], error: null }),
+          .mockResolvedValue({ data: rows.regional ?? [], error: rows.regionalError ?? null }),
       } as unknown as ReturnType<typeof vi.fn>
     }
     throw new Error(`unexpected table ${table}`)
@@ -68,6 +71,32 @@ describe('GET /api/profile', () => {
     const res = await GET()
     const body = await res.json()
     expect(body).toEqual({ baseIdentity: profile, regionalIdentities: regional })
+  })
+
+  it('returns 500 when profiles query errors with a non-PGRST116 error', async () => {
+    vi.mocked(createClient).mockResolvedValue(
+      buildSupa(
+        { id: 'u1' },
+        { profileError: { message: 'boom', code: '08000' } }
+      ) as unknown as Awaited<ReturnType<typeof createClient>>
+    )
+    const res = await GET()
+    expect(res.status).toBe(500)
+    const body = await res.json()
+    expect(body).toEqual({ error: 'boom' })
+  })
+
+  it('returns 500 when regional-identities query errors', async () => {
+    vi.mocked(createClient).mockResolvedValue(
+      buildSupa(
+        { id: 'u1' },
+        { regionalError: { message: 'regional db error' } }
+      ) as unknown as Awaited<ReturnType<typeof createClient>>
+    )
+    const res = await GET()
+    expect(res.status).toBe(500)
+    const body = await res.json()
+    expect(body).toEqual({ error: 'regional db error' })
   })
 })
 
@@ -109,5 +138,23 @@ describe('PATCH /api/profile', () => {
     })
     const res = await PATCH(req)
     expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when body is empty {}', async () => {
+    const mockClient = {
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u1' } } }) },
+      from: vi.fn(),
+    }
+    vi.mocked(createClient).mockResolvedValue(
+      mockClient as unknown as Awaited<ReturnType<typeof createClient>>
+    )
+    const req = new Request('http://localhost/api/profile', {
+      method: 'PATCH',
+      body: JSON.stringify({}),
+    })
+    const res = await PATCH(req)
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body).toEqual({ error: 'No fields to update' })
   })
 })

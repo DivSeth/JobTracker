@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { getGmailTokens, buildVaultKey } from '@/lib/gmail/vault'
-import { baseIdentityPatchSchema } from '@/lib/schemas/base-identity'
+import { baseIdentityPatchSchema, type BaseIdentityPatch } from '@/lib/schemas/base-identity'
 import { ZodError } from 'zod'
 
 export async function GET() {
@@ -10,11 +10,15 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: baseIdentity } = await supabase
+  const { data: baseIdentity, error: profileError } = await supabase
     .from('profiles')
     .select('*')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
+
+  if (profileError) {
+    return NextResponse.json({ error: profileError.message }, { status: 500 })
+  }
 
   const { data: regionalIdentities, error: regionalError } = await supabase
     .from('user_regional_identities')
@@ -37,7 +41,7 @@ export async function PATCH(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  let parsed
+  let parsed: BaseIdentityPatch
   try {
     parsed = baseIdentityPatchSchema.parse(await request.json())
   } catch (err) {
@@ -45,6 +49,10 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: err.issues }, { status: 400 })
     }
     throw err
+  }
+
+  if (Object.keys(parsed).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
   }
 
   const { data, error } = await supabase
