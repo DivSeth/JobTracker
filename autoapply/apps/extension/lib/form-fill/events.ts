@@ -1,3 +1,7 @@
+function dispatchFocus(target: HTMLElement): void {
+  target.dispatchEvent(new Event('focus'))
+}
+
 function dispatchSyntheticInput(target: HTMLInputElement | HTMLTextAreaElement): void {
   const event =
     typeof InputEvent === 'function'
@@ -20,6 +24,7 @@ export function fillTextField(
   value: string
 ): void {
   el.focus()
+  dispatchFocus(el)
   el.value = ''
   el.value = value
   dispatchSyntheticInput(el)
@@ -29,6 +34,7 @@ export function fillTextField(
 
 export function fillSelectField(el: HTMLSelectElement, value: string): void {
   el.focus()
+  dispatchFocus(el)
 
   const normalized = value.trim().toLowerCase()
   const match = Array.from(el.options).find((option) => {
@@ -52,6 +58,7 @@ export function fillSelectField(el: HTMLSelectElement, value: string): void {
 
 export function fillCheckbox(el: HTMLInputElement, checked: boolean): void {
   el.focus()
+  dispatchFocus(el)
   el.checked = checked
   dispatchSyntheticInput(el)
   dispatchChange(el)

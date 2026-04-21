@@ -52,7 +52,7 @@ const DEFAULT_RULES: FieldMappingRule[] = [
     source: 'user_profile',
   },
   {
-    field_pattern: '^phone$|phone number|mobile',
+    field_pattern: '^phone(_number)?$|phone number|mobile',
     profile_path: 'phone',
     source: 'user_profile',
     transform: 'format_phone',
