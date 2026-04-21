@@ -3,7 +3,7 @@ export interface GreenhouseField {
   selector: string          // CSS selector to locate this field
   name: string              // input name attribute (e.g., "first_name", "question_12345")
   label: string             // human-readable label from <label> or parent text
-  type: 'text' | 'email' | 'tel' | 'select' | 'textarea' | 'file' | 'checkbox' | 'radio' | 'url'
+  type: 'text' | 'email' | 'tel' | 'select' | 'combobox' | 'textarea' | 'file' | 'checkbox' | 'radio' | 'url'
   required: boolean
   options?: string[]        // for select/radio: available option texts
   value?: string            // current value if pre-filled

@@ -22,6 +22,18 @@ function getLabelText(element: Element): string {
     if (text) return text
   }
 
+  const labelledby = htmlElement.getAttribute('aria-labelledby')
+  if (labelledby) {
+    const referenced = labelledby
+      .split(/\s+/)
+      .map((refId) => document.getElementById(refId))
+      .filter((node): node is HTMLElement => !!node)
+      .map((node) => normalizeLabel(node.textContent))
+      .filter(Boolean)
+      .join(' ')
+    if (referenced) return referenced
+  }
+
   const fieldContainer = htmlElement.closest('.field')
   const inlineLabel = fieldContainer?.querySelector('label')
   const inlineText = normalizeLabel(inlineLabel?.textContent)
@@ -52,6 +64,8 @@ function getFieldType(
 ): GreenhouseField['type'] {
   if (element instanceof HTMLSelectElement) return 'select'
   if (element instanceof HTMLTextAreaElement) return 'textarea'
+
+  if (element.getAttribute('role') === 'combobox') return 'combobox'
 
   const inputType = element.type.toLowerCase()
   if (

@@ -143,4 +143,27 @@ describe('scanGreenhouseForm', () => {
     expect(fields.map((field) => field.name)).toContain('first_name')
     expect(fields.map((field) => field.name)).toContain('email')
   })
+
+  it('resolves label via aria-labelledby when no <label for=""> exists', () => {
+    document.body.innerHTML = `
+      <form id="application-form">
+        <label id="country-label">Country</label>
+        <input id="country" role="combobox" aria-labelledby="country-label" type="text" />
+      </form>
+    `
+
+    const [field] = scanGreenhouseForm()
+    expect(field.label).toBe('Country')
+  })
+
+  it('classifies role="combobox" inputs as type combobox', () => {
+    document.body.innerHTML = `
+      <form id="application-form">
+        <input id="country" aria-label="Country" role="combobox" type="text" />
+      </form>
+    `
+
+    const [field] = scanGreenhouseForm()
+    expect(field.type).toBe('combobox')
+  })
 })
