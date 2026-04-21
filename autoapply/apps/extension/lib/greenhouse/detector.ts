@@ -4,8 +4,8 @@ function isConfirmationUrl(url: string): boolean {
   return /\/confirmation\b|\?confirmation\b|\/thank-you\b/i.test(url)
 }
 
-function hasConfirmationText(): boolean {
-  return /application.*submitted|thank you|confirmation/i.test(document.body?.textContent ?? '')
+function hasConfirmationText(text: string): boolean {
+  return /application.*submitted|thank you|confirmation/i.test(text)
 }
 
 export function cancelSubmissionWatch(): void {
@@ -22,6 +22,9 @@ export function watchForSubmissionConfirmation(timeoutMs = 30000): Promise<void>
     let settled = false
     let timeoutId: ReturnType<typeof setTimeout> | null = null
     let observer: MutationObserver | null = null
+
+    const initialBodyText = document.body?.textContent ?? ''
+    const matchedOnStart = hasConfirmationText(initialBodyText)
 
     const cleanup = () => {
       if (timeoutId) {
@@ -46,7 +49,11 @@ export function watchForSubmissionConfirmation(timeoutMs = 30000): Promise<void>
     }
 
     const confirmIfMatched = () => {
-      if (isConfirmationUrl(window.location.href) || hasConfirmationText()) {
+      const currentBody = document.body?.textContent ?? ''
+      if (
+        isConfirmationUrl(window.location.href) ||
+        (!matchedOnStart && hasConfirmationText(currentBody))
+      ) {
         settle(resolve)
       }
     }

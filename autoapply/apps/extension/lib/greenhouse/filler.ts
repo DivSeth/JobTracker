@@ -70,11 +70,23 @@ export async function fillForm(
           case 'checkbox':
             fillCheckbox(target as HTMLInputElement, mappedField.profileValue === 'true')
             break
-          case 'file':
-            if (mappedField.profilePath) {
-              await options.onFileUploadRequest?.(mappedField.profilePath, mappedField.field.selector)
+          case 'file': {
+            const handler = options.onFileUploadRequest
+            if (mappedField.profilePath && handler) {
+              await handler(mappedField.profilePath, mappedField.field.selector)
+              break
             }
-            break
+            result = {
+              field: mappedField.field,
+              status: 'skipped',
+              error: 'manual upload required',
+            }
+            skipped += 1
+            results.push(result)
+            options.onProgress?.(index + 1, mappedFields.length, result)
+            await sleep(delayMs)
+            continue
+          }
           default:
             result = {
               field: mappedField.field,

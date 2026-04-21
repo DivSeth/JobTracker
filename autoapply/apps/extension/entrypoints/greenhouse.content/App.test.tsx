@@ -250,4 +250,34 @@ describe('PreviewPanel', () => {
 
     expect(container.textContent).toContain('Filled 1, skipped 1, errors 0.')
   })
+
+  it('does not show the "Application tracked!" toast when trackApplication returns no id (D-06)', async () => {
+    mocks.fillForm.mockResolvedValue(buildFillResult())
+    vi.stubGlobal('chrome', {
+      runtime: {
+        sendMessage: vi.fn(async (msg: { action?: string }) => {
+          if (msg.action === 'trackApplication') {
+            return { success: false, error: 'network error' }
+          }
+          return { success: true }
+        }),
+      },
+    })
+
+    renderPanel([createMappedField()])
+
+    const button = Array.from(container.querySelectorAll('button')).find(
+      (element) => element.textContent === 'Confirm Fill'
+    ) as HTMLButtonElement
+
+    await act(async () => {
+      button.click()
+      await Promise.resolve()
+    })
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(container.textContent).not.toContain('Application tracked!')
+  })
 })

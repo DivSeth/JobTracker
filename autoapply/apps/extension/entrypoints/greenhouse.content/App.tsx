@@ -62,6 +62,7 @@ export default function PreviewPanel({
   const [statuses, setStatuses] = useState<Record<string, FillStatus>>({})
   const [result, setResult] = useState<FillResult | null>(null)
   const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('Application tracked!')
 
   useEffect(() => {
     setPanelState('preview')
@@ -69,6 +70,7 @@ export default function PreviewPanel({
     setResult(null)
     setStatuses({})
     setShowToast(false)
+    setToastMessage('Application tracked!')
   }, [mappedFields, profileId])
 
   useEffect(() => {
@@ -122,7 +124,17 @@ export default function PreviewPanel({
     const applicationId =
       tracked && typeof tracked === 'object' && 'id' in tracked ? String(tracked.id) : null
 
-    setShowToast(true)
+    if (applicationId) {
+      setToastMessage('Application tracked!')
+      setShowToast(true)
+    } else {
+      const errorMessage =
+        tracked && typeof tracked === 'object' && 'error' in tracked && typeof tracked.error === 'string'
+          ? tracked.error
+          : 'Tracking failed'
+      setToastMessage(`Tracking failed: ${errorMessage}`)
+      setShowToast(true)
+    }
 
     void watchForSubmissionConfirmation()
       .then(async () => {
@@ -231,7 +243,7 @@ export default function PreviewPanel({
       </div>
       {showToast && (
         <SubmissionToast
-          message="Application tracked!"
+          message={toastMessage}
           onDismiss={() => setShowToast(false)}
         />
       )}

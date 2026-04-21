@@ -346,4 +346,29 @@ describe('fillForm', () => {
       'United States'
     )
   })
+
+  it('marks file fields as skipped when no onFileUploadRequest handler is provided', async () => {
+    document.body.innerHTML = `<input id="resume" type="file" />`
+
+    const result = await fillForm(
+      [
+        createMappedField({
+          field: {
+            selector: '#resume',
+            name: 'resume',
+            label: 'Resume',
+            type: 'file',
+            required: true,
+          },
+          profileValue: null,
+          profilePath: 'userProfile.resumePath',
+        }),
+      ],
+      { delayMs: 0 }
+    )
+
+    expect(result.filled).toBe(0)
+    expect(result.skipped).toBe(1)
+    expect(result.results[0].status).toBe('skipped')
+  })
 })

@@ -73,4 +73,14 @@ describe('watchForSubmissionConfirmation', () => {
     removeEventListenerSpy.mockRestore()
     disconnectSpy.mockRestore()
   })
+
+  it('does not resolve when confirmation text was already present before watching', async () => {
+    document.body.innerHTML = '<main>Thank you for your interest in this role.</main>'
+
+    const pending = watchForSubmissionConfirmation(250)
+    const rejection = expect(pending).rejects.toThrow('Submission confirmation not detected')
+
+    await vi.advanceTimersByTimeAsync(250)
+    await rejection
+  })
 })
