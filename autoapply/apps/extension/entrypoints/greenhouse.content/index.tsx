@@ -5,6 +5,7 @@ import './style.css'
 import { mapProfileToFields } from '@/lib/greenhouse/mapper'
 import { scanGreenhouseForm } from '@/lib/greenhouse/scanner'
 import type { ExtensionMessage } from '@/utils/messages'
+import { isGreenhouseApplicationPage } from '@/lib/greenhouse/page-detector'
 
 type StoredProfile = {
   id: string
@@ -15,15 +16,6 @@ type StoredProfile = {
 type FillProfileResponse = {
   profile: StoredProfile | null
   userIdentity: unknown | null
-}
-
-function isGreenhouseApplicationPage(): boolean {
-  return !!(
-    document.querySelector('#application_form') ||
-    document.querySelector('#main_fields') ||
-    document.querySelector('.application-form') ||
-    window.location.pathname.includes('/apply')
-  )
 }
 
 async function sendMessage<T>(message: ExtensionMessage | { type: 'FILL_STARTED'; payload: { profileId?: string | null } }) {
