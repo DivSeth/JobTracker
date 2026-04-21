@@ -105,7 +105,10 @@ function shouldIgnore(element: HTMLInputElement | HTMLSelectElement | HTMLTextAr
 }
 
 export function scanGreenhouseForm(): GreenhouseField[] {
-  const form = document.querySelector('#application_form')
+  const form =
+    document.querySelector('#application_form') ??
+    document.querySelector('#application-form') ??
+    document.querySelector('form.application--form')
   if (!form) return []
 
   const elements = Array.from(

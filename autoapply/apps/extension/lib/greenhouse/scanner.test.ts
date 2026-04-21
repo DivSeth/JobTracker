@@ -132,4 +132,15 @@ describe('scanGreenhouseForm', () => {
     expect(fields).toHaveLength(1)
     expect(fields[0]?.name).toBe('email')
   })
+
+  it('discovers fields inside a modern job-boards.greenhouse.io form (#application-form)', async () => {
+    const { MODERN_DISCORD_FORM_HTML } = await import('./__fixtures__/modern-discord-form')
+    document.body.innerHTML = MODERN_DISCORD_FORM_HTML
+
+    const fields = scanGreenhouseForm()
+
+    expect(fields.length).toBeGreaterThan(0)
+    expect(fields.map((field) => field.name)).toContain('first_name')
+    expect(fields.map((field) => field.name)).toContain('email')
+  })
 })
