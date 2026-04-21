@@ -2,19 +2,59 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { getGmailTokens, buildVaultKey } from '@/lib/gmail/vault'
+import { baseIdentityPatchSchema } from '@/lib/schemas/base-identity'
+import { ZodError } from 'zod'
 
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data } = await supabase
+  const { data: baseIdentity } = await supabase
     .from('profiles')
     .select('*')
     .eq('user_id', user.id)
     .single()
 
-  if (!data) return NextResponse.json(null, { status: 404 })
+  const { data: regionalIdentities, error: regionalError } = await supabase
+    .from('user_regional_identities')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('is_default', { ascending: false })
+
+  if (regionalError) {
+    return NextResponse.json({ error: regionalError.message }, { status: 500 })
+  }
+
+  return NextResponse.json({
+    baseIdentity: baseIdentity ?? null,
+    regionalIdentities: regionalIdentities ?? [],
+  })
+}
+
+export async function PATCH(request: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  let parsed
+  try {
+    parsed = baseIdentityPatchSchema.parse(await request.json())
+  } catch (err) {
+    if (err instanceof ZodError) {
+      return NextResponse.json({ error: err.issues }, { status: 400 })
+    }
+    throw err
+  }
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(parsed)
+    .eq('user_id', user.id)
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
 
