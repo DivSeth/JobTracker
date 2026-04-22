@@ -28,6 +28,7 @@ export function CountryCodeChipInput({ value, onChange }: Props) {
       <select
         value=""
         role="combobox"
+        aria-label="Add country"
         onChange={(e) => {
           const next = e.target.value
           if (!next) return

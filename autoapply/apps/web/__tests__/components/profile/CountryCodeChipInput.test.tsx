@@ -5,8 +5,8 @@ import { CountryCodeChipInput } from '@/components/profile/CountryCodeChipInput'
 describe('CountryCodeChipInput', () => {
   it('renders existing codes as chips', () => {
     render(<CountryCodeChipInput value={['US', 'GB']} onChange={vi.fn()} />)
-    expect(screen.getByText('United States')).toBeInTheDocument()
-    expect(screen.getByText('United Kingdom')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Remove United States' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Remove United Kingdom' })).toBeInTheDocument()
   })
 
   it('adds a code when the user picks from dropdown', () => {
