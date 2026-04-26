@@ -40,6 +40,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // Onboarding gate: redirect / → /profile when base identity not yet set.
+  if (user && request.nextUrl.pathname === '/') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('first_name')
+      .eq('user_id', user.id)
+      .single()
+    if (!profile?.first_name) {
+      return NextResponse.redirect(new URL('/profile', request.url))
+    }
+  }
+
   return supabaseResponse
 }
 
