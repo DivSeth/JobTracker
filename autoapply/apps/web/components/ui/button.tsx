@@ -11,11 +11,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       className={cn(
-        'inline-flex items-center justify-center font-medium transition-all rounded-xl',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20',
+        'inline-flex items-center justify-center font-medium transition-all rounded-[10px]',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
         'disabled:opacity-50 disabled:pointer-events-none',
         variant === 'primary' && 'gradient-primary text-white hover:opacity-90',
-        variant === 'secondary' && 'bg-surface-container text-on-surface hover:bg-surface-container-highest',
+        variant === 'secondary' && [
+          'bg-surface-container text-on-surface hover:bg-surface-container-highest',
+          'border border-border-subtle',
+        ],
         variant === 'ghost' && 'text-on-surface-muted hover:text-on-surface hover:bg-surface-container',
         size === 'sm' && 'h-8 px-3 text-xs',
         size === 'md' && 'h-9 px-4 text-sm',
