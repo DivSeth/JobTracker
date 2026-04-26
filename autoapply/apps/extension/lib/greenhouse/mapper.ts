@@ -3,6 +3,7 @@ import type {
   GreenhouseField,
   MappedField,
 } from '@/lib/greenhouse/types'
+import { countryName } from '@/lib/country-codes'
 
 type UserProfile = {
   // Base identity
@@ -75,7 +76,7 @@ const DEFAULT_RULES: FieldMappingRule[] = [
   { field_pattern: 'github', profile_path: 'github_url', source: 'user_profile' },
   { field_pattern: 'portfolio|website|personal site', profile_path: 'portfolio_url', source: 'user_profile' },
   { field_pattern: 'pronoun', profile_path: 'pronouns', source: 'user_profile' },
-  { field_pattern: '^country$|country of residence|primary country', profile_path: 'country', source: 'user_profile' },
+  { field_pattern: '^country$|country of residence|primary country', profile_path: 'country', source: 'user_profile', transform: 'country_name' },
   { field_pattern: 'address.*1|street address', profile_path: 'address_line_1', source: 'user_profile' },
   { field_pattern: 'address.*2|apartment|\\bunit\\b', profile_path: 'address_line_2', source: 'user_profile' },
   { field_pattern: '^city$', profile_path: 'city', source: 'user_profile' },
@@ -185,6 +186,10 @@ function applyTransform(
 
   if (transform === 'format_phone') {
     return formatPhone(typeof value === 'string' ? value : null)
+  }
+
+  if (transform === 'country_name') {
+    return typeof value === 'string' ? (countryName(value) ?? value) : null
   }
 
   if (transform === 'file_upload') {
