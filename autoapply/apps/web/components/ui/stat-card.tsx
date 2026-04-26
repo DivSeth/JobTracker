@@ -30,9 +30,7 @@ export function StatCard({
     if (numValue === null || !ref.current) return
     const controls = animate(0, numValue, {
       duration: 0.8,
-      type: 'spring',
-      stiffness: 60,
-      damping: 20,
+      ease: [0.16, 1, 0.3, 1],
       onUpdate(val) {
         if (ref.current) ref.current.textContent = String(Math.round(val))
       },
