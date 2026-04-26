@@ -1,3 +1,6 @@
 .worktrees/
+.claude/worktrees/
+.codex/
 .planning/
 .vercel
+autoapply/apps/web/test-results/

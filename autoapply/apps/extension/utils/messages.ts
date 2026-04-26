@@ -14,6 +14,7 @@ export type ExtensionMessage =
   | { action: 'trackApplication'; payload: TrackApplicationPayload }
   | { action: 'updateApplicationStatus'; payload: { id: string; status: string } }
   | { action: 'checkDuplicateApplication'; payload: { applyUrl: string } }
+  | { action: 'getResumeSignedUrl'; payload: { storagePath: string } }
   | { type: 'FILL_STARTED'; payload: { profileId?: string | null; platform?: 'greenhouse' | 'workday' } }
   | { type: 'ATS_PAGE_DETECTED'; payload: { platform: 'workday' | 'greenhouse'; url: string } }
   | { type: 'AUTH_STATE_CHANGED'; payload: { connected: boolean } }

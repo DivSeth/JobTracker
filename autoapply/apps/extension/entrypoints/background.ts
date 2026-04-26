@@ -5,7 +5,11 @@ import {
   getUserIdentity,
   setStoredAuth,
   setUserIdentity,
+  setBaseIdentity,
+  setRegionalIdentities,
+  clearLegacyUserIdentity,
 } from '../utils/storage'
+import { fromApiBase, fromApiRegional } from '../utils/identity'
 import { createExtensionClient } from '../utils/supabase'
 import type { AuthStatus, ExtensionMessage, StoredUserIdentity } from '../utils/messages'
 
@@ -70,6 +74,10 @@ export default defineBackground(() => {
 
           case 'checkDuplicateApplication':
             checkDuplicateApplication(message.payload.applyUrl).then(sendResponse)
+            return true
+
+          case 'getResumeSignedUrl':
+            getResumeSignedUrl(message.payload.storagePath).then(sendResponse)
             return true
 
           case 'startFill':
@@ -257,6 +265,27 @@ export default defineBackground(() => {
           userIdentity,
           lastSync: Date.now(),
         })
+
+        // Phase 02-07: sync base + regional identity directly via Supabase (avoids CORS)
+        try {
+          const [{ data: baseRaw }, { data: regionalRaw }] = await Promise.all([
+            client.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
+            client
+              .from('user_regional_identities')
+              .select('*')
+              .eq('user_id', user.id)
+              .order('is_default', { ascending: false }),
+          ])
+          const base = fromApiBase(baseRaw as Record<string, unknown> | null)
+          const regional = (regionalRaw ?? []).map((r) =>
+            fromApiRegional(r as Record<string, unknown>)
+          )
+          await setBaseIdentity(base)
+          await setRegionalIdentities(regional)
+          await clearLegacyUserIdentity()
+        } catch {
+          // leave previously-cached data in place
+        }
         chrome.runtime
           .sendMessage({
             type: 'PROFILES_SYNCED',
@@ -336,6 +365,18 @@ export default defineBackground(() => {
     return fetchFromWebApi(
       `/api/extension/track-application?applyUrl=${encodeURIComponent(applyUrl)}`
     )
+  }
+
+  async function getResumeSignedUrl(storagePath: string): Promise<{ url: string | null }> {
+    try {
+      const client = await createExtensionClient()
+      const { data } = await client.storage
+        .from('profile-documents')
+        .createSignedUrl(storagePath, 60)
+      return { url: data?.signedUrl ?? null }
+    } catch {
+      return { url: null }
+    }
   }
 
   async function fetchFromWebApi(path: string, init?: RequestInit) {

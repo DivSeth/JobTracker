@@ -26,7 +26,7 @@ describe('mapProfileToFields', () => {
     ])
 
     expect(mapped.profileValue).toBe('Jane')
-    expect(mapped.transform).toBe('first_name')
+    expect(mapped.transform).toBe('first_name_or_split')
     expect(mapped.source).toBe('user_profile')
   })
 
@@ -94,9 +94,10 @@ describe('mapProfileToFields', () => {
         required: false,
       },
     ])
-
+    // isMasked based on field name containing work_authorization
     expect(mapped.isMasked).toBe(true)
-    expect(mapped.profileValue).toBe('authorized')
+    // authorized_to_work not present in the test profile's userProfile → null
+    expect(mapped.profileValue).toBeNull()
   })
 
   it('uses regex matching for field_pattern against field name', () => {
@@ -113,5 +114,84 @@ describe('mapProfileToFields', () => {
     ])
 
     expect(mapped.profileValue).toBe('https://janedoe.dev')
+  })
+})
+
+const mergedProfile = {
+  userProfile: {
+    first_name: 'Jane',
+    last_name: 'Doe',
+    full_name: 'Jane Doe',
+    email: 'jane@school.edu',
+    phone: '(415) 555-1212',
+    phone_e164: '+14155551212',
+    linkedin_url: 'https://linkedin.com/in/janedoe',
+    github_url: 'https://github.com/janedoe',
+    portfolio_url: 'https://janedoe.dev',
+    pronouns: 'she/her',
+    country: 'US',
+    authorized_to_work: true,
+    needs_sponsorship_now: false,
+    needs_sponsorship_future: true,
+    work_auth_status: 'F-1 OPT',
+    desired_salary_min: 120000,
+    desired_salary_max: 150000,
+    salary_currency: 'USD',
+    salary_cadence: 'annual',
+    notice_period_weeks: 2,
+    willing_to_relocate: true,
+    work_arrangement_preference: 'hybrid',
+    earliest_start_date: '2026-06-01',
+    referral_source: 'LinkedIn',
+  },
+  applicationProfile: {},
+}
+
+describe('mapProfileToFields — 02-07 identity rules', () => {
+  it.each([
+    ['first_name', 'First Name', 'Jane'],
+    ['last_name', 'Last Name', 'Doe'],
+    ['linkedin_url', 'LinkedIn', 'https://linkedin.com/in/janedoe'],
+    ['github_url', 'GitHub profile', 'https://github.com/janedoe'],
+    ['portfolio_url', 'Portfolio / website', 'https://janedoe.dev'],
+    ['pronouns', 'Pronouns', 'she/her'],
+    ['country', 'Country', 'US'],
+    ['desired_salary_min', 'Desired salary', '120000'],
+    ['notice_period_weeks', 'Notice period', '2'],
+    ['earliest_start_date', 'Earliest start date', '2026-06-01'],
+    ['referral_source', 'How did you hear about us?', 'LinkedIn'],
+  ])('maps %s -> %s = %s', (name, label, expected) => {
+    const [mapped] = mapProfileToFields(mergedProfile, [
+      { selector: `#${name}`, name, label, type: 'text', required: false },
+    ])
+    expect(mapped.profileValue).toBe(expected)
+  })
+
+  it('renders authorized_to_work as "Yes" for a yes/no select', () => {
+    const [mapped] = mapProfileToFields(mergedProfile, [
+      {
+        selector: '#auth',
+        name: 'work_authorization_confirmation',
+        label: 'Are you authorized to work in the United States?',
+        type: 'select',
+        required: true,
+        options: ['Yes', 'No'],
+      } as unknown as Parameters<typeof mapProfileToFields>[1][number],
+    ])
+    expect(mapped.profileValue).toBe('Yes')
+  })
+
+  it('renders needs_sponsorship_future as "Yes" for a future-sponsorship select', () => {
+    const [mapped] = mapProfileToFields(mergedProfile, [
+      {
+        selector: '#sp-future',
+        name: 'sponsorship_future',
+        label: 'Will you now or in the future require sponsorship?',
+        type: 'select',
+        required: true,
+        options: ['Yes', 'No'],
+      } as unknown as Parameters<typeof mapProfileToFields>[1][number],
+    ])
+    expect(mapped.profileValue).toBe('Yes')
   })
 })
