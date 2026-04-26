@@ -1,4 +1,5 @@
 import type { StoredUserIdentity } from './messages'
+import type { StoredBaseIdentity, StoredRegionalIdentity } from './identity'
 
 export interface StoredAuth {
   accessToken: string
@@ -37,6 +38,8 @@ export async function clearStoredAuth(): Promise<void> {
     'lastSync',
     'activeProfileId',
     'userIdentity',
+    'baseIdentity',
+    'regionalIdentities',
   ])
 }
 
@@ -56,4 +59,28 @@ export async function getUserIdentity(): Promise<StoredUserIdentity | null> {
 
 export async function setUserIdentity(userIdentity: StoredUserIdentity): Promise<void> {
   await chrome.storage.local.set({ userIdentity })
+}
+
+export async function getBaseIdentity(): Promise<StoredBaseIdentity | null> {
+  const r = await chrome.storage.local.get(['baseIdentity'])
+  return (r.baseIdentity as StoredBaseIdentity | undefined) ?? null
+}
+
+export async function setBaseIdentity(base: StoredBaseIdentity): Promise<void> {
+  await chrome.storage.local.set({ baseIdentity: base })
+}
+
+export async function getRegionalIdentities(): Promise<StoredRegionalIdentity[]> {
+  const r = await chrome.storage.local.get(['regionalIdentities'])
+  return (r.regionalIdentities as StoredRegionalIdentity[] | undefined) ?? []
+}
+
+export async function setRegionalIdentities(
+  list: StoredRegionalIdentity[]
+): Promise<void> {
+  await chrome.storage.local.set({ regionalIdentities: list })
+}
+
+export async function clearLegacyUserIdentity(): Promise<void> {
+  await chrome.storage.local.remove(['userIdentity'])
 }

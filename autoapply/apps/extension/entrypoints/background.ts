@@ -5,7 +5,11 @@ import {
   getUserIdentity,
   setStoredAuth,
   setUserIdentity,
+  setBaseIdentity,
+  setRegionalIdentities,
+  clearLegacyUserIdentity,
 } from '../utils/storage'
+import { fromApiBase, fromApiRegional } from '../utils/identity'
 import { createExtensionClient } from '../utils/supabase'
 import type { AuthStatus, ExtensionMessage, StoredUserIdentity } from '../utils/messages'
 
@@ -257,6 +261,24 @@ export default defineBackground(() => {
           userIdentity,
           lastSync: Date.now(),
         })
+
+        // Phase 02-07: sync base + regional identity
+        try {
+          const idResp = await fetchFromWebApi('/api/extension/profile')
+          if (idResp && !('error' in idResp)) {
+            const base = fromApiBase(
+              (idResp as { baseIdentity: Record<string, unknown> }).baseIdentity
+            )
+            const regional = (
+              (idResp as { regionalIdentities: Record<string, unknown>[] }).regionalIdentities ?? []
+            ).map(fromApiRegional)
+            await setBaseIdentity(base)
+            await setRegionalIdentities(regional)
+            await clearLegacyUserIdentity()
+          }
+        } catch {
+          // leave previously-cached data in place
+        }
         chrome.runtime
           .sendMessage({
             type: 'PROFILES_SYNCED',
