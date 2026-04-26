@@ -5,6 +5,7 @@ import { StatCard } from '@/components/ui/stat-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Greeting } from '@/components/dashboard/Greeting'
+import { StaggerFeed } from '@/components/dashboard/StaggerFeed'
 import type { ApplicationWithJob } from '@/lib/types'
 
 function timeAgo(date: string): string {
@@ -105,27 +106,29 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="bg-surface-card rounded-card border border-border-subtle shadow-card divide-y divide-border-subtle overflow-hidden">
-              {recentApps.map((app) => (
-                <Link
-                  key={app.id}
-                  href={`/applications/${app.id}`}
-                  className="flex items-center gap-4 px-5 py-3.5 hover:bg-surface-container transition-colors group"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-on-surface truncate">
-                      {(app.job as { company?: string } | null)?.company ?? 'Unknown Company'}
-                    </p>
-                    <p className="text-xs text-on-surface-muted truncate mt-0.5">
-                      {(app.job as { title?: string } | null)?.title ?? 'Unknown Role'}
-                    </p>
-                  </div>
-                  <Badge status={app.status}>{app.status}</Badge>
-                  <span className="text-xs text-on-surface-muted shrink-0 w-16 text-right">
-                    {app.applied_at ? timeAgo(app.applied_at) : '—'}
-                  </span>
-                  <ChevronRight size={14} className="text-on-surface-muted/40 group-hover:text-on-surface-muted transition-colors shrink-0" />
-                </Link>
-              ))}
+              <StaggerFeed>
+                {recentApps.map((app) => (
+                  <Link
+                    key={app.id}
+                    href={`/applications/${app.id}`}
+                    className="flex items-center gap-4 px-5 py-3.5 hover:bg-surface-container transition-colors group"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-on-surface truncate">
+                        {(app.job as { company?: string } | null)?.company ?? 'Unknown Company'}
+                      </p>
+                      <p className="text-xs text-on-surface-muted truncate mt-0.5">
+                        {(app.job as { title?: string } | null)?.title ?? 'Unknown Role'}
+                      </p>
+                    </div>
+                    <Badge status={app.status}>{app.status}</Badge>
+                    <span className="text-xs text-on-surface-muted shrink-0 w-16 text-right">
+                      {app.applied_at ? timeAgo(app.applied_at) : '—'}
+                    </span>
+                    <ChevronRight size={14} className="text-on-surface-muted/40 group-hover:text-on-surface-muted transition-colors shrink-0" />
+                  </Link>
+                ))}
+              </StaggerFeed>
             </div>
           )}
         </div>

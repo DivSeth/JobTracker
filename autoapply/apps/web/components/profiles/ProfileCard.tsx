@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { Star, MoreVertical, Trash2, Copy } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ApplicationProfile } from '@/lib/types'
@@ -76,7 +77,11 @@ export function ProfileCard({ profile, onSetDefault, onDuplicate, onDelete }: Pr
   }
 
   return (
-    <div className="relative">
+    <motion.div
+      className="relative"
+      whileHover={{ scale: 1.01 }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
+    >
       <div
         className="bg-surface-card rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden flex"
         onClick={handleCardClick}
@@ -170,6 +175,6 @@ export function ProfileCard({ profile, onSetDefault, onDuplicate, onDelete }: Pr
           onClick={() => setMenuOpen(false)}
         />
       )}
-    </div>
+    </motion.div>
   )
 }
