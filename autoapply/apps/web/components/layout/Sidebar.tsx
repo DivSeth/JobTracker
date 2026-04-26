@@ -14,8 +14,10 @@ import {
   Sun,
   Moon,
 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useTheme } from '@/components/providers/ThemeProvider'
+import { Avatar } from '@/components/ui/avatar'
 
 const NAV_ITEMS = [
   { href: '/',             label: 'Dashboard',    icon: LayoutDashboard },
@@ -43,11 +45,11 @@ export function Sidebar({ userEmail }: Props) {
   }
 
   return (
-    <aside className="w-52 shrink-0 flex flex-col bg-surface-container min-h-screen px-3 py-5 gap-1">
+    <aside className="w-48 shrink-0 flex flex-col bg-surface-container min-h-screen px-3 py-5 gap-1">
       {/* Logo */}
       <div className="px-3 mb-6 flex items-center gap-2">
         <span className="w-2.5 h-2.5 rounded-full gradient-primary shrink-0" />
-        <span className="text-lg font-bold text-on-surface tracking-tight">
+        <span className="text-lg font-bold font-display text-on-surface tracking-tight">
           Auto<span className="text-primary">Apply</span>
         </span>
       </div>
@@ -60,7 +62,11 @@ export function Sidebar({ userEmail }: Props) {
           return (
             <div key={item.href} className="relative">
               {active && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-primary" />
+                <motion.span
+                  layoutId="sidebar-active-pill"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-primary"
+                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                />
               )}
               <Link
                 href={item.href}
@@ -80,21 +86,20 @@ export function Sidebar({ userEmail }: Props) {
       </nav>
 
       {/* Separator */}
-      <div className="border-t border-on-surface/5 my-2" />
+      <div className="h-px bg-border-subtle my-2" />
 
-      {/* Bottom: user + CTA + theme + logout */}
-      <div className="space-y-2 pt-2">
-        <Link
-          href="/applications/new"
-          className="w-full h-9 gradient-primary text-white text-sm font-medium rounded-xl inline-flex items-center justify-center hover:opacity-90 transition-opacity"
-        >
-          New Application
-        </Link>
+      {/* Bottom: Avatar chip + theme toggle + sign out */}
+      <div className="space-y-1 pt-1">
+        {userEmail && (
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl">
+            <Avatar email={userEmail} size="sm" />
+            <p className="text-xs text-on-surface-muted truncate">{userEmail}</p>
+          </div>
+        )}
 
-        {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-on-surface-muted hover:text-on-surface transition-colors rounded-xl"
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-on-surface-muted hover:text-on-surface transition-colors rounded-xl"
         >
           <span className="transition-transform duration-300" style={{ transform: theme === 'dark' ? 'rotate(180deg)' : 'rotate(0deg)' }}>
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
@@ -104,14 +109,11 @@ export function Sidebar({ userEmail }: Props) {
 
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-on-surface-muted hover:text-error transition-colors rounded-xl"
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-on-surface-muted hover:text-error transition-colors rounded-xl"
         >
           <LogOut size={14} />
           Sign out
         </button>
-        {userEmail && (
-          <p className="text-xs text-on-surface-muted px-3 truncate">{userEmail}</p>
-        )}
       </div>
     </aside>
   )
