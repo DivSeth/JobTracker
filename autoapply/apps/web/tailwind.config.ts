@@ -24,17 +24,20 @@ const config: Config = {
         'outline-variant': 'var(--outline-variant)',
         success: 'var(--success)',
         error: 'var(--error)',
+        'border-subtle': 'var(--border-subtle)',
       },
       fontFamily: {
-        display: 'var(--font-display)',
-        body: 'var(--font-body)',
+        display: ['var(--font-geist-sans)', 'sans-serif'],
+        body: ['var(--font-body)', 'sans-serif'],
       },
       borderRadius: {
         xl: '12px',
         '2xl': '16px',
+        card: 'var(--radius-card)',
       },
       boxShadow: {
         ambient: '0 12px 40px rgba(42, 52, 57, 0.06)',
+        card: 'var(--shadow-card)',
       },
       fontSize: {
         label: ['0.6875rem', { lineHeight: '1rem', fontWeight: '500' }],
