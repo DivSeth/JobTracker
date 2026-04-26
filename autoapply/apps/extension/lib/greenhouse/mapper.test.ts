@@ -155,7 +155,7 @@ describe('mapProfileToFields — 02-07 identity rules', () => {
     ['github_url', 'GitHub profile', 'https://github.com/janedoe'],
     ['portfolio_url', 'Portfolio / website', 'https://janedoe.dev'],
     ['pronouns', 'Pronouns', 'she/her'],
-    ['country', 'Country', 'US'],
+    ['country', 'Country', 'United States'],
     ['desired_salary_min', 'Desired salary', '120000'],
     ['notice_period_weeks', 'Notice period', '2'],
     ['earliest_start_date', 'Earliest start date', '2026-06-01'],
@@ -165,6 +165,14 @@ describe('mapProfileToFields — 02-07 identity rules', () => {
       { selector: `#${name}`, name, label, type: 'text', required: false },
     ])
     expect(mapped.profileValue).toBe(expected)
+  })
+
+  it('country_name transform: unknown code falls back to the raw code', () => {
+    const [mapped] = mapProfileToFields(
+      { userProfile: { country: 'ZZ' } },
+      [{ selector: '#country', name: 'country', label: 'Country', type: 'combobox', required: false }],
+    )
+    expect(mapped.profileValue).toBe('ZZ')
   })
 
   it('renders authorized_to_work as "Yes" for a yes/no select', () => {
