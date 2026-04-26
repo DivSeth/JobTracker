@@ -111,7 +111,7 @@ export default async function JobsPage({ searchParams }: Props) {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-on-surface">Job Feed</h1>
+          <h1 className="text-2xl font-bold font-display text-on-surface">Job Feed</h1>
           <p className="text-sm text-on-surface-muted mt-1">
             {list.length} opportunities matching your profile
           </p>

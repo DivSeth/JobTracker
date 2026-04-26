@@ -52,7 +52,7 @@ export default async function InsightsPage() {
   return (
     <div className="p-8 space-y-8 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-bold text-on-surface">Insights</h1>
+        <h1 className="text-2xl font-bold font-display text-on-surface">Insights</h1>
         <p className="text-sm text-on-surface-muted mt-1">
           {total === 0 ? 'Start applying to jobs to see your stats here.' : `Based on ${total} application${total !== 1 ? 's' : ''}`}
         </p>
@@ -61,7 +61,7 @@ export default async function InsightsPage() {
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statCards.map(s => (
-          <div key={s.label} className="bg-surface-card rounded-2xl p-5 shadow-ambient flex flex-col gap-3">
+          <div key={s.label} className="bg-surface-card rounded-card p-5 shadow-card border border-border-subtle flex flex-col gap-3">
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${s.color}`}>
               <s.icon size={18} />
             </div>
@@ -74,7 +74,7 @@ export default async function InsightsPage() {
       </div>
 
       {/* Funnel */}
-      <div className="bg-surface-card rounded-2xl p-6 shadow-ambient">
+      <div className="bg-surface-card rounded-card p-6 shadow-card border border-border-subtle">
         <h2 className="text-base font-semibold text-on-surface mb-5">Application Funnel</h2>
         <div className="space-y-3">
           {funnel.map(f => (
@@ -97,7 +97,7 @@ export default async function InsightsPage() {
 
       {/* Status breakdown */}
       {total > 0 && (
-        <div className="bg-surface-card rounded-2xl p-6 shadow-ambient">
+        <div className="bg-surface-card rounded-card p-6 shadow-card border border-border-subtle">
           <h2 className="text-base font-semibold text-on-surface mb-4">Status Breakdown</h2>
           <div className="grid grid-cols-3 gap-4">
             {(['saved', 'applied', 'oa', 'interviewing', 'offer', 'rejected', 'ghosted'] as const).map(status => {
@@ -115,7 +115,7 @@ export default async function InsightsPage() {
       )}
 
       {latestInsight && (
-        <div className="bg-surface-card rounded-2xl p-6 shadow-ambient">
+        <div className="bg-surface-card rounded-card p-6 shadow-card border border-border-subtle">
           <h2 className="text-base font-semibold text-on-surface mb-4">AI Insights</h2>
           <div className="space-y-3">
             {(latestInsight.insights as InsightItem[]).map((insight: InsightItem, i: number) => (

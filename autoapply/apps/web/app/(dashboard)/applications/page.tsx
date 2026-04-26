@@ -35,7 +35,7 @@ export default function ApplicationsPage() {
   return (
     <div className="p-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-on-surface">Applications</h1>
+        <h1 className="text-2xl font-bold font-display text-on-surface">Applications</h1>
         <p className="text-sm text-on-surface-muted mt-1">
           {applications.length} tracked application{applications.length !== 1 ? 's' : ''}
         </p>
