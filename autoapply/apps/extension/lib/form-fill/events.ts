@@ -44,7 +44,7 @@ export function fillSelectField(el: HTMLSelectElement, value: string): void {
       optionText === normalized ||
       optionValue === normalized ||
       optionText.includes(normalized) ||
-      normalized.includes(optionText)
+      (optionText !== '' && normalized.includes(optionText))
     )
   })
 
