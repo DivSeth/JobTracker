@@ -29,8 +29,9 @@ export function StatCard({
   useEffect(() => {
     if (numValue === null || !ref.current) return
     const controls = animate(0, numValue, {
-      duration: 0.8,
-      ease: [0.16, 1, 0.3, 1],
+      type: 'spring',
+      stiffness: 200,
+      damping: 20,
       onUpdate(val) {
         if (ref.current) ref.current.textContent = String(Math.round(val))
       },

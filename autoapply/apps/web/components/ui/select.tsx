@@ -17,7 +17,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         id={id}
         ref={ref}
         className={cn(
-          'w-full h-9 bg-surface-card text-on-surface text-sm px-3 rounded-xl',
+          'w-full h-9 bg-surface-card text-on-surface text-sm px-3 rounded-[10px]',
           'border border-border-subtle',
           'outline-none focus:ring-2 focus:ring-primary/30',
           'disabled:opacity-50 disabled:cursor-not-allowed',

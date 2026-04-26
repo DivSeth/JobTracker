@@ -17,7 +17,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         id={id}
         ref={ref}
         className={cn(
-          'w-full h-9 bg-surface-card text-on-surface text-sm px-3 rounded-xl',
+          'w-full h-9 bg-surface-card text-on-surface text-sm px-3 rounded-[10px]',
           'border border-border-subtle',
           'outline-none focus:ring-2 focus:ring-primary/30',
           'placeholder:text-on-surface-muted/50',
