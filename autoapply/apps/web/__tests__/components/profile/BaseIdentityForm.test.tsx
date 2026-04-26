@@ -53,9 +53,8 @@ describe('BaseIdentityForm', () => {
         expect.objectContaining({ method: 'PATCH' })
       )
     })
-    const body = JSON.parse((fetch as unknown as { mock: { calls: unknown[][] } }).mock.calls[0][1] as unknown as string)
-    // The fetch mock's second arg is RequestInit; the body is a string.
-    // Above coercion is safe because we stringified inside the component.
+    const init = (fetch as unknown as { mock: { calls: [string, { body: string }][] } }).mock.calls[0][1]
+    const body = JSON.parse(init.body)
     expect(body.first_name).toBe('Jane')
   })
 
