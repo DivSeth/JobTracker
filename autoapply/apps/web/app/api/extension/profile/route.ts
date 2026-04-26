@@ -1,12 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+}
+const NO_STORE = { 'Cache-Control': 'no-store, private' }
+const HEADERS = { ...NO_STORE, ...CORS }
+
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const NO_STORE = { 'Cache-Control': 'no-store, private' }
 
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: NO_STORE })
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: HEADERS })
 
   const { data: baseIdentity, error: profileError } = await supabase
     .from('profiles')
@@ -15,7 +22,7 @@ export async function GET() {
     .maybeSingle()
 
   if (profileError) {
-    return NextResponse.json({ error: profileError.message }, { status: 500, headers: NO_STORE })
+    return NextResponse.json({ error: profileError.message }, { status: 500, headers: HEADERS })
   }
 
   const { data: regionalIdentities, error: regionalError } = await supabase
@@ -25,11 +32,11 @@ export async function GET() {
     .order('is_default', { ascending: false })
 
   if (regionalError) {
-    return NextResponse.json({ error: regionalError.message }, { status: 500, headers: NO_STORE })
+    return NextResponse.json({ error: regionalError.message }, { status: 500, headers: HEADERS })
   }
 
   return NextResponse.json(
     { baseIdentity: baseIdentity ?? null, regionalIdentities: regionalIdentities ?? [] },
-    { headers: NO_STORE }
+    { headers: HEADERS }
   )
 }

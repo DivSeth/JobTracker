@@ -75,7 +75,7 @@ const DEFAULT_RULES: FieldMappingRule[] = [
   { field_pattern: 'github', profile_path: 'github_url', source: 'user_profile' },
   { field_pattern: 'portfolio|website|personal site', profile_path: 'portfolio_url', source: 'user_profile' },
   { field_pattern: 'pronoun', profile_path: 'pronouns', source: 'user_profile' },
-  { field_pattern: '^country$|country of residence|currently located|primary country', profile_path: 'country', source: 'user_profile' },
+  { field_pattern: '^country$|country of residence|primary country', profile_path: 'country', source: 'user_profile' },
   { field_pattern: 'address.*1|street address', profile_path: 'address_line_1', source: 'user_profile' },
   { field_pattern: 'address.*2|apartment|\\bunit\\b', profile_path: 'address_line_2', source: 'user_profile' },
   { field_pattern: '^city$', profile_path: 'city', source: 'user_profile' },

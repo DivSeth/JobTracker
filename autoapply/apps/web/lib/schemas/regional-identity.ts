@@ -11,7 +11,7 @@ export const regionalIdentityCreateSchema = z.object({
   country_codes: z.array(countryCode).min(1),
   is_default: z.boolean().optional().default(false),
 
-  email: z.string().email(),
+  email: z.string().email().or(z.literal('')),
   phone_e164: z
     .string()
     .regex(/^\+[1-9]\d{1,14}$/, 'must be E.164 (e.g. +14155551234)')

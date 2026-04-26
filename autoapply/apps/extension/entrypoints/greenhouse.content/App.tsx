@@ -83,6 +83,27 @@ export default function PreviewPanel({
   const unmappedRows = mappedFields.filter((field) => field.profileValue === null)
   const total = mappedFields.length
 
+  async function handleFileUpload(storagePath: string, selector: string): Promise<void> {
+    const result = await chrome.runtime.sendMessage({ action: 'getResumeSignedUrl', payload: { storagePath } })
+    const url: string | null = result?.url ?? null
+    if (!url) return
+
+    const resp = await fetch(url)
+    if (!resp.ok) return
+
+    const blob = await resp.blob()
+    const filename = storagePath.split('/').pop() ?? 'resume.pdf'
+    const file = new File([blob], filename, { type: blob.type || 'application/pdf' })
+
+    const input = document.querySelector<HTMLInputElement>(selector)
+    if (!input) return
+
+    const dt = new DataTransfer()
+    dt.items.add(file)
+    input.files = dt.files
+    input.dispatchEvent(new Event('change', { bubbles: true, composed: true }))
+  }
+
   async function handleConfirmFill() {
     setPanelState('filling')
     setCompleted(0)
@@ -92,6 +113,7 @@ export default function PreviewPanel({
 
     const fillResult = await fillForm(mappedFields, {
       delayMs: 50,
+      onFileUploadRequest: handleFileUpload,
       onProgress: (nextCompleted, _total, last) => {
         setCompleted(nextCompleted)
         setStatuses((current) => ({

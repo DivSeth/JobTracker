@@ -1,7 +1,21 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+}
+
 export async function middleware(request: NextRequest) {
+  // Handle CORS preflight for extension API routes
+  if (
+    request.method === 'OPTIONS' &&
+    request.nextUrl.pathname.startsWith('/api/extension/')
+  ) {
+    return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -50,6 +64,11 @@ export async function middleware(request: NextRequest) {
     if (!profile?.first_name) {
       return NextResponse.redirect(new URL('/profile', request.url))
     }
+  }
+
+  // Add CORS headers to all extension API responses
+  if (request.nextUrl.pathname.startsWith('/api/extension/')) {
+    Object.entries(CORS_HEADERS).forEach(([k, v]) => supabaseResponse.headers.set(k, v))
   }
 
   return supabaseResponse

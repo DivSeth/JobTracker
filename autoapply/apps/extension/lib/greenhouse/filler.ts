@@ -2,7 +2,7 @@ import { fillCheckbox, fillComboboxField, fillSelectField, fillTextField } from 
 import type { FillFieldResult, FillResult, MappedField } from '@/lib/greenhouse/types'
 
 interface FillOptions {
-  onFileUploadRequest?: (profilePath: string, selector: string) => Promise<void>
+  onFileUploadRequest?: (storagePath: string, selector: string) => Promise<void>
   onProgress?: (completed: number, total: number, last: FillFieldResult) => void
   delayMs?: number
 }
@@ -72,8 +72,8 @@ export async function fillForm(
             break
           case 'file': {
             const handler = options.onFileUploadRequest
-            if (mappedField.profilePath && handler) {
-              await handler(mappedField.profilePath, mappedField.field.selector)
+            if (mappedField.profileValue && handler) {
+              await handler(mappedField.profileValue, mappedField.field.selector)
               break
             }
             result = {

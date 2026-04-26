@@ -86,7 +86,57 @@ If the smoke test passes:
 
 ---
 
-## 4. Open Blocker: SEC-01
+## 4. Known Fill Bugs (post smoke-test, 2026-04-25)
+
+These were discovered during live smoke testing. None block the merge but all must be fixed before the extension is useful in production.
+
+### BUG-01: Country combobox gets "US" typed but never selects
+
+**Symptom:** The country field in Greenhouse is a combobox (custom searchable dropdown). The mapper sends the ISO code `"US"` but the combobox options are full country names ("United States"). `fillComboboxField` finds no matching option and throws.
+
+**Root cause:** `country` stored in `StoredRegionalIdentity` is an ISO 3166-1 alpha-2 code (e.g. `"US"`). The mapper passes it directly. The combobox options are full names.
+
+**Fix direction:** Add a `iso_country_name` transform in `mapper.ts` that converts the code to the display name via a lookup table (same `COUNTRY_CODES` array already in `apps/web/lib/profile/country-codes.ts` — move/share it with the extension or duplicate the lookup). Apply this transform to the country rule.
+
+**Files:** `apps/extension/lib/greenhouse/mapper.ts` (add transform), `apps/extension/utils/identity.ts` or a new `lib/country-codes.ts` (lookup table).
+
+---
+
+### BUG-02: "Currently located in COUNTRY?" misfires
+
+**Symptom:** The label "Are you currently located in [Country]?" is a Yes/No select, but the current country mapper pattern includes `currently located` as a keyword, so the mapper maps it to the country ISO code value instead of Yes/No. Result: the select gets "US" which doesn't match any option.
+
+**Root cause:** In `mapper.ts`, the country rule pattern is:
+```
+'^country$|country of residence|currently located|primary country'
+```
+`currently located` should not be part of the country rule — it's a boolean residency question.
+
+**Fix direction:**
+1. Remove `currently located` from the country rule pattern.
+2. Add a new `currently_located` boolean to `StoredRegionalIdentity` (and `user_regional_identities` DB column — needs migration).
+3. Add a mapper rule: `{ field_pattern: 'currently located', profile_path: 'currently_located', source: 'user_profile', transform: 'yes_no' }`.
+4. Add the field to `RegionalIdentityForm`.
+
+Alternatively (minimal): remove `currently located` from the country pattern and leave it unmapped for now — better to skip than to misfire.
+
+**Files:** `apps/extension/lib/greenhouse/mapper.ts`, `apps/extension/utils/identity.ts`, `apps/web/components/profile/RegionalIdentityForm.tsx`, new migration.
+
+---
+
+### BUG-03: Profile UI is unusable quality
+
+**Symptom:** The `/profile` page (BaseIdentityForm + RegionalIdentityForm) has no layout hierarchy, no visual feedback beyond a tiny "Saved" text, no grouping of related fields, and no mobile consideration. It works but looks like raw scaffolding.
+
+**Fix direction:** This is Phase 03 UI/UX work. Full overhaul planned:
+- Web app profile page to startup visual standards
+- Extension popup and PreviewPanel to match design system
+- Cohesive Cognitive Workspace design tokens (`bg-surface`, `text-primary` already in place)
+- Responsive 1024–1920px
+
+---
+
+## 5. Open Blocker: SEC-01
 
 **Do NOT merge to main or ship to real users until SEC-01 is fixed.**
 

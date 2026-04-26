@@ -20,9 +20,9 @@ export const baseIdentitySchema = z.object({
   last_name: z.string().min(1).max(100).nullable(),
   preferred_first_name: z.string().max(100).nullable(),
   pronouns: z.string().max(50).nullable(),
-  linkedin_url: z.string().url().nullable(),
-  github_url: z.string().url().nullable(),
-  portfolio_url: z.string().url().nullable(),
+  linkedin_url: z.string().trim().max(500).nullable(),
+  github_url: z.string().trim().max(500).nullable(),
+  portfolio_url: z.string().trim().max(500).nullable(),
   date_of_birth: isoDate.nullable(),
   willing_to_relocate: z.boolean(),
   work_arrangement_preference: z
