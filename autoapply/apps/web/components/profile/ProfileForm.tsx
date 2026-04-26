@@ -20,9 +20,8 @@ const emptyEdu = (): EducationEntry => ({
 })
 
 export function ProfileForm({ initialProfile }: Props) {
-  const [details, setDetails] = useState<ProfileDetails>({
-    full_name: null, phone: null, location: null,
-    bio: null, resume_url: null, portfolio_url: null,
+  const [details, setDetails] = useState<Pick<ProfileDetails, 'bio' | 'resume_url'>>({
+    bio: null, resume_url: null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...((initialProfile as any)?.profile_details ?? {}),
   })
@@ -72,20 +71,19 @@ export function ProfileForm({ initialProfile }: Props) {
   }
 
   const completedFields = [
-    details.full_name, details.phone, details.location, details.bio,
-    skills, experience.length > 0, education.length > 0,
+    details.bio, skills.length > 0, experience.length > 0, education.length > 0,
   ].filter(Boolean).length
-  const completionPct = Math.round((completedFields / 7) * 100)
+  const completionPct = Math.round((completedFields / 4) * 100)
 
   return (
     <div className="flex gap-8 p-8">
       {/* Left panel */}
       <div className="w-44 shrink-0 space-y-4">
         <div className="w-20 h-20 rounded-2xl bg-surface-container flex items-center justify-center text-xl font-semibold text-on-surface-muted mx-auto">
-          {(details.full_name ?? 'AU').slice(0, 2).toUpperCase()}
+          AU
         </div>
         <div className="text-center">
-          <p className="text-sm font-medium text-on-surface">{details.full_name || 'Your Name'}</p>
+          <p className="text-sm font-medium text-on-surface">Your Profile</p>
           <p className="text-xs text-on-surface-muted mt-0.5">
             {experience[0]?.role || 'Add your role'}
           </p>
@@ -111,12 +109,6 @@ export function ProfileForm({ initialProfile }: Props) {
             </span>
           </a>
         )}
-        {details.portfolio_url && (
-          <a href={details.portfolio_url} target="_blank" rel="noopener noreferrer"
-             className="block text-xs text-primary hover:underline truncate">
-            Portfolio
-          </a>
-        )}
       </div>
 
       {/* Right panels */}
@@ -125,12 +117,6 @@ export function ProfileForm({ initialProfile }: Props) {
         <section className="space-y-4">
           <h2 className="text-base font-semibold text-on-surface">Personal Details</h2>
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Full Name" id="full_name" placeholder="Alex Rivera"
-              value={details.full_name ?? ''} onChange={e => setDetails(d => ({ ...d, full_name: e.target.value }))} />
-            <Input label="Phone" id="phone" placeholder="+1 (000) 000-0000"
-              value={details.phone ?? ''} onChange={e => setDetails(d => ({ ...d, phone: e.target.value }))} />
-            <Input label="Location" id="location" placeholder="San Francisco, CA"
-              value={details.location ?? ''} onChange={e => setDetails(d => ({ ...d, location: e.target.value }))} />
             <div className="space-y-1.5">
               <label className="block label-sm text-on-surface-muted">Resume</label>
               <div className="flex items-center gap-2">
@@ -170,8 +156,6 @@ export function ProfileForm({ initialProfile }: Props) {
                 />
               </div>
             )}
-            <Input label="Portfolio URL" id="portfolio_url" placeholder="https://..."
-              value={details.portfolio_url ?? ''} onChange={e => setDetails(d => ({ ...d, portfolio_url: e.target.value }))} />
           </div>
           <div className="space-y-1.5">
             <label htmlFor="bio" className="block label-sm text-on-surface-muted">Bio</label>
