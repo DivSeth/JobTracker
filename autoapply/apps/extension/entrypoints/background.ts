@@ -165,9 +165,29 @@ export default defineBackground(() => {
         const tryHandleUrl = async (urlString?: string | null, tabId?: number) => {
           if (settled || !urlString || !tabId) return
 
+          // SEC-01: exchange code flow — tokens never in URL
+          try {
+            const url = new URL(urlString)
+            const exchangeCode = url.searchParams.get('exchange_code')
+            if (exchangeCode) {
+              const resp = await fetch(`${WEBAPP_URL}/api/auth/exchange`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: exchangeCode }),
+              })
+              if (resp.ok) {
+                const { access_token, refresh_token } = await resp.json()
+                await finalize(access_token, refresh_token, tabId)
+              }
+              return
+            }
+          } catch {
+            // malformed URL — fall through
+          }
+
+          // Legacy fallback: tokens in URL hash/query (pre-SEC-01)
           const tokens = readAuthTokens(urlString)
           if (!tokens) return
-
           await finalize(tokens.accessToken, tokens.refreshToken, tabId)
         }
 

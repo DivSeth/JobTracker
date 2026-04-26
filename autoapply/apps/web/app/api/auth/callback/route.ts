@@ -36,12 +36,25 @@ export async function GET(request: Request) {
   }
 
   if (source === 'extension') {
-    const tokenParams = new URLSearchParams({
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-    })
+    // SEC-01: tokens never touch the URL — generate a 30-second single-use code.
+    const adminClient = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    const { data: codeRow, error: codeErr } = await adminClient
+      .from('auth_exchange_codes')
+      .insert({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      })
+      .select('code')
+      .single()
 
-    return NextResponse.redirect(`${origin}/login?${tokenParams.toString()}`, { status: 302 })
+    if (codeErr || !codeRow) {
+      return NextResponse.redirect(`${origin}/login?error=exchange_failed`, { status: 302 })
+    }
+
+    return NextResponse.redirect(`${origin}/login?exchange_code=${codeRow.code}`, { status: 302 })
   }
 
   return NextResponse.redirect(`${origin}/`, { status: 302 })
