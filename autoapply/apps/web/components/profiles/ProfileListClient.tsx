@@ -43,23 +43,20 @@ export function ProfileListClient({ profiles }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {profiles.map(profile => (
-          <ProfileCard
-            key={profile.id}
-            profile={profile}
-            onSetDefault={handleSetDefault}
-            onDuplicate={handleDuplicate}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
+      {profiles.map(profile => (
+        <ProfileCard
+          key={profile.id}
+          profile={profile}
+          onSetDefault={handleSetDefault}
+          onDuplicate={handleDuplicate}
+          onDelete={handleDelete}
+        />
+      ))}
 
-      {/* Delete confirmation dialog */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-surface-card rounded-2xl shadow-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-base font-semibold text-on-surface mb-2">
+          <div className="bg-surface-card rounded-card border border-border-subtle shadow-card p-6 max-w-md w-full mx-4">
+            <h3 className="text-base font-semibold font-display text-on-surface mb-2">
               Delete &ldquo;{deleteTarget.name}&rdquo;?
             </h3>
             <p className="text-sm text-on-surface-muted mb-6">

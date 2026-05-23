@@ -26,23 +26,23 @@ export const STATUS_TRANSITIONS: Record<ApplicationStatus, ApplicationStatus | n
 }
 
 const STATUS_ACCENT: Record<string, string> = {
-  saved:        'border-gray-400/50',
+  saved:        'border-outline/50',
   applied:      'border-primary',
-  oa:           'border-amber-400',
-  interviewing: 'border-purple-500',
-  offer:        'border-green-500',
-  rejected:     'border-red-400',
-  ghosted:      'border-gray-200',
+  oa:           'border-warning-vibrant',
+  interviewing: 'border-secondary',
+  offer:        'border-success-vibrant',
+  rejected:     'border-error-vibrant',
+  ghosted:      'border-outline-variant',
 }
 
 const STATUS_DOT: Record<string, string> = {
-  saved:        'bg-gray-400',
+  saved:        'bg-outline',
   applied:      'bg-primary',
-  oa:           'bg-amber-400',
-  interviewing: 'bg-purple-500',
-  offer:        'bg-green-500',
-  rejected:     'bg-red-400',
-  ghosted:      'bg-gray-200',
+  oa:           'bg-warning-vibrant',
+  interviewing: 'bg-secondary',
+  offer:        'bg-success-vibrant',
+  rejected:     'bg-error-vibrant',
+  ghosted:      'bg-outline-variant',
 }
 
 const JOB_BOARD_DOMAINS = new Set([
@@ -99,7 +99,7 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
             <div className="flex items-center gap-2 mb-3 px-1">
               <div className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT[col.id]}`} />
               <h3 className="font-semibold text-sm text-on-surface">{col.label}</h3>
-              <span className="ml-auto text-xs font-medium text-on-surface-muted bg-surface-container px-2 py-0.5 rounded-full">
+              <span className="ml-auto text-xs font-medium text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">
                 {cards.length}
               </span>
             </div>
@@ -115,14 +115,14 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
                     {/* Logo + company + delete */}
                     <div className="flex items-center gap-2 mb-2.5">
                       <CompanyLogo applyUrl={job?.apply_url} company={company} />
-                      <Link href={`/applications/${app.id}`} className="text-xs text-on-surface-muted truncate font-medium hover:text-on-surface flex-1">
+                      <Link href={`/applications/${app.id}`} className="text-xs text-on-surface-variant truncate font-medium hover:text-on-surface flex-1">
                         {company}
                       </Link>
                       <button
                         onClick={() => {
                           if (confirm('Remove this application?')) onDelete(app.id)
                         }}
-                        className="opacity-0 group-hover:opacity-100 text-on-surface-muted/40 hover:text-red-400 transition-all p-0.5"
+                        className="opacity-0 group-hover:opacity-100 text-on-surface-variant/40 hover:text-error-vibrant transition-all p-0.5"
                         title="Remove application"
                       >
                         <Trash2 size={13} />
@@ -138,10 +138,10 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
 
                     {/* Location + Date */}
                     {job?.location && (
-                      <p className="text-xs text-on-surface-muted/60 mb-1 truncate">{job.location}</p>
+                      <p className="text-xs text-on-surface-variant/60 mb-1 truncate">{job.location}</p>
                     )}
                     {app.applied_at && (
-                      <p className="text-xs text-on-surface-muted/40 mb-3">
+                      <p className="text-xs text-on-surface-variant/40 mb-3">
                         {new Date(app.applied_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </p>
                     )}
@@ -151,7 +151,7 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
                       {next && (
                         <button
                           onClick={() => onStatusChange(app.id, next)}
-                          className="flex-1 text-xs py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-highest text-on-surface-muted hover:text-on-surface transition-colors text-center"
+                          className="flex-1 text-xs py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors text-center"
                         >
                           {next.replace('_', ' ')} →
                         </button>
@@ -159,7 +159,7 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
                       {app.status !== 'rejected' && app.status !== 'ghosted' && (
                         <button
                           onClick={() => onStatusChange(app.id, 'rejected')}
-                          className="text-xs py-1.5 px-2.5 rounded-xl bg-surface-container hover:bg-red-500/10 text-on-surface-muted/50 hover:text-red-400 transition-colors"
+                          className="text-xs py-1.5 px-2.5 rounded-xl bg-surface-container hover:bg-error-vibrant/10 text-on-surface-variant/50 hover:text-error-vibrant transition-colors"
                           title="Mark as rejected"
                         >
                           ✕
@@ -171,7 +171,7 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
               })}
 
               {cards.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-on-surface/10 p-6 text-center text-xs text-on-surface-muted/40">
+                <div className="rounded-2xl border border-dashed border-on-surface/10 p-6 text-center text-xs text-on-surface-variant/40">
                   Empty
                 </div>
               )}

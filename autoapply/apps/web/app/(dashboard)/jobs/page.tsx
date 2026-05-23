@@ -3,6 +3,7 @@ import { JobCard } from '@/components/jobs/JobCard'
 import { JobFiltersClient } from '@/components/jobs/JobFiltersClient'
 import { SortControl } from '@/components/jobs/SortControl'
 import { FilterDropdowns } from '@/components/jobs/FilterDropdowns'
+import { MatIcon } from '@/components/ui/mat-icon'
 import type { JobType, JobWithScore } from '@/lib/types'
 
 interface Props {
@@ -111,8 +112,8 @@ export default async function JobsPage({ searchParams }: Props) {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-on-surface">Job Feed</h1>
-          <p className="text-sm text-on-surface-muted mt-1">
+          <h1 className="text-2xl font-bold font-display text-on-surface">Job Feed</h1>
+          <p className="text-sm text-on-surface-variant mt-1">
             {list.length} opportunities matching your profile
           </p>
         </div>
@@ -124,19 +125,29 @@ export default async function JobsPage({ searchParams }: Props) {
 
       <JobFiltersClient active={(type as JobType) ?? 'all'} />
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {/* Masonry grid */}
+      <div className="columns-1 md:columns-2 xl:columns-3 gap-4 space-y-4">
         {curatorsPick && <JobCard job={curatorsPick} featured />}
         {rest.map(job => (
           <JobCard key={job.id} job={job} />
         ))}
-        {list.length === 0 && (
-          <div className="col-span-3 py-20 text-center">
-            <p className="text-5xl font-light text-on-surface-muted/30 tracking-tight">No jobs yet</p>
-            <p className="text-sm text-on-surface-muted mt-3">Sync will populate this feed automatically every 6 hours.</p>
-          </div>
-        )}
       </div>
+
+      {list.length === 0 && (
+        <div className="py-20 text-center">
+          <p className="text-5xl font-light text-on-surface-variant/30 tracking-tight">No jobs yet</p>
+          <p className="text-sm text-on-surface-variant mt-3">Sync will populate this feed automatically every 6 hours.</p>
+        </div>
+      )}
+
+      {/* FAB */}
+      <a
+        href="/applications/new"
+        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-br from-primary-container to-electric-indigo shadow-lg hover:scale-110 active:scale-95 transition-transform flex items-center justify-center text-white z-50"
+        title="New Application"
+      >
+        <MatIcon size={24}>add</MatIcon>
+      </a>
     </div>
   )
 }

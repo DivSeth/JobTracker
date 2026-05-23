@@ -19,6 +19,7 @@ export default function App() {
   const [connected, setConnected] = useState(false)
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
+  const [syncError, setSyncError] = useState<string | null>(null)
   const [profiles, setProfiles] = useState<StoredProfile[]>([])
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
   const [atsDetected, setAtsDetected] = useState<AtsDetection | null>(null)
@@ -39,6 +40,7 @@ export default function App() {
         )
         setAtsDetected(result.atsDetected || null)
         setLastSync(result.lastSync || null)
+        setSyncError(null)
         setLoading(false)
       }
     )
@@ -49,13 +51,20 @@ export default function App() {
         const payload = message.payload as { connected: boolean }
         setConnected(payload.connected)
         if (payload.connected) {
-          handleSync()
+          void handleSync()
         }
       }
       if (message.type === 'PROFILES_SYNCED') {
-        chrome.storage.local.get(['profiles', 'lastSync'], (result) => {
+        chrome.storage.local.get(['profiles', 'activeProfileId', 'lastSync'], (result) => {
           setProfiles(result.profiles || [])
+          setActiveProfileId(
+            result.activeProfileId ||
+            result.profiles?.find((p: StoredProfile) => p.is_default)?.id ||
+            result.profiles?.[0]?.id ||
+            null
+          )
           setLastSync(result.lastSync || null)
+          setSyncError(null)
           setSyncing(false)
         })
       }
@@ -76,9 +85,37 @@ export default function App() {
     setActiveProfileId(null)
   }
 
-  function handleSync() {
+  async function handleSync() {
     setSyncing(true)
-    chrome.runtime.sendMessage({ action: 'syncProfiles' })
+    setSyncError(null)
+
+    try {
+      const result = await chrome.runtime.sendMessage({
+        action: 'syncProfiles',
+      }) as { success?: boolean; count?: number }
+
+      if (!result?.success) {
+        setSyncing(false)
+        setSyncError('Profile sync failed. Create a profile in the web app or try syncing again.')
+        return
+      }
+
+      chrome.storage.local.get(['profiles', 'activeProfileId', 'lastSync'], (storageResult) => {
+        setProfiles(storageResult.profiles || [])
+        setActiveProfileId(
+          storageResult.activeProfileId ||
+          storageResult.profiles?.find((p: StoredProfile) => p.is_default)?.id ||
+          storageResult.profiles?.[0]?.id ||
+          null
+        )
+        setLastSync(storageResult.lastSync || null)
+        setSyncError(null)
+        setSyncing(false)
+      })
+    } catch {
+      setSyncing(false)
+      setSyncError('Profile sync failed. Create a profile in the web app or try syncing again.')
+    }
   }
 
   function handleProfileSelect(id: string) {
@@ -87,9 +124,8 @@ export default function App() {
   }
 
   function handleFill() {
-    // Phase 2+ implementation — for now, show that the action is wired
-    // Will send message to content script to begin auto-fill
-    console.log('Fill triggered with profile:', activeProfileId, 'on:', atsDetected)
+    if (!activeProfileId) return
+    chrome.runtime.sendMessage({ action: 'startFill', payload: { profileId: activeProfileId } })
   }
 
   const activeProfile = profiles.find((p) => p.id === activeProfileId)
@@ -144,6 +180,10 @@ export default function App() {
         onSelect={handleProfileSelect}
         disabled={syncing}
       />
+
+      {syncError && (
+        <p className="text-xs text-error">{syncError}</p>
+      )}
 
       {atsDetected && activeProfile && (
         <AtsDetectionBanner

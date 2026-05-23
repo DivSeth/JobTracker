@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import CalendarPage from '@/app/(dashboard)/calendar/page'
 
-it('renders calendar coming soon headline', () => {
+it('renders calendar page heading', () => {
   render(<CalendarPage />)
-  expect(screen.getByText(/calendar coming soon/i)).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: /calendar/i })).toBeInTheDocument()
 })

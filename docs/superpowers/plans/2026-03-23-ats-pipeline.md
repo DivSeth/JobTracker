@@ -1603,12 +1603,44 @@ Expected response: JSON with `seeded` count and `by_platform` breakdown.
 
 - [ ] **Step 4: Run the first ATS sync**
 
+**Full sync (Vercel Pro, ~5 min):**
 ```bash
-curl -X POST https://autoapply-seven.vercel.app/api/jobs/sync-ats \
+curl -X POST "https://autoapply-seven.vercel.app/api/jobs/sync-ats" \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 
-This will take a few minutes (100-200 companies × API calls). Expected response: JSON with `companies_synced`, `jobs_created`, `jobs_deactivated`, `remoteok_added`.
+**Batch-by-batch (Vercel Hobby 10s limit):** Use `limit` and `offset` (or `phase`) to stay under timeout:
+
+```bash
+# 1. ATS companies in batches of 10 (run until has_more is false)
+export BASE="https://autoapply-seven.vercel.app/api/jobs/sync-ats"
+export AUTH="Authorization: Bearer $CRON_SECRET"
+
+curl -X POST "$BASE?limit=10&offset=0&phase=ats" -H "$AUTH"
+# Response includes: batch.has_more, batch.next_offset, batch.total_companies
+
+curl -X POST "$BASE?limit=10&offset=10&phase=ats" -H "$AUTH"
+# Repeat with offset=20, 30, ... until has_more is false
+
+# 2. RemoteOK separately (single API call, usually fast)
+curl -X POST "$BASE?phase=remoteok" -H "$AUTH"
+```
+
+Or loop until done:
+```bash
+offset=0
+while true; do
+  res=$(curl -s -X POST "$BASE?limit=15&offset=$offset&phase=ats" -H "$AUTH")
+  echo "$res" | jq .
+  has_more=$(echo "$res" | jq -r '.batch.has_more // false')
+  [ "$has_more" != "true" ] && break
+  offset=$(echo "$res" | jq -r '.batch.next_offset')
+  sleep 2
+done
+curl -X POST "$BASE?phase=remoteok" -H "$AUTH"
+```
+
+Expected response: JSON with `companies_synced`, `jobs_created`, `jobs_deactivated`, `remoteok_added`.
 
 - [ ] **Step 5: Run enrichment to fill gaps**
 

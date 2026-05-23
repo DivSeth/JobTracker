@@ -1,9 +1,39 @@
-import { getStoredAuth, setStoredAuth, clearStoredAuth } from '../utils/storage'
+import {
+  clearStoredAuth,
+  getStoredAuth,
+  getStoredProfiles,
+  getUserIdentity,
+  setStoredAuth,
+  setUserIdentity,
+  setBaseIdentity,
+  setRegionalIdentities,
+  clearLegacyUserIdentity,
+} from '../utils/storage'
+import { fromApiBase, fromApiRegional } from '../utils/identity'
 import { createExtensionClient } from '../utils/supabase'
-import type { ExtensionMessage, AuthStatus } from '../utils/messages'
+import type { AuthStatus, ExtensionMessage, StoredUserIdentity } from '../utils/messages'
 
 export default defineBackground(() => {
   const WEBAPP_URL = import.meta.env.VITE_WEBAPP_URL || 'http://localhost:3000'
+
+  function readAuthTokens(urlString: string): { accessToken: string; refreshToken: string } | null {
+    try {
+      const url = new URL(urlString)
+      const hashParams = new URLSearchParams(url.hash.substring(1))
+      const accessToken =
+        hashParams.get('access_token') || url.searchParams.get('access_token')
+      const refreshToken =
+        hashParams.get('refresh_token') || url.searchParams.get('refresh_token')
+
+      if (!accessToken || !refreshToken) {
+        return null
+      }
+
+      return { accessToken, refreshToken }
+    } catch {
+      return null
+    }
+  }
 
   // Handle messages from popup and content scripts
   chrome.runtime.onMessage.addListener(
@@ -24,6 +54,34 @@ export default defineBackground(() => {
 
           case 'syncProfiles':
             syncProfiles().then(sendResponse)
+            return true
+
+          case 'getProfileForFill':
+            getProfileForFill(message.payload?.profileId ?? null).then(sendResponse)
+            return true
+
+          case 'getFieldMappings':
+            fetchFieldMappings(message.payload.platform).then(sendResponse)
+            return true
+
+          case 'trackApplication':
+            trackApplication(message.payload).then(sendResponse)
+            return true
+
+          case 'updateApplicationStatus':
+            updateApplicationStatus(message.payload.id, message.payload.status).then(sendResponse)
+            return true
+
+          case 'checkDuplicateApplication':
+            checkDuplicateApplication(message.payload.applyUrl).then(sendResponse)
+            return true
+
+          case 'getResumeSignedUrl':
+            getResumeSignedUrl(message.payload.storagePath).then(sendResponse)
+            return true
+
+          case 'startFill':
+            startFill(message.payload?.profileId ?? null, message.payload?.platform ?? 'greenhouse').then(sendResponse)
             return true
         }
       }
@@ -58,68 +116,108 @@ export default defineBackground(() => {
       })
 
       return new Promise((resolve) => {
+        let settled = false
+        let pollTimer: ReturnType<typeof setInterval> | null = null
+        let timeoutTimer: ReturnType<typeof setTimeout> | null = null
+
+        const cleanup = () => {
+          if (pollTimer) clearInterval(pollTimer)
+          if (timeoutTimer) clearTimeout(timeoutTimer)
+          chrome.tabs.onUpdated.removeListener(listener)
+        }
+
+        const finalize = async (accessToken: string, refreshToken: string, tabId: number) => {
+          if (settled) return
+          settled = true
+          cleanup()
+
+          await setStoredAuth({
+            accessToken,
+            refreshToken,
+            userId: '', // Will be populated on first Supabase call
+          })
+
+          // Get actual user ID
+          const client = await createExtensionClient()
+          const {
+            data: { user },
+          } = await client.auth.getUser()
+          if (user) {
+            await setStoredAuth({ accessToken, refreshToken, userId: user.id })
+          }
+
+          chrome.tabs.remove(tabId).catch(() => {})
+
+          // Notify popup
+          chrome.runtime
+            .sendMessage({
+              type: 'AUTH_STATE_CHANGED',
+              payload: { connected: true },
+            })
+            .catch(() => {}) // popup may be closed
+
+          // Initial profile sync
+          syncProfiles()
+
+          resolve({ success: true })
+        }
+
+        const tryHandleUrl = async (urlString?: string | null, tabId?: number) => {
+          if (settled || !urlString || !tabId) return
+
+          // SEC-01: exchange code flow — tokens never in URL
+          try {
+            const url = new URL(urlString)
+            const exchangeCode = url.searchParams.get('exchange_code')
+            if (exchangeCode) {
+              const resp = await fetch(`${WEBAPP_URL}/api/auth/exchange`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: exchangeCode }),
+              })
+              if (resp.ok) {
+                const { access_token, refresh_token } = await resp.json()
+                await finalize(access_token, refresh_token, tabId)
+              }
+              return
+            }
+          } catch {
+            // malformed URL — fall through
+          }
+
+          // Legacy fallback: tokens in URL hash/query (pre-SEC-01)
+          const tokens = readAuthTokens(urlString)
+          if (!tokens) return
+          await finalize(tokens.accessToken, tokens.refreshToken, tabId)
+        }
+
         const listener = (
           tabId: number,
           changeInfo: chrome.tabs.TabChangeInfo,
           updatedTab: chrome.tabs.Tab
         ) => {
-          if (tabId !== tab.id || changeInfo.status !== 'complete') return
-          if (!updatedTab.url) return
+          if (tabId !== tab.id) return
 
-          try {
-            const url = new URL(updatedTab.url)
-
-            // Check for tokens in URL hash (Supabase implicit flow)
-            // or in query params (custom extension callback)
-            const hashParams = new URLSearchParams(url.hash.substring(1))
-            const accessToken =
-              hashParams.get('access_token') || url.searchParams.get('access_token')
-            const refreshToken =
-              hashParams.get('refresh_token') || url.searchParams.get('refresh_token')
-
-            if (accessToken && refreshToken) {
-              // Store tokens
-              setStoredAuth({
-                accessToken,
-                refreshToken,
-                userId: '', // Will be populated on first Supabase call
-              }).then(async () => {
-                // Get actual user ID
-                const client = await createExtensionClient()
-                const {
-                  data: { user },
-                } = await client.auth.getUser()
-                if (user) {
-                  await setStoredAuth({ accessToken, refreshToken, userId: user.id })
-                }
-
-                chrome.tabs.remove(tabId)
-                chrome.tabs.onUpdated.removeListener(listener)
-
-                // Notify popup
-                chrome.runtime
-                  .sendMessage({
-                    type: 'AUTH_STATE_CHANGED',
-                    payload: { connected: true },
-                  })
-                  .catch(() => {}) // popup may be closed
-
-                // Initial profile sync
-                syncProfiles()
-
-                resolve({ success: true })
-              })
-            }
-          } catch {
-            // URL parse error — ignore, keep listening
-          }
+          void tryHandleUrl(changeInfo.url ?? updatedTab.url ?? null, tabId)
         }
 
         chrome.tabs.onUpdated.addListener(listener)
 
+        pollTimer = setInterval(async () => {
+          if (settled || !tab.id) return
+          try {
+            const currentTab = await chrome.tabs.get(tab.id)
+            await tryHandleUrl(currentTab.url ?? null, tab.id)
+          } catch {
+            // Ignore polling errors while auth tab is navigating.
+          }
+        }, 500)
+
         // Timeout after 5 minutes
-        setTimeout(() => {
-          chrome.tabs.onUpdated.removeListener(listener)
+        timeoutTimer = setTimeout(() => {
+          if (settled) return
+          settled = true
+          cleanup()
           resolve({ success: false, error: 'Authentication timed out' })
         }, 5 * 60 * 1000)
       })
@@ -161,6 +259,15 @@ export default defineBackground(() => {
         .order('is_default', { ascending: false })
 
       if (profiles) {
+        const userIdentity: StoredUserIdentity = {
+          userId: user.id,
+          email: user.email ?? '',
+          fullName: user.user_metadata?.full_name ?? null,
+          phone: null,
+          portfolioUrl: null,
+          location: null,
+        }
+
         const profilesForStorage = profiles.map((p) => ({
           ...p,
           // Strip encrypted BYTEA fields — extension can't decrypt them
@@ -170,8 +277,35 @@ export default defineBackground(() => {
           eeo_veteran_status: null,
           eeo_disability_status: null,
           work_authorization: null,
+          sponsorship_required: null,
         }))
-        await chrome.storage.local.set({ profiles: profilesForStorage, lastSync: Date.now() })
+        await setUserIdentity(userIdentity)
+        await chrome.storage.local.set({
+          profiles: profilesForStorage,
+          userIdentity,
+          lastSync: Date.now(),
+        })
+
+        // Phase 02-07: sync base + regional identity directly via Supabase (avoids CORS)
+        try {
+          const [{ data: baseRaw }, { data: regionalRaw }] = await Promise.all([
+            client.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
+            client
+              .from('user_regional_identities')
+              .select('*')
+              .eq('user_id', user.id)
+              .order('is_default', { ascending: false }),
+          ])
+          const base = fromApiBase(baseRaw as Record<string, unknown> | null)
+          const regional = (regionalRaw ?? []).map((r) =>
+            fromApiRegional(r as Record<string, unknown>)
+          )
+          await setBaseIdentity(base)
+          await setRegionalIdentities(regional)
+          await clearLegacyUserIdentity()
+        } catch {
+          // leave previously-cached data in place
+        }
         chrome.runtime
           .sendMessage({
             type: 'PROFILES_SYNCED',
@@ -184,6 +318,109 @@ export default defineBackground(() => {
       return { success: false, count: 0 }
     } catch {
       return { success: false, count: 0 }
+    }
+  }
+
+  async function getProfileForFill(profileId?: string | null): Promise<{
+    profile: unknown | null
+    userIdentity: StoredUserIdentity | null
+  }> {
+    const [profiles, userIdentity, storageState] = await Promise.all([
+      getStoredProfiles(),
+      getUserIdentity(),
+      chrome.storage.local.get(['activeProfileId']),
+    ])
+
+    const selectedProfileId =
+      profileId ?? (storageState.activeProfileId as string | undefined) ?? null
+    const profile =
+      (profiles as Array<{ id?: string }>).find((item) => item.id === selectedProfileId) ?? null
+
+    return { profile, userIdentity }
+  }
+
+  async function fetchFieldMappings(platform: 'greenhouse' | 'workday') {
+    return fetchFromWebApi(`/api/extension/field-mappings?platform=${encodeURIComponent(platform)}`)
+  }
+
+  async function startFill(profileId?: string | null, platform: 'greenhouse' | 'workday' = 'greenhouse') {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+      if (!tab?.id) {
+        return { success: false, error: 'No active tab found' }
+      }
+
+      await chrome.tabs.sendMessage(tab.id, {
+        type: 'FILL_STARTED',
+        payload: {
+          profileId: profileId ?? null,
+          platform,
+        },
+      })
+
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to start fill',
+      }
+    }
+  }
+
+  async function trackApplication(payload: unknown) {
+    return fetchFromWebApi('/api/extension/track-application', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  }
+
+  async function updateApplicationStatus(id: string, status: string) {
+    return fetchFromWebApi('/api/extension/track-application', {
+      method: 'PATCH',
+      body: JSON.stringify({ id, status }),
+    })
+  }
+
+  async function checkDuplicateApplication(applyUrl: string) {
+    return fetchFromWebApi(
+      `/api/extension/track-application?applyUrl=${encodeURIComponent(applyUrl)}`
+    )
+  }
+
+  async function getResumeSignedUrl(storagePath: string): Promise<{ url: string | null }> {
+    try {
+      const client = await createExtensionClient()
+      const { data } = await client.storage
+        .from('profile-documents')
+        .createSignedUrl(storagePath, 60)
+      return { url: data?.signedUrl ?? null }
+    } catch {
+      return { url: null }
+    }
+  }
+
+  async function fetchFromWebApi(path: string, init?: RequestInit) {
+    try {
+      const response = await fetch(`${WEBAPP_URL}${path}`, {
+        ...init,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(init?.headers ?? {}),
+        },
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        return { success: false, error: data.error ?? 'Request failed', status: response.status }
+      }
+
+      return data
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 

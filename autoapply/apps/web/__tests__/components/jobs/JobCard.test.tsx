@@ -43,5 +43,5 @@ it('renders score badge when score present', () => {
     }],
   }
   render(<JobCard job={job} />)
-  expect(screen.getByText('87%')).toBeInTheDocument()
+  expect(screen.getByText(/87%/)).toBeInTheDocument()
 })
