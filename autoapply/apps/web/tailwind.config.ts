@@ -11,7 +11,7 @@ const config: Config = {
       colors: {
         background: 'var(--background)',
         surface: {
-          DEFAULT: 'var(--surface-container)',
+          DEFAULT: 'var(--background)',
           abyss: 'var(--surface-abyss)',
           card: 'var(--surface-card)',
           variant: 'var(--surface-variant)',

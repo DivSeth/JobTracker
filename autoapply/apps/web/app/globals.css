@@ -198,6 +198,7 @@
   background: linear-gradient(90deg, transparent, #6366f1, transparent) border-box;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   background-size: 200% 100%;
   animation: beam 3s linear infinite;
