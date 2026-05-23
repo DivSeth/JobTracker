@@ -13,7 +13,7 @@ export function MatIcon({ children, className, filled = false, size = 20 }: Prop
       className={cn('material-symbols-outlined select-none', className)}
       style={{
         fontSize: size,
-        fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
+        fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' ${size}`,
       }}
     >
       {children}
