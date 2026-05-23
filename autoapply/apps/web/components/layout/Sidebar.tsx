@@ -34,16 +34,16 @@ export function Sidebar({ userEmail }: Props) {
     <aside className="fixed h-screen w-[220px] left-0 top-0 bg-surface-container-low flex flex-col py-6 px-4 border-r border-white/5 z-50">
       {/* Logo */}
       <div className="px-3 mb-8">
-        <h1 className="text-lg font-bold font-display text-electric-indigo tracking-tight">
+        <div className="text-lg font-bold font-display text-electric-indigo tracking-tight">
           AutoApply OS
-        </h1>
+        </div>
         <p className="text-[10px] text-outline uppercase tracking-widest mt-0.5">Precision Workflow</p>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 space-y-0.5">
         {NAV_ITEMS.map(item => {
-          const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+          const active = pathname === item.href || (item.href !== '/' && (pathname + '/').startsWith(item.href + '/'))
           return (
             <div key={item.href} className="relative">
               {active && (

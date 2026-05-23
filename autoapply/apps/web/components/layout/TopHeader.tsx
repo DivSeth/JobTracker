@@ -28,6 +28,7 @@ export function TopHeader({ title }: Props) {
         <input
           type="text"
           placeholder="Search..."
+          aria-label="Search"
           className={cn(
             'w-full bg-surface-container-high border-none rounded-lg py-1.5 pl-9 pr-4',
             'text-sm text-on-surface placeholder:text-outline',
@@ -48,6 +49,7 @@ export function TopHeader({ title }: Props) {
         <button
           className="w-8 h-8 rounded-lg flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
           title="Notifications"
+          aria-label="Notifications"
         >
           <MatIcon size={18}>notifications</MatIcon>
         </button>
@@ -57,6 +59,7 @@ export function TopHeader({ title }: Props) {
           onClick={toggleTheme}
           className="w-8 h-8 rounded-lg flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
           title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           <MatIcon size={18}>{theme === 'dark' ? 'light_mode' : 'dark_mode'}</MatIcon>
         </button>
