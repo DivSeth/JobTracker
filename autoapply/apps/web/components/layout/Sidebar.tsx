@@ -84,6 +84,7 @@ export function Sidebar({ userEmail }: Props) {
         {/* Sign out */}
         <button
           onClick={handleSignOut}
+          aria-label="Sign out"
           className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-outline hover:text-error-vibrant transition-colors rounded-lg"
         >
           <MatIcon size={16}>logout</MatIcon>

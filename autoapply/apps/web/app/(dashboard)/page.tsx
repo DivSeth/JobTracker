@@ -106,8 +106,8 @@ export default async function DashboardPage() {
               <p className="text-on-surface-variant text-sm">No applications yet. Use the extension to auto-fill your first one.</p>
             </div>
           ) : (
-            <div className="bg-surface-card rounded-xl border border-outline-variant shadow-card divide-y divide-outline-variant/30 overflow-hidden">
-              <StaggerFeed>
+            <div className="bg-surface-card rounded-xl border border-outline-variant shadow-card overflow-hidden">
+              <StaggerFeed className="divide-y divide-outline-variant/30">
                 {recentApps.map((app) => (
                   <Link
                     key={app.id}

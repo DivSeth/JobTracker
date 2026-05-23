@@ -47,6 +47,7 @@ export default function CalendarPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={prevMonth}
+            aria-label="Previous month"
             className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
           >
             <MatIcon size={18}>chevron_left</MatIcon>
@@ -56,6 +57,7 @@ export default function CalendarPage() {
           </span>
           <button
             onClick={nextMonth}
+            aria-label="Next month"
             className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
           >
             <MatIcon size={18}>chevron_right</MatIcon>

@@ -106,7 +106,7 @@ export function ProfileCard({ profile, onSetDefault, onDuplicate, onDelete }: Pr
                   {profile.name}
                 </h3>
                 {profile.is_default && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-primary text-white shrink-0">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-primary text-on-primary shrink-0">
                     Default
                   </span>
                 )}

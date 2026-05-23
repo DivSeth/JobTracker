@@ -1,5 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
 
 const container = {
@@ -13,11 +14,12 @@ const item = {
 
 interface Props {
   children: ReactNode
+  className?: string
 }
 
-export function StaggerFeed({ children }: Props) {
+export function StaggerFeed({ children, className }: Props) {
   return (
-    <motion.div variants={container} initial="hidden" animate="show">
+    <motion.div variants={container} initial="hidden" animate="show" className={cn(className)}>
       {Array.isArray(children)
         ? children.map((child, i) => (
             <motion.div key={i} variants={item}>{child}</motion.div>

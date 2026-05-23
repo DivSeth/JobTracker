@@ -26,23 +26,23 @@ export const STATUS_TRANSITIONS: Record<ApplicationStatus, ApplicationStatus | n
 }
 
 const STATUS_ACCENT: Record<string, string> = {
-  saved:        'border-gray-400/50',
+  saved:        'border-outline/50',
   applied:      'border-primary',
-  oa:           'border-amber-400',
-  interviewing: 'border-purple-500',
-  offer:        'border-green-500',
-  rejected:     'border-red-400',
-  ghosted:      'border-gray-200',
+  oa:           'border-warning-vibrant',
+  interviewing: 'border-secondary',
+  offer:        'border-success-vibrant',
+  rejected:     'border-error-vibrant',
+  ghosted:      'border-outline-variant',
 }
 
 const STATUS_DOT: Record<string, string> = {
-  saved:        'bg-gray-400',
+  saved:        'bg-outline',
   applied:      'bg-primary',
-  oa:           'bg-amber-400',
-  interviewing: 'bg-purple-500',
-  offer:        'bg-green-500',
-  rejected:     'bg-red-400',
-  ghosted:      'bg-gray-200',
+  oa:           'bg-warning-vibrant',
+  interviewing: 'bg-secondary',
+  offer:        'bg-success-vibrant',
+  rejected:     'bg-error-vibrant',
+  ghosted:      'bg-outline-variant',
 }
 
 const JOB_BOARD_DOMAINS = new Set([
@@ -122,7 +122,7 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
                         onClick={() => {
                           if (confirm('Remove this application?')) onDelete(app.id)
                         }}
-                        className="opacity-0 group-hover:opacity-100 text-on-surface-variant/40 hover:text-red-400 transition-all p-0.5"
+                        className="opacity-0 group-hover:opacity-100 text-on-surface-variant/40 hover:text-error-vibrant transition-all p-0.5"
                         title="Remove application"
                       >
                         <Trash2 size={13} />
@@ -159,7 +159,7 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
                       {app.status !== 'rejected' && app.status !== 'ghosted' && (
                         <button
                           onClick={() => onStatusChange(app.id, 'rejected')}
-                          className="text-xs py-1.5 px-2.5 rounded-xl bg-surface-container hover:bg-red-500/10 text-on-surface-variant/50 hover:text-red-400 transition-colors"
+                          className="text-xs py-1.5 px-2.5 rounded-xl bg-surface-container hover:bg-error-vibrant/10 text-on-surface-variant/50 hover:text-error-vibrant transition-colors"
                           title="Mark as rejected"
                         >
                           ✕
