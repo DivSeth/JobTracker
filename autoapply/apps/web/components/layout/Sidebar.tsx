@@ -2,31 +2,18 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import {
-  LayoutDashboard,
-  Briefcase,
-  FileText,
-  Calendar,
-  BarChart2,
-  User,
-  Users,
-  LogOut,
-  Sun,
-  Moon,
-} from 'lucide-react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
-import { useTheme } from '@/components/providers/ThemeProvider'
-import { Avatar } from '@/components/ui/avatar'
+import { MatIcon } from '@/components/ui/mat-icon'
 
 const NAV_ITEMS = [
-  { href: '/',             label: 'Dashboard',    icon: LayoutDashboard },
-  { href: '/jobs',         label: 'Jobs',         icon: Briefcase       },
-  { href: '/applications', label: 'Applications', icon: FileText        },
-  { href: '/calendar',     label: 'Calendar',     icon: Calendar        },
-  { href: '/insights',     label: 'Insights',     icon: BarChart2       },
-  { href: '/profile',      label: 'Profile',      icon: User            },
-  { href: '/profiles',     label: 'App Profiles', icon: Users           },
+  { href: '/',             label: 'Dashboard',    icon: 'dashboard'      },
+  { href: '/jobs',         label: 'Jobs',         icon: 'work'           },
+  { href: '/applications', label: 'Applications', icon: 'send'           },
+  { href: '/calendar',     label: 'Calendar',     icon: 'calendar_today' },
+  { href: '/insights',     label: 'Insights',     icon: 'insights'       },
+  { href: '/profile',      label: 'Profile',      icon: 'person'         },
+  { href: '/profiles',     label: 'App Profiles', icon: 'folder_special' },
 ]
 
 interface Props {
@@ -36,7 +23,6 @@ interface Props {
 export function Sidebar({ userEmail }: Props) {
   const pathname = usePathname()
   const router = useRouter()
-  const { theme, toggleTheme } = useTheme()
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -45,39 +31,38 @@ export function Sidebar({ userEmail }: Props) {
   }
 
   return (
-    <aside className="w-48 shrink-0 flex flex-col bg-surface-container min-h-screen px-3 py-5 gap-1">
+    <aside className="fixed h-screen w-[220px] left-0 top-0 bg-surface-container-low flex flex-col py-6 px-4 border-r border-white/5 z-50">
       {/* Logo */}
-      <div className="px-3 mb-6 flex items-center gap-2">
-        <span className="w-2.5 h-2.5 rounded-full gradient-primary shrink-0" />
-        <span className="text-lg font-bold font-display text-on-surface tracking-tight">
-          Auto<span className="text-primary">Apply</span>
-        </span>
+      <div className="px-3 mb-8">
+        <h1 className="text-lg font-bold font-display text-electric-indigo tracking-tight">
+          AutoApply OS
+        </h1>
+        <p className="text-[10px] text-outline uppercase tracking-widest mt-0.5">Precision Workflow</p>
       </div>
 
-      {/* Nav items */}
+      {/* Nav */}
       <nav className="flex-1 space-y-0.5">
         {NAV_ITEMS.map(item => {
           const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
-          const Icon = item.icon
           return (
             <div key={item.href} className="relative">
               {active && (
                 <motion.span
                   layoutId="sidebar-active-pill"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-primary"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-electric-indigo"
                   transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                 />
               )}
               <Link
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
                   active
-                    ? 'bg-surface-container-highest text-on-surface font-medium'
-                    : 'text-on-surface-muted hover:text-on-surface hover:bg-surface-container-highest/50'
+                    ? 'text-primary bg-primary-container/10 font-medium'
+                    : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                 )}
               >
-                <Icon size={16} />
+                <MatIcon size={20}>{item.icon}</MatIcon>
                 {item.label}
               </Link>
             </div>
@@ -85,34 +70,24 @@ export function Sidebar({ userEmail }: Props) {
         })}
       </nav>
 
-      {/* Separator */}
-      <div className="h-px bg-border-subtle my-2" />
-
-      {/* Bottom: Avatar chip + theme toggle + sign out */}
-      <div className="space-y-1 pt-1">
-        {userEmail && (
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl">
-            <Avatar email={userEmail} size="sm" />
-            <p className="text-xs text-on-surface-muted truncate">{userEmail}</p>
-          </div>
-        )}
-
-        <button
-          onClick={toggleTheme}
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-on-surface-muted hover:text-on-surface transition-colors rounded-xl"
+      {/* Bottom section */}
+      <div className="space-y-3 pt-4 border-t border-white/5">
+        {/* New Application CTA */}
+        <Link
+          href="/applications/new"
+          className="flex items-center justify-center gap-2 bg-gradient-to-br from-primary-container to-electric-indigo text-white rounded-lg py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
         >
-          <span className="transition-transform duration-300" style={{ transform: theme === 'dark' ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-          </span>
-          {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-        </button>
+          <MatIcon size={16}>add</MatIcon>
+          New Application
+        </Link>
 
+        {/* Sign out */}
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-on-surface-muted hover:text-error transition-colors rounded-xl"
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-outline hover:text-error-vibrant transition-colors rounded-lg"
         >
-          <LogOut size={14} />
-          Sign out
+          <MatIcon size={16}>logout</MatIcon>
+          {userEmail ? <span className="truncate text-xs">{userEmail}</span> : 'Sign out'}
         </button>
       </div>
     </aside>
