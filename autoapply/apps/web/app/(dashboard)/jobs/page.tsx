@@ -3,6 +3,7 @@ import { JobCard } from '@/components/jobs/JobCard'
 import { JobFiltersClient } from '@/components/jobs/JobFiltersClient'
 import { SortControl } from '@/components/jobs/SortControl'
 import { FilterDropdowns } from '@/components/jobs/FilterDropdowns'
+import { MatIcon } from '@/components/ui/mat-icon'
 import type { JobType, JobWithScore } from '@/lib/types'
 
 interface Props {
@@ -130,13 +131,14 @@ export default async function JobsPage({ searchParams }: Props) {
         {rest.map(job => (
           <JobCard key={job.id} job={job} />
         ))}
-        {list.length === 0 && (
-          <div className="col-span-3 py-20 text-center">
-            <p className="text-5xl font-light text-on-surface-variant/30 tracking-tight">No jobs yet</p>
-            <p className="text-sm text-on-surface-variant mt-3">Sync will populate this feed automatically every 6 hours.</p>
-          </div>
-        )}
       </div>
+
+      {list.length === 0 && (
+        <div className="py-20 text-center">
+          <p className="text-5xl font-light text-on-surface-variant/30 tracking-tight">No jobs yet</p>
+          <p className="text-sm text-on-surface-variant mt-3">Sync will populate this feed automatically every 6 hours.</p>
+        </div>
+      )}
 
       {/* FAB */}
       <a
@@ -144,7 +146,7 @@ export default async function JobsPage({ searchParams }: Props) {
         className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-br from-primary-container to-electric-indigo shadow-lg hover:scale-110 active:scale-95 transition-transform flex items-center justify-center text-white z-50"
         title="New Application"
       >
-        <span className="material-symbols-outlined" style={{ fontSize: 24 }}>add</span>
+        <MatIcon size={24}>add</MatIcon>
       </a>
     </div>
   )
