@@ -42,7 +42,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        'bg-surface-card rounded-card shadow-card border border-border-subtle p-5 flex flex-col gap-3',
+        'bg-surface-card rounded-xl shadow-card border border-outline-variant p-5 flex flex-col gap-3 hover:border-electric-indigo/30 transition-all mesh-gradient-card',
         className
       )}
     >
@@ -55,7 +55,7 @@ export function StatCard({
         <p className="text-2xl font-bold font-display text-on-surface">
           {numValue !== null ? <span ref={ref}>0</span> : value}
         </p>
-        <p className="text-xs text-on-surface-muted mt-0.5">{label}</p>
+        <p className="text-xs text-on-surface-variant mt-0.5">{label}</p>
       </div>
       {delta && (
         <p className={cn('text-xs font-medium', deltaPositive ? 'text-success' : 'text-error')}>
