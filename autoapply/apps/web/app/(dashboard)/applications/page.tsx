@@ -34,16 +34,18 @@ export default function ApplicationsPage() {
 
   return (
     <div className="p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold font-display text-on-surface">Applications</h1>
-        <p className="text-sm text-on-surface-muted mt-1">
-          {applications.length} tracked application{applications.length !== 1 ? 's' : ''}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold font-display text-on-surface">Applications</h1>
+          <p className="text-sm text-on-surface-variant mt-1">
+            {applications.length} tracked application{applications.length !== 1 ? 's' : ''}
+          </p>
+        </div>
       </div>
       {applications.length === 0 ? (
         <div className="py-20 text-center">
-          <p className="text-5xl font-light text-on-surface-muted/30 tracking-tight">No applications yet</p>
-          <p className="text-sm text-on-surface-muted mt-3">Apply to jobs from the Job Feed to start tracking.</p>
+          <p className="text-5xl font-light text-on-surface-variant/30 tracking-tight">No applications yet</p>
+          <p className="text-sm text-on-surface-variant mt-3">Apply to jobs from the Job Feed to start tracking.</p>
         </div>
       ) : (
         <ApplicationKanban
