@@ -4,11 +4,12 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { TopHeader } from '@/components/layout/TopHeader'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { PageTransition } from '@/components/providers/PageTransition'
+import type { ReactNode } from 'react'
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
