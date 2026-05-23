@@ -4,7 +4,6 @@ import { GeistSans } from 'geist/font/sans'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-body' })
-// GeistSans.variable === '--font-geist-sans' (fixed by the package)
 
 export const metadata: Metadata = {
   title: 'AutoApply',
@@ -15,7 +14,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${GeistSans.variable} ${inter.variable}`}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(window.matchMedia('(prefers-color-scheme:dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})()` }} />
+        {/* Force dark by default; respect stored preference */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})()` }} />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+        />
       </head>
       <body>{children}</body>
     </html>
