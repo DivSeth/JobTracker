@@ -83,7 +83,10 @@ export function ProfileCard({ profile, onSetDefault, onDuplicate, onDelete }: Pr
       transition={{ duration: 0.15, ease: 'easeOut' }}
     >
       <div
-        className="bg-surface-card rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden flex"
+        className={cn(
+          'bg-surface-card rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden flex border',
+          profile.is_default ? 'border-beam-active border-electric-indigo/40' : 'border-outline-variant'
+        )}
         onClick={handleCardClick}
       >
         {/* Left indicator strip */}
@@ -108,7 +111,7 @@ export function ProfileCard({ profile, onSetDefault, onDuplicate, onDelete }: Pr
                   </span>
                 )}
               </div>
-              <p className="text-xs text-on-surface-muted mt-1">
+              <p className="text-xs text-on-surface-variant mt-1">
                 {filled}/{total} fields &middot; {formatRelativeTime(profile.updated_at)}
               </p>
             </div>
@@ -125,7 +128,7 @@ export function ProfileCard({ profile, onSetDefault, onDuplicate, onDelete }: Pr
                 onClick={handleStarClick}
                 className={cn(
                   'p-1.5 rounded-lg transition-colors hover:bg-surface-container',
-                  profile.is_default ? 'text-primary' : 'text-on-surface-muted'
+                  profile.is_default ? 'text-primary' : 'text-on-surface-variant'
                 )}
               >
                 <Star
@@ -138,7 +141,7 @@ export function ProfileCard({ profile, onSetDefault, onDuplicate, onDelete }: Pr
                   type="button"
                   aria-label={`More actions for ${profile.name}`}
                   onClick={handleMenuClick}
-                  className="p-1.5 rounded-lg transition-colors hover:bg-surface-container text-on-surface-muted"
+                  className="p-1.5 rounded-lg transition-colors hover:bg-surface-container text-on-surface-variant"
                 >
                   <MoreVertical size={16} />
                 </button>
