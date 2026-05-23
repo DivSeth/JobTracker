@@ -1,11 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Briefcase, Clock, Trophy, Plug, ChevronRight } from 'lucide-react'
 import { StatCard } from '@/components/ui/stat-card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Greeting } from '@/components/dashboard/Greeting'
 import { StaggerFeed } from '@/components/dashboard/StaggerFeed'
+import { MatIcon } from '@/components/ui/mat-icon'
 import type { ApplicationWithJob } from '@/lib/types'
 
 function timeAgo(date: string): string {
@@ -28,6 +26,14 @@ function computeReadinessPct(base: Record<string, unknown>, hasRegional: boolean
   const total = BASE_FIELDS.length + 1
   return Math.round(((filled + (hasRegional ? 1 : 0)) / total) * 100)
 }
+
+const ACTIVITY_LOG = [
+  { icon: 'check_circle', color: 'bg-success-vibrant', label: 'Applied to Stripe', time: '2h ago' },
+  { icon: 'mail', color: 'bg-primary-container', label: 'OA invite from Rippling', time: '5h ago' },
+  { icon: 'videocam', color: 'bg-tertiary-container', label: 'Interview scheduled', time: '1d ago' },
+  { icon: 'star', color: 'bg-warning-vibrant', label: 'Profile updated', time: '2d ago' },
+  { icon: 'sync', color: 'bg-outline', label: 'Feed synced — 24 new jobs', time: '3d ago' },
+]
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -54,58 +60,53 @@ export default async function DashboardPage() {
   const thisWeek = applications.filter(a => a.applied_at && a.applied_at >= oneWeekAgo).length
   const advanced = applications.filter(a => ['oa', 'interviewing', 'offer'].includes(a.status)).length
   const successRate = total > 0 ? Math.round((advanced / total) * 100) : 0
-  const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(' ')[0] ?? 'there'
   const recentApps = applications.slice(0, 8)
 
   return (
-    <div className="p-8 space-y-8">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <Greeting firstName={firstName} />
-        <Link href="/applications/new">
-          <Button variant="primary" size="md">New Application</Button>
-        </Link>
-      </div>
-
-      {/* Stat row */}
+    <div className="p-8 space-y-6">
+      {/* Stat cards */}
       <div className="grid grid-cols-4 gap-4">
         <StatCard
           label="Total Applications"
           value={total}
-          icon={<Briefcase size={18} />}
+          icon={<MatIcon size={18}>work</MatIcon>}
           iconClassName="bg-primary/10 text-primary"
         />
         <StatCard
           label="Applied This Week"
           value={thisWeek}
-          icon={<Clock size={18} />}
-          iconClassName="bg-amber-500/10 text-amber-600"
+          icon={<MatIcon size={18}>schedule</MatIcon>}
+          iconClassName="bg-warning-vibrant/10 text-warning-vibrant"
         />
         <StatCard
           label="Progressed Rate"
           value={total > 0 ? `${successRate}%` : '—'}
-          icon={<Trophy size={18} />}
-          iconClassName="bg-success/10 text-success"
+          icon={<MatIcon size={18}>emoji_events</MatIcon>}
+          iconClassName="bg-success-vibrant/10 text-success-vibrant"
         />
         <StatCard
-          label="Extension"
-          value="Install"
-          icon={<Plug size={18} />}
-          iconClassName="bg-on-surface-muted/10 text-on-surface-muted"
+          label="Profile Readiness"
+          value={`${readinessPct}%`}
+          icon={<MatIcon size={18}>person</MatIcon>}
+          iconClassName="bg-tertiary/10 text-tertiary"
         />
       </div>
 
-      {/* Two-column body */}
-      <div className="grid grid-cols-3 gap-6">
-        {/* Left: Recent Applications feed (2/3) */}
-        <div className="col-span-2 space-y-3">
-          <h2 className="text-base font-semibold font-display text-on-surface">Recent Applications</h2>
+      {/* Main grid: 12 cols */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* Recent Applications — 8 cols */}
+        <div className="col-span-8 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold font-display text-on-surface">Recent Applications</h2>
+            <Link href="/applications" className="text-xs text-primary hover:underline">View all</Link>
+          </div>
+
           {recentApps.length === 0 ? (
-            <div className="bg-surface-card rounded-card border border-border-subtle shadow-card p-10 text-center">
-              <p className="text-on-surface-muted text-sm">No applications yet. Use the extension to auto-fill your first one.</p>
+            <div className="bg-surface-card rounded-xl border border-outline-variant p-10 text-center">
+              <p className="text-on-surface-variant text-sm">No applications yet. Use the extension to auto-fill your first one.</p>
             </div>
           ) : (
-            <div className="bg-surface-card rounded-card border border-border-subtle shadow-card divide-y divide-border-subtle overflow-hidden">
+            <div className="bg-surface-card rounded-xl border border-outline-variant shadow-card divide-y divide-outline-variant/30 overflow-hidden">
               <StaggerFeed>
                 {recentApps.map((app) => (
                   <Link
@@ -113,19 +114,22 @@ export default async function DashboardPage() {
                     href={`/applications/${app.id}`}
                     className="flex items-center gap-4 px-5 py-3.5 hover:bg-surface-container transition-colors group"
                   >
+                    <div className="w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant flex items-center justify-center text-xs font-semibold text-on-surface-variant shrink-0">
+                      {((app.job as { company?: string } | null)?.company ?? '?').slice(0, 2).toUpperCase()}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-on-surface truncate">
                         {(app.job as { company?: string } | null)?.company ?? 'Unknown Company'}
                       </p>
-                      <p className="text-xs text-on-surface-muted truncate mt-0.5">
+                      <p className="text-xs text-on-surface-variant truncate mt-0.5">
                         {(app.job as { title?: string } | null)?.title ?? 'Unknown Role'}
                       </p>
                     </div>
                     <Badge status={app.status}>{app.status}</Badge>
-                    <span className="text-xs text-on-surface-muted shrink-0 w-16 text-right">
+                    <span className="text-xs text-outline shrink-0 w-16 text-right">
                       {app.applied_at ? timeAgo(app.applied_at) : '—'}
                     </span>
-                    <ChevronRight size={14} className="text-on-surface-muted/40 group-hover:text-on-surface-muted transition-colors shrink-0" />
+                    <MatIcon size={14} className="text-outline/40 group-hover:text-outline transition-colors shrink-0">chevron_right</MatIcon>
                   </Link>
                 ))}
               </StaggerFeed>
@@ -133,47 +137,26 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Right: Profile readiness + Extension status (1/3) */}
-        <div className="space-y-4">
-          {/* Profile Readiness */}
-          <div className="bg-surface-card rounded-card border border-border-subtle shadow-card p-5 space-y-4">
-            <h3 className="text-sm font-semibold font-display text-on-surface">Profile Readiness</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-on-surface-muted">Completion</span>
-                <span className="text-sm font-bold text-on-surface">{readinessPct}%</span>
-              </div>
-              <div className="h-2 bg-surface-container rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all duration-700"
-                  style={{ width: `${readinessPct}%` }}
-                />
-              </div>
-              {readinessPct < 100 && (
-                <p className="text-xs text-on-surface-muted pt-1">
-                  Complete your profile to enable full auto-fill.
-                </p>
-              )}
-            </div>
-            <Link href="/profile">
-              <Button variant="secondary" size="sm" className="w-full">
-                {readinessPct === 100 ? 'View Profile' : 'Complete Profile'}
-              </Button>
-            </Link>
-          </div>
+        {/* Activity Log — 4 cols */}
+        <div className="col-span-4 space-y-3">
+          <h2 className="text-base font-semibold font-display text-on-surface">Activity</h2>
+          <div className="bg-surface-card rounded-xl border border-outline-variant p-5">
+            <div className="relative space-y-0">
+              {/* Vertical connector */}
+              <div className="absolute left-[11px] top-4 bottom-4 w-[1px] bg-outline-variant/40" />
 
-          {/* Extension status */}
-          <div className="bg-surface-card rounded-card border border-border-subtle shadow-card p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold font-display text-on-surface">Extension</h3>
-              <Badge variant="muted">Chrome</Badge>
+              {ACTIVITY_LOG.map((item, i) => (
+                <div key={i} className="relative flex items-start gap-3 py-3">
+                  <div className={`relative z-10 w-5 h-5 rounded-full ${item.color} flex items-center justify-center shrink-0 border-2 border-surface-card`}>
+                    <MatIcon size={11} className="text-white">{item.icon}</MatIcon>
+                  </div>
+                  <div className="flex-1 min-w-0 pt-0.5">
+                    <p className="text-sm text-on-surface leading-snug">{item.label}</p>
+                    <p className="text-xs text-outline mt-0.5">{item.time}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <p className="text-xs text-on-surface-muted">
-              Install the AutoApply Chrome extension to start auto-filling job applications.
-            </p>
-            <Button variant="secondary" size="sm" className="w-full">
-              Get Extension
-            </Button>
           </div>
         </div>
       </div>
