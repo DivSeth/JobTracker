@@ -11,7 +11,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: 'light',
+  theme: 'dark',
   toggleTheme: () => {},
   setTheme: () => {},
 })
@@ -21,18 +21,13 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light')
+  const [theme, setThemeState] = useState<Theme>('dark')
 
   useEffect(() => {
-    // Read from localStorage or system preference
     const stored = localStorage.getItem('theme') as Theme | null
-    if (stored) {
-      setThemeState(stored)
-      document.documentElement.setAttribute('data-theme', stored)
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setThemeState('dark')
-      document.documentElement.setAttribute('data-theme', 'dark')
-    }
+    const resolved = stored ?? 'dark'
+    setThemeState(resolved)
+    document.documentElement.setAttribute('data-theme', resolved)
   }, [])
 
   function setTheme(t: Theme) {
