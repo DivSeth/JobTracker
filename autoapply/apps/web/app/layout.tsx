@@ -1,9 +1,15 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Cormorant_Garamond } from 'next/font/google'
 import { GeistSans } from 'geist/font/sans'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-body' })
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300', '400'],
+  style: ['normal', 'italic'],
+  variable: '--font-serif-lux',
+})
 
 export const metadata: Metadata = {
   title: 'AutoApply',
@@ -12,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${inter.variable}`}>
+    <html lang="en" className={`${GeistSans.variable} ${inter.variable} ${cormorant.variable}`}>
       <head>
         {/* Force dark by default; respect stored preference */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})()` }} />

@@ -17,7 +17,7 @@ export function SortControl() {
     <select
       value={sort}
       onChange={handleChange}
-      className="bg-surface-card border-0 text-sm text-on-surface rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-primary/20 shadow-ambient"
+      className="bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20 transition-colors cursor-pointer"
     >
       <option value="company">Company (A–Z)</option>
       <option value="title">Title (A–Z)</option>

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { MatIcon } from '@/components/ui/mat-icon'
 import { cn, stripHtml, extractCompanyDomain } from '@/lib/utils'
 import type { JobWithScore } from '@/lib/types'
 
@@ -55,33 +54,38 @@ export function JobCard({ job, featured }: Props) {
 
   return (
     <div className={cn(
-      'break-inside-avoid bg-surface-card rounded-xl border border-outline-variant p-5',
-      'transition-all hover:scale-[1.01] border-glow-hover flex flex-col gap-4 mesh-gradient-card',
-      featured && 'border-beam-active'
+      'break-inside-avoid bg-[#0a0a0a] rounded-xl border border-white/5 p-5',
+      'transition-all hover:border-white/20 flex flex-col gap-4 group',
+      featured && 'border-white/15'
     )}>
       {/* Header: logo + title + hide */}
       <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-lg bg-surface-container-high border border-outline-variant overflow-hidden flex items-center justify-center text-sm font-semibold text-on-surface-variant shrink-0 p-2">
+        <div className="w-10 h-10 rounded-lg bg-[#151515] border border-white/5 overflow-hidden flex items-center justify-center text-xs font-bold text-white/50 shrink-0">
           {logoUrl && !logoFailed ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt={job.company} className="w-full h-full object-contain" onError={() => setLogoFailed(true)} />
+            <img
+              src={logoUrl}
+              alt={job.company}
+              className="w-full h-full object-contain p-1.5 grayscale group-hover:grayscale-0 transition-all"
+              onError={() => setLogoFailed(true)}
+            />
           ) : (
             <span>{job.company.includes('↳') ? '?' : job.company.slice(0, 2).toUpperCase()}</span>
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-on-surface leading-snug">{job.title}</h3>
-          <p className="text-xs text-on-surface-variant mt-0.5">
+          <h3 className="text-xs font-semibold text-white leading-snug">{job.title}</h3>
+          <p className="text-[11px] text-white/70 mt-0.5">
             {job.company.includes('↳') ? 'Company N/A' : job.company}
           </p>
           {job.location && (
-            <p className="text-xs text-outline mt-0.5">{formatLocation(job.location)}</p>
+            <p className="text-[11px] text-white/40 mt-0.5">{formatLocation(job.location)}</p>
           )}
         </div>
         <button
           onClick={handleHide}
           title="Hide job"
-          className="text-outline/40 hover:text-error-vibrant transition-colors text-sm leading-none shrink-0 mt-0.5"
+          className="text-white/20 hover:text-white/60 transition-colors text-lg leading-none shrink-0 mt-0.5"
         >
           ×
         </button>
@@ -90,64 +94,62 @@ export function JobCard({ job, featured }: Props) {
       {/* Badges */}
       <div className="flex flex-wrap gap-1.5">
         {featured && (
-          <span className="label-sm px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+          <span className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-white text-black">
             FEATURED
           </span>
         )}
         {score != null && (
-          <span className="label-sm px-2 py-0.5 rounded-full bg-success-vibrant/10 text-success-vibrant">
-            {score}% match
+          <span className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-white/10 text-white/80 border border-white/10">
+            {score}% MATCH
           </span>
         )}
         {job.job_type && (
-          <span className="label-sm px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">
+          <span className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-white/5 text-white/50 border border-white/5">
             {job.job_type.replace('_', ' ')}
           </span>
         )}
       </div>
 
       {/* Salary / apply footer */}
-      <div className="flex items-center justify-between pt-1 border-t border-outline-variant/20 mt-auto">
+      <div className="flex items-center justify-between pt-3 border-t border-white/5 mt-auto">
         <div>
           {job.salary_min && job.salary_max ? (
-            <span className="text-xs text-on-surface-variant">
+            <span className="text-[11px] text-white/60 font-mono">
               ${Math.round(job.salary_min / 1000)}k – ${Math.round(job.salary_max / 1000)}k
             </span>
           ) : (
-            <span className="text-xs text-outline">Salary N/A</span>
+            <span className="text-[11px] text-white/30">Salary N/A</span>
           )}
         </div>
 
         {job.apply_url ? (
           <div className="flex items-center gap-1">
             {applied ? (
-              <span className="h-7 px-3 bg-success-vibrant text-white text-xs font-medium rounded-full inline-flex items-center gap-1">
-                <MatIcon size={12}>check</MatIcon> Applied
+              <span className="h-7 px-3 bg-white/10 text-white/80 text-[10px] font-bold uppercase tracking-widest rounded inline-flex items-center gap-1">
+                ✓ Applied
               </span>
             ) : pendingApply ? (
               <>
                 <button
                   onClick={handleMarkApplied}
-                  className="h-7 px-3 bg-success-vibrant text-white text-xs font-medium rounded-full inline-flex items-center gap-1 hover:opacity-90 transition-opacity"
+                  className="h-7 px-3 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded inline-flex items-center gap-1 hover:bg-neutral-200 transition-all"
                 >
-                  <MatIcon size={12}>check</MatIcon> Mark Applied
+                  ✓ Mark Applied
                 </button>
-                <button onClick={() => setPendingApply(false)} className="text-outline/40 hover:text-outline transition-colors ml-1 text-xs">×</button>
+                <button onClick={() => setPendingApply(false)} className="text-white/20 hover:text-white/50 transition-colors ml-1 text-lg">×</button>
               </>
             ) : (
               <button
                 onClick={handleApplyClick}
-                className={cn(
-                  'h-7 px-3 text-white text-xs font-medium rounded-full inline-flex items-center gap-1.5 transition-all',
-                  'bg-gradient-to-br from-primary-container to-electric-indigo hover:opacity-90'
-                )}
+                className="h-7 px-3 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded inline-flex items-center gap-1.5 hover:bg-neutral-200 transition-all"
               >
-                Apply <MatIcon size={12}>arrow_outward</MatIcon>
+                Apply
+                <span className="material-symbols-outlined text-[12px]">arrow_outward</span>
               </button>
             )}
           </div>
         ) : (
-          <span className="text-xs text-outline/50">No link</span>
+          <span className="text-[11px] text-white/20">No link</span>
         )}
       </div>
     </div>

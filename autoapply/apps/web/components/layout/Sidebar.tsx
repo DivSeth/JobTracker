@@ -1,19 +1,17 @@
 'use client'
+
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
-import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
-import { MatIcon } from '@/components/ui/mat-icon'
 
 const NAV_ITEMS = [
   { href: '/',             label: 'Dashboard',    icon: 'dashboard'      },
   { href: '/jobs',         label: 'Jobs',         icon: 'work'           },
-  { href: '/applications', label: 'Applications', icon: 'send'           },
+  { href: '/applications', label: 'Applications', icon: 'description'    },
   { href: '/calendar',     label: 'Calendar',     icon: 'calendar_today' },
-  { href: '/insights',     label: 'Insights',     icon: 'insights'       },
-  { href: '/profile',      label: 'Profile',      icon: 'person'         },
-  { href: '/profiles',     label: 'App Profiles', icon: 'folder_special' },
+  { href: '/insights',     label: 'Insights',     icon: 'analytics'      },
+  { href: '/profile',      label: 'Profile',      icon: 'account_circle' },
+  { href: '/profiles',     label: 'App Profiles', icon: 'apps'           },
 ]
 
 interface Props {
@@ -31,64 +29,60 @@ export function Sidebar({ userEmail }: Props) {
   }
 
   return (
-    <aside className="fixed h-screen w-[220px] left-0 top-0 bg-surface-container-low flex flex-col py-6 px-4 border-r border-white/5 z-50">
+    <aside className="fixed left-0 top-0 h-screen w-[220px] bg-[#0a0a0a] border-r border-white/5 flex flex-col py-6 px-3 z-50">
       {/* Logo */}
-      <div className="px-3 mb-8">
-        <div className="text-lg font-bold font-display text-electric-indigo tracking-tight">
-          AutoApply OS
-        </div>
-        <p className="text-[10px] text-outline uppercase tracking-widest mt-0.5">Precision Workflow</p>
+      <div className="px-4 mb-7">
+        <h1 className="font-serif-lux text-2xl font-light italic text-white tracking-wide">AutoApply OS</h1>
+        <p className="text-[9px] text-white/40 uppercase tracking-[0.25em] font-medium mt-0.5">Clinical Precision</p>
+      </div>
+
+      {/* New Application CTA */}
+      <div className="px-2 mb-6">
+        <Link
+          href="/applications/new"
+          className="w-full bg-[#141414] hover:bg-[#1a1a1a] text-white py-2.5 px-4 rounded-lg font-medium text-xs border border-white/10 hover:border-white/20 shadow-md active:scale-95 transition-all flex items-center justify-center gap-2"
+        >
+          <span className="material-symbols-outlined text-[16px] text-white/70">add</span>
+          <span>New Application</span>
+        </Link>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 space-y-0.5">
+      <nav className="flex-1 space-y-1 px-1">
         {NAV_ITEMS.map(item => {
-          const active = pathname === item.href || (item.href !== '/' && (pathname + '/').startsWith(item.href + '/'))
+          const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
           return (
-            <div key={item.href} className="relative">
-              {active && (
-                <motion.span
-                  layoutId="sidebar-active-pill"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-electric-indigo"
-                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                />
-              )}
-              <Link
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
-                  active
-                    ? 'text-primary bg-primary-container/10 font-medium'
-                    : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                )}
-              >
-                <MatIcon size={20}>{item.icon}</MatIcon>
-                {item.label}
-              </Link>
-            </div>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-xs rounded-lg transition-all duration-200 ${
+                active
+                  ? 'text-white font-medium border-l-2 border-white bg-white/5'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span className={`material-symbols-outlined text-[18px] ${active ? 'text-white' : 'text-white/50'}`}>{item.icon}</span>
+              <span>{item.label}</span>
+            </Link>
           )
         })}
       </nav>
 
-      {/* Bottom section */}
-      <div className="space-y-3 pt-4 border-t border-white/5">
-        {/* New Application CTA */}
+      {/* Bottom */}
+      <div className="pt-4 border-t border-white/5 space-y-1 px-1">
         <Link
-          href="/applications/new"
-          className="flex items-center justify-center gap-2 bg-gradient-to-br from-primary-container to-electric-indigo text-white rounded-lg py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
+          href="/settings"
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs rounded-lg transition-all text-white/60 hover:text-white hover:bg-white/5"
         >
-          <MatIcon size={16}>add</MatIcon>
-          New Application
+          <span className="material-symbols-outlined text-[18px] text-white/50">settings</span>
+          <span>Settings</span>
         </Link>
-
-        {/* Sign out */}
         <button
           onClick={handleSignOut}
-          aria-label="Sign out"
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-outline hover:text-error-vibrant transition-colors rounded-lg"
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs rounded-lg transition-all text-white/60 hover:text-white hover:bg-white/5"
         >
-          <MatIcon size={16}>logout</MatIcon>
-          {userEmail ? <span className="truncate text-xs">{userEmail}</span> : 'Sign out'}
+          <span className="material-symbols-outlined text-[18px] text-white/50">logout</span>
+          <span className="truncate flex-1 text-left">{userEmail ?? 'Sign out'}</span>
         </button>
       </div>
     </aside>

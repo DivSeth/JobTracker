@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import type { InsightItem } from '@/lib/types'
 
 export default async function InsightsPage() {
   const supabase = await createClient()
@@ -14,7 +13,6 @@ export default async function InsightsPage() {
     .order('applied_at', { ascending: false })
 
   const all = apps ?? []
-  const total = all.length
   const nonSaved = all.filter(a => a.status !== 'saved')
   const applied = nonSaved.length
   const responded = all.filter(a => ['oa', 'interviewing', 'offer'].includes(a.status)).length
@@ -24,245 +22,254 @@ export default async function InsightsPage() {
   const responseRate = applied > 0 ? Math.round((responded / applied) * 100) : null
   const oaRate = applied > 0 ? Math.round((all.filter(a => ['oa', 'interviewing', 'offer'].includes(a.status)).length / applied) * 100) : null
 
-  // Monthly buckets for bar chart (last 10 months)
-  const monthBuckets: number[] = Array(10).fill(0)
+  // Monthly buckets for bar chart (last 9 months)
+  const monthBuckets: number[] = Array(9).fill(0)
   const now = new Date()
   all.forEach(a => {
     if (!a.applied_at) return
     const d = new Date(a.applied_at)
     const monthsAgo = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth())
-    if (monthsAgo >= 0 && monthsAgo < 10) {
-      monthBuckets[9 - monthsAgo]++
-    }
+    if (monthsAgo >= 0 && monthsAgo < 9) monthBuckets[8 - monthsAgo]++
   })
   const maxBucket = Math.max(...monthBuckets, 1)
 
-  const { data: latestInsight } = await supabase
-    .from('insights')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('week_start', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  const statusBreakdown = [
+    { label: 'Applied', count: applied },
+    { label: 'Interviewing', count: interviewing - offers },
+    { label: 'Assessment', count: all.filter(a => a.status === 'oa').length },
+    { label: 'Rejected', count: all.filter(a => a.status === 'rejected').length },
+  ].filter(s => s.count > 0)
 
-  const kpiCards = [
-    {
-      label: 'Total Applications', value: applied > 0 ? applied : '—', delta: null, trend: 'up',
-      icon: 'assignment', color: 'text-primary', iconBg: 'bg-primary/10',
-      barColor: 'var(--primary)', barBg: 'rgba(164,200,255,0.15)', barGlow: 'rgba(164,200,255,0.4)',
-      pct: Math.min((applied / 200) * 100, 100),
-    },
-    {
-      label: 'OA Completion Rate', value: oaRate != null ? `${oaRate}%` : '—', delta: null, trend: 'down',
-      icon: 'terminal', color: 'text-secondary', iconBg: 'bg-secondary/10',
-      barColor: 'var(--secondary)', barBg: 'rgba(192,193,255,0.15)', barGlow: 'rgba(192,193,255,0.4)',
-      pct: oaRate ?? 0,
-    },
-    {
-      label: 'Interview Rate', value: responseRate != null ? `${responseRate}%` : '—', delta: null, trend: 'up',
-      icon: 'groups', color: 'text-electric-indigo', iconBg: 'bg-electric-indigo/10',
-      barColor: 'var(--electric-indigo)', barBg: 'rgba(99,102,241,0.15)', barGlow: 'rgba(99,102,241,0.4)',
-      pct: responseRate ?? 0,
-    },
-    {
-      label: 'Avg. Response Days', value: '4.2', delta: null, trend: 'stable',
-      icon: 'timer', color: 'text-tertiary', iconBg: 'bg-tertiary/10',
-      barColor: 'var(--tertiary)', barBg: 'rgba(221,183,255,0.15)', barGlow: 'rgba(221,183,255,0.4)',
-      pct: 42,
-    },
+  const sourceStats = [
+    { source: 'Direct Apply', icon: 'rocket_launch', volume: applied, conversion: responseRate != null ? `${responseRate}%` : '—', efficiency: responseRate ?? 0 },
+    { source: 'Referral', icon: 'mail', volume: 0, conversion: '—', efficiency: 0 },
+    { source: 'LinkedIn', icon: 'link', volume: 0, conversion: '—', efficiency: 0 },
   ]
 
-  const statusBreakdown = [
-    { label: 'Applied', count: applied, color: '#a4c8ff' },
-    { label: 'OA', count: all.filter(a => a.status === 'oa').length, color: '#f59e0b' },
-    { label: 'Interviewing', count: interviewing - offers, color: '#a855f7' },
-    { label: 'Offer', count: offers, color: '#22c55e' },
-    { label: 'Rejected', count: all.filter(a => a.status === 'rejected').length, color: '#ef4444' },
-  ].filter(s => s.count > 0)
-  const totalForDonut = statusBreakdown.reduce((s, x) => s + x.count, 0) || 1
-
   return (
-    <div className="p-8 space-y-6">
-      {/* Page header */}
+    <div className="space-y-6 pb-20">
+      {/* Header */}
       <div>
-        <h1 className="text-[24px] font-bold text-on-surface">Analytical Insights</h1>
-        <p className="text-[14px] text-on-surface-variant mt-0.5">
-          {total === 0
-            ? 'Start applying to jobs to see your stats here.'
-            : 'Comprehensive performance metrics and recruitment funnel health.'}
+        <h2 className="text-3xl lg:text-4xl font-light font-serif-lux italic text-white tracking-wide">
+          Analytical Insights
+        </h2>
+        <p className="text-xs text-white/45 mt-1 uppercase tracking-wider">
+          Comprehensive performance metrics and recruitment funnel health.
         </p>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiCards.map(({ label, value, icon, color, iconBg, barColor, barBg, barGlow, pct, trend }) => (
-          <div key={label} className="glass p-5 rounded-xl mesh-gradient relative overflow-hidden group border-glow-hover transition-all duration-300">
-            <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl pointer-events-none opacity-30" style={{ background: barColor }} />
-            <div className="flex items-center gap-3 mb-3 relative">
-              <div className={`p-2 ${iconBg} ${color} rounded-lg`}>
-                <span className="material-symbols-outlined text-[18px]">{icon}</span>
-              </div>
-              <p className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">{label}</p>
-            </div>
-            <p className="text-[28px] font-bold text-on-surface relative mb-1">{value}</p>
-            <div className="flex items-center gap-2 mb-3">
-              <span className={`text-[10px] font-bold uppercase ${trend === 'up' ? 'text-success-vibrant' : trend === 'down' ? 'text-error-vibrant' : 'text-outline'}`}>
-                {trend === 'stable' ? 'STABLE' : total === 0 ? 'NO DATA' : trend === 'up' ? 'TRACKING' : 'BELOW AVG'}
-              </span>
-            </div>
-            <div className="h-1 w-full rounded-full overflow-hidden relative" style={{ background: barBg }}>
-              <div
-                className="absolute top-0 left-0 h-full rounded-full transition-all"
-                style={{ width: `${pct}%`, background: barColor, boxShadow: `0 0 8px ${barGlow}` }}
-              />
-            </div>
+      {/* KPI Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-[#0a0a0a] border border-white/5 p-5 rounded-xl transition-all relative">
+          <div className="flex justify-between items-start mb-4">
+            <span className="p-1.5 bg-white/5 text-white/70 rounded material-symbols-outlined text-[18px]">assignment</span>
+            <span className="text-white text-[10px] font-bold tracking-wider flex items-center gap-1">
+              +12% <span className="material-symbols-outlined text-[11px] text-white/60">trending_up</span>
+            </span>
           </div>
-        ))}
+          <div className="text-white/40 text-[9px] uppercase font-bold tracking-widest mb-1.5">Total Applications</div>
+          <div className="text-2xl font-light font-serif-lux text-white">{applied > 0 ? applied : '—'}</div>
+          <div className="mt-4 h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full bg-white" style={{ width: `${Math.min((applied / 200) * 100, 100)}%` }} />
+          </div>
+        </div>
+
+        <div className="bg-[#0a0a0a] border border-white/5 p-5 rounded-xl transition-all relative">
+          <div className="flex justify-between items-start mb-4">
+            <span className="p-1.5 bg-white/5 text-white/70 rounded material-symbols-outlined text-[18px]">terminal</span>
+            <span className="text-white/70 text-[10px] font-bold tracking-wider flex items-center gap-1">
+              -2% <span className="material-symbols-outlined text-[11px] text-white/40">trending_down</span>
+            </span>
+          </div>
+          <div className="text-white/40 text-[9px] uppercase font-bold tracking-widest mb-1.5">OA Completion Rate</div>
+          <div className="text-2xl font-light font-serif-lux text-white">{oaRate != null ? `${oaRate}%` : '—'}</div>
+          <div className="mt-4 h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full bg-white/60" style={{ width: `${oaRate ?? 0}%` }} />
+          </div>
+        </div>
+
+        <div className="bg-[#0a0a0a] border border-white/5 p-5 rounded-xl transition-all relative">
+          <div className="flex justify-between items-start mb-4">
+            <span className="p-1.5 bg-white/5 text-white/70 rounded material-symbols-outlined text-[18px]">groups</span>
+            <span className="text-white text-[10px] font-bold tracking-wider flex items-center gap-1">
+              +5% <span className="material-symbols-outlined text-[11px] text-white/60">trending_up</span>
+            </span>
+          </div>
+          <div className="text-white/40 text-[9px] uppercase font-bold tracking-widest mb-1.5">Interview Rate</div>
+          <div className="text-2xl font-light font-serif-lux text-white">{responseRate != null ? `${responseRate}%` : '—'}</div>
+          <div className="mt-4 h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full bg-white/40" style={{ width: `${responseRate ?? 0}%` }} />
+          </div>
+        </div>
+
+        <div className="bg-[#0a0a0a] border border-white/5 p-5 rounded-xl transition-all relative">
+          <div className="flex justify-between items-start mb-4">
+            <span className="p-1.5 bg-white/5 text-white/70 rounded material-symbols-outlined text-[18px]">timer</span>
+            <span className="text-white/40 text-[9px] font-bold uppercase tracking-widest">STABLE</span>
+          </div>
+          <div className="text-white/40 text-[9px] uppercase font-bold tracking-widest mb-1.5">Avg. Response Days</div>
+          <div className="text-2xl font-light font-serif-lux text-white">4.2</div>
+          <div className="mt-4 h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full bg-white/30 w-[42%]" />
+          </div>
+        </div>
       </div>
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Application volume bar chart */}
-        <div className="lg:col-span-2 glass rounded-xl p-5 border border-outline-variant/30">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h3 className="text-[16px] font-semibold text-on-surface">Application Volume</h3>
-              <p className="text-[12px] text-on-surface-variant">Monthly application trend</p>
-            </div>
-            <div className="flex bg-surface-container rounded-lg p-1 border border-outline-variant">
-              {['W', 'M', 'Q'].map(t => (
-                <button key={t} className={`px-3 py-1 text-[11px] font-bold rounded transition-colors ${t === 'M' ? 'bg-surface-container-high text-primary' : 'text-on-surface-variant hover:text-primary'}`}>{t}</button>
-              ))}
-            </div>
+        {/* Application Volume bar chart */}
+        <div className="lg:col-span-2 bg-[#0a0a0a] border border-white/5 p-6 rounded-xl relative flex flex-col justify-between">
+          <div>
+            <h3 className="text-xs font-semibold text-white uppercase tracking-wider">Application Volume</h3>
+            <p className="text-[11px] text-white/40">Monthly submission trends over the last 9 months.</p>
           </div>
-          <div className="flex items-end gap-[6px] h-32">
+
+          <div className="h-[200px] w-full relative flex items-end justify-between gap-1 pb-4 pt-10">
+            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none py-6">
+              <div className="w-full border-t border-white/5" />
+              <div className="w-full border-t border-white/5" />
+              <div className="w-full border-t border-white/5" />
+            </div>
+
             {monthBuckets.map((count, i) => {
               const heightPct = (count / maxBucket) * 100
               const isLast = i === monthBuckets.length - 1
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full rounded-sm transition-all" style={{
-                    height: `${Math.max(heightPct, 4)}%`,
-                    background: isLast
-                      ? 'var(--primary-container)'
-                      : 'rgba(99,102,241,0.25)',
-                    boxShadow: isLast ? '0 0 8px rgba(77,159,255,0.4)' : 'none',
-                  }} />
+                <div
+                  key={i}
+                  className={`flex-1 transition-all rounded-t relative group ${
+                    isLast ? 'bg-white' : 'bg-white/10 hover:bg-white/20'
+                  }`}
+                  style={{ height: `${Math.max(heightPct, 4)}%` }}
+                >
+                  {count > 0 && (
+                    <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-[#121212] px-2 py-1 rounded text-[9px] border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 text-white">
+                      {count}
+                    </div>
+                  )}
                 </div>
               )
             })}
           </div>
-          <div className="flex items-end gap-[6px] mt-1">
-            {monthBuckets.map((count, i) => (
-              <div key={i} className="flex-1 text-center text-[9px] text-outline font-medium">
-                {count > 0 ? count : ''}
-              </div>
-            ))}
+
+          <div className="flex justify-between text-[8px] text-white/30 uppercase font-bold tracking-[0.2em] pt-2">
+            {(() => {
+              const labels = []
+              for (let i = 8; i >= 0; i -= 2) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+                labels.push(d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase())
+              }
+              return labels.map((l, i) => <span key={i}>{l}</span>)
+            })()}
           </div>
         </div>
 
-        {/* Status breakdown */}
-        <div className="glass rounded-xl p-5 border border-outline-variant/30">
-          <div className="mb-5">
-            <h3 className="text-[16px] font-semibold text-on-surface">Status Breakdown</h3>
-            <p className="text-[12px] text-on-surface-variant">Current pipeline state</p>
+        {/* Status Breakdown */}
+        <div className="bg-[#0a0a0a] border border-white/5 p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <h3 className="text-xs font-semibold text-white uppercase tracking-wider">Status Breakdown</h3>
+            <p className="text-[11px] text-white/40">Current active funnel distribution.</p>
           </div>
-          {total > 0 ? (
-            <>
-              {/* Simple donut-ish ring */}
-              <div className="flex items-center justify-center mb-5">
-                <div className="relative w-24 h-24">
-                  <div
-                    className="w-24 h-24 rounded-full"
-                    style={{
-                      background: `conic-gradient(${statusBreakdown.map((s, i) => {
-                        const pct = (s.count / totalForDonut) * 360
-                        const prev = statusBreakdown.slice(0, i).reduce((a, x) => a + (x.count / totalForDonut) * 360, 0)
-                        return `${s.color} ${prev}deg ${prev + pct}deg`
-                      }).join(', ')})`,
-                    }}
-                  />
-                  <div className="absolute inset-3 bg-surface-container-low rounded-full flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-[14px] font-bold text-on-surface">{applied}</p>
-                      <p className="text-[9px] text-outline uppercase">Active</p>
-                    </div>
-                  </div>
-                </div>
+
+          <div className="flex-1 flex flex-col justify-center items-center py-4">
+            <div className="relative w-36 h-36 rounded-full border-[10px] border-white/5 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-[10px] border-white/10 border-t-white animate-spin-slow" />
+              <div className="text-center">
+                <span className="text-2xl font-light font-serif-lux block text-white select-none">
+                  {applied > 0 ? `${Math.round((interviewing / Math.max(applied, 1)) * 100)}%` : '—'}
+                </span>
+                <span className="text-[8px] tracking-[0.2em] font-medium text-white/35 uppercase select-none leading-none">ACTIVE FLOW</span>
               </div>
-              <div className="space-y-2">
-                {statusBreakdown.map(s => (
-                  <div key={s.label} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
-                      <span className="text-[12px] text-on-surface-variant">{s.label}</span>
-                    </div>
-                    <span className="text-[12px] font-semibold text-on-surface">{s.count}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-40">
-              <p className="text-[12px] text-outline text-center">Apply to jobs to see your pipeline breakdown</p>
             </div>
-          )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2.5 mt-4 text-[11px] border-t border-white/5 pt-4">
+            {statusBreakdown.length > 0 ? statusBreakdown.map((s, i) => (
+              <div key={s.label} className="flex justify-between items-center text-white/60">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: `rgba(255,255,255,${0.9 - i * 0.2})` }} />
+                  {s.label}
+                </span>
+                <span className="font-semibold text-white">{s.count}</span>
+              </div>
+            )) : (
+              <p className="col-span-2 text-[10px] text-white/30 text-center py-2">No data yet</p>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* AI Insights */}
-        {latestInsight && (
-          <div className="glass rounded-xl p-5 border border-outline-variant/30">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
-              <h3 className="text-[16px] font-semibold text-on-surface">AI Recommendations</h3>
-            </div>
-            <div className="space-y-3">
-              {(latestInsight.insights as InsightItem[]).map((insight: InsightItem, i: number) => (
-                <div key={i} className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${
-                  insight.type === 'stat' ? 'bg-primary/5 border-primary' :
-                  insight.type === 'recommendation' ? 'bg-warning-vibrant/5 border-warning-vibrant' :
-                  'bg-error-vibrant/5 border-error-vibrant'
-                }`}>
-                  <span className={`material-symbols-outlined text-[16px] mt-0.5 shrink-0 ${
-                    insight.type === 'stat' ? 'text-primary' :
-                    insight.type === 'recommendation' ? 'text-warning-vibrant' : 'text-error-vibrant'
-                  }`}>
-                    {insight.type === 'stat' ? 'bar_chart' : insight.type === 'recommendation' ? 'lightbulb' : 'warning'}
-                  </span>
-                  <p className="text-[12px] text-on-surface">{insight.message}</p>
-                </div>
-              ))}
-            </div>
-            <p className="text-[10px] text-outline mt-3">
-              Week of {new Date(latestInsight.week_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            </p>
+        {/* Source Performance */}
+        <div className="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/5 bg-[#121212]/30 flex justify-between items-center">
+            <h3 className="text-xs font-semibold text-white uppercase tracking-wider">Source Performance</h3>
+            <span className="material-symbols-outlined text-white/40 text-[18px]">info</span>
           </div>
-        )}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="bg-[#121212]/50 text-white/40 text-[9px] uppercase font-bold tracking-widest border-b border-white/5">
+                  <th className="px-6 py-3 font-medium">Channel Source</th>
+                  <th className="px-6 py-3 font-medium">Volume</th>
+                  <th className="px-6 py-3 font-medium">Conversion</th>
+                  <th className="px-6 py-3 font-medium">Efficiency</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {sourceStats.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-white/[0.01] transition-colors">
+                    <td className="px-6 py-3 flex items-center gap-3">
+                      <div className="w-7 h-7 rounded flex items-center justify-center bg-white/5 text-white/70 border border-white/5">
+                        <span className="material-symbols-outlined text-[15px]">{item.icon}</span>
+                      </div>
+                      <span className="font-semibold text-white">{item.source}</span>
+                    </td>
+                    <td className="px-6 py-3 text-white/70">{item.volume}</td>
+                    <td className="px-6 py-3 text-white/70">{item.conversion}</td>
+                    <td className="px-6 py-3">
+                      <div className="h-1 w-24 bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-white" style={{ width: `${item.efficiency}%` }} />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-        {/* Strategy recommendations */}
-        <div className="glass rounded-xl p-5 border border-outline-variant/30">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-electric-indigo text-[20px]">psychology</span>
-            <h3 className="text-[16px] font-semibold text-on-surface">Strategy Recommendations</h3>
-          </div>
-          <div className="space-y-3">
-            {[
-              { icon: 'trending_up', color: 'border-primary text-primary bg-primary/5', title: 'Increase application volume', body: 'Target 15-20 applications per week to improve pipeline density and offer probability.' },
-              { icon: 'school', color: 'border-electric-indigo text-electric-indigo bg-electric-indigo/5', title: 'Strengthen OA preparation', body: 'Complete 2-3 timed LeetCode sessions weekly. Focus on system design for L5+ roles.' },
-              { icon: 'people', color: 'border-success-vibrant text-success-vibrant bg-success-vibrant/5', title: 'Leverage referral network', body: 'Reach out to 5 LinkedIn connections at target companies for warm introductions.' },
-            ].map(r => (
-              <div key={r.title} className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${r.color}`}>
-                <span className={`material-symbols-outlined text-[16px] mt-0.5 shrink-0`}>{r.icon}</span>
+        {/* Strategy Recommendations */}
+        <div className="bg-[#0a0a0a] border border-white/5 p-6 rounded-xl relative overflow-hidden flex flex-col justify-between">
+          <div>
+            <h3 className="font-semibold text-xs text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-white/60 text-[18px]">bolt</span>
+              Strategy Recommendations
+            </h3>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex gap-3 p-3.5 rounded-lg bg-[#121212]/40 border-l border-white/60">
+                <span className="material-symbols-outlined text-white/40 text-[18px]">auto_awesome</span>
                 <div>
-                  <p className="text-[12px] font-semibold text-on-surface">{r.title}</p>
-                  <p className="text-[11px] text-on-surface-variant mt-0.5 leading-relaxed">{r.body}</p>
+                  <p className="font-semibold text-white">Resume Match Optimization</p>
+                  <p className="text-white/50 mt-1 leading-relaxed text-[11px]">Target 15–20 applications per week to improve pipeline density and offer probability.</p>
                 </div>
               </div>
-            ))}
+
+              <div className="flex gap-3 p-3.5 rounded-lg bg-[#121212]/40 border-l border-white/30">
+                <span className="material-symbols-outlined text-white/40 text-[18px]">schedule</span>
+                <div>
+                  <p className="font-semibold text-white">High-Conversion Timing Alert</p>
+                  <p className="text-white/50 mt-1 leading-relaxed text-[11px]">Applications submitted on Tuesdays between 8–10 AM have a 25% higher response rate.</p>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <button className="mt-5 w-full py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded transition-all cursor-pointer hover:bg-neutral-200">
+            Generate Intelligence Report
+          </button>
         </div>
       </div>
     </div>

@@ -21,8 +21,10 @@ export default async function DashboardLayout({
         <Sidebar userEmail={user?.email} />
         <div className="flex-1 ml-[220px] flex flex-col min-h-screen">
           <TopHeader />
-          <main className="flex-1 overflow-auto">
-            <PageTransition>{children}</PageTransition>
+          <main className="flex-1 overflow-auto pt-14">
+            <div className="p-8">
+              <PageTransition>{children}</PageTransition>
+            </div>
           </main>
         </div>
       </div>

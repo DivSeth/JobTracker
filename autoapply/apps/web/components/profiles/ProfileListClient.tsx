@@ -54,18 +54,18 @@ export function ProfileListClient({ profiles }: Props) {
       ))}
 
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-surface-card rounded-card border border-border-subtle shadow-card p-6 max-w-md w-full mx-4">
-            <h3 className="text-base font-semibold font-display text-on-surface mb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6 max-w-md w-full mx-4">
+            <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wider">
               Delete &ldquo;{deleteTarget.name}&rdquo;?
             </h3>
-            <p className="text-sm text-on-surface-muted mb-6">
+            <p className="text-[12px] text-white/50 mb-6 leading-relaxed">
               This cannot be undone. All profile data including resume and cover letter will be permanently removed.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 type="button"
-                className="px-4 py-2 text-sm text-on-surface-muted hover:text-on-surface transition-colors rounded-xl"
+                className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/60 border border-white/10 rounded hover:bg-white/5 transition-colors"
                 onClick={() => setDeleteTarget(null)}
                 disabled={deleting}
               >
@@ -73,7 +73,7 @@ export function ProfileListClient({ profiles }: Props) {
               </button>
               <button
                 type="button"
-                className="px-4 py-2 text-sm font-medium text-white bg-error rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-black bg-white rounded hover:bg-neutral-200 transition-all disabled:opacity-50"
                 onClick={confirmDelete}
                 disabled={deleting}
               >

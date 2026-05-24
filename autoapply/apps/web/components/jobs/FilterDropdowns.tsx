@@ -17,7 +17,7 @@ export function FilterDropdowns() {
   }
 
   const selectClass =
-    'bg-surface-card border-0 text-sm text-on-surface rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-primary/20 shadow-ambient'
+    'bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20 transition-colors cursor-pointer'
 
   return (
     <>

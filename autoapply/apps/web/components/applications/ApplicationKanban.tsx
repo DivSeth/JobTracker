@@ -1,7 +1,6 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
 import type { ApplicationWithJob, ApplicationStatus } from '@/lib/types'
 
 export function getStatusColumns() {
@@ -23,26 +22,6 @@ export const STATUS_TRANSITIONS: Record<ApplicationStatus, ApplicationStatus | n
   offer:        null,
   rejected:     null,
   ghosted:      null,
-}
-
-const STATUS_ACCENT: Record<string, string> = {
-  saved:        'border-outline/50',
-  applied:      'border-primary',
-  oa:           'border-warning-vibrant',
-  interviewing: 'border-secondary',
-  offer:        'border-success-vibrant',
-  rejected:     'border-error-vibrant',
-  ghosted:      'border-outline-variant',
-}
-
-const STATUS_DOT: Record<string, string> = {
-  saved:        'bg-outline',
-  applied:      'bg-primary',
-  oa:           'bg-warning-vibrant',
-  interviewing: 'bg-secondary',
-  offer:        'bg-success-vibrant',
-  rejected:     'bg-error-vibrant',
-  ghosted:      'bg-outline-variant',
 }
 
 const JOB_BOARD_DOMAINS = new Set([
@@ -67,10 +46,10 @@ function CompanyLogo({ applyUrl, company }: { applyUrl?: string | null, company:
   const [failed, setFailed] = useState(false)
   const logoUrl = getLogoUrl(applyUrl, company)
   return (
-    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-primary/10 flex items-center justify-center text-xs font-bold text-primary overflow-hidden shrink-0">
+    <div className="w-8 h-8 rounded bg-[#151515] border border-white/5 flex items-center justify-center text-xs font-bold text-white/50 overflow-hidden shrink-0">
       {!failed ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt={company} className="w-full h-full object-contain p-1" onError={() => setFailed(true)} />
+        <img src={logoUrl} alt={company} className="w-full h-full object-contain p-1 grayscale" onError={() => setFailed(true)} />
       ) : (
         <span>{company.slice(0, 2).toUpperCase()}</span>
       )}
@@ -94,12 +73,12 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
           col.id === 'rejected' ? (a.status === 'rejected' || a.status === 'ghosted') : a.status === col.id
         )
         return (
-          <div key={col.id} className="min-w-[260px] w-[260px] shrink-0">
+          <div key={col.id} className="flex-shrink-0 w-80">
             {/* Column header */}
             <div className="flex items-center gap-2 mb-3 px-1">
-              <div className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT[col.id]}`} />
-              <h3 className="font-semibold text-sm text-on-surface">{col.label}</h3>
-              <span className="ml-auto text-xs font-medium text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-white/40 shrink-0" />
+              <h3 className="font-medium text-xs text-white uppercase tracking-widest">{col.label}</h3>
+              <span className="ml-auto text-[9px] font-bold text-white/40 bg-white/5 border border-white/5 px-2 py-0.5 rounded">
                 {cards.length}
               </span>
             </div>
@@ -111,37 +90,37 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
                 const job = app.job as { title?: string; company?: string; apply_url?: string | null; location?: string | null } | null
                 const company = job?.company?.includes('↳') ? 'Unknown' : (job?.company ?? 'Unknown')
                 return (
-                  <div key={app.id} className={`bg-surface-card rounded-2xl p-4 shadow-ambient hover:shadow-[0_8px_24px_rgba(42,52,57,0.10)] transition-all border-l-4 ${STATUS_ACCENT[app.status]} mb-2 group`}>
+                  <div key={app.id} className="bg-[#0a0a0a] border border-white/5 p-4 rounded-xl hover:border-white/15 transition-all group">
                     {/* Logo + company + delete */}
                     <div className="flex items-center gap-2 mb-2.5">
                       <CompanyLogo applyUrl={job?.apply_url} company={company} />
-                      <Link href={`/applications/${app.id}`} className="text-xs text-on-surface-variant truncate font-medium hover:text-on-surface flex-1">
+                      <Link href={`/applications/${app.id}`} className="text-[11px] text-white/60 truncate font-medium hover:text-white flex-1 transition-colors">
                         {company}
                       </Link>
                       <button
                         onClick={() => {
                           if (confirm('Remove this application?')) onDelete(app.id)
                         }}
-                        className="opacity-0 group-hover:opacity-100 text-on-surface-variant/40 hover:text-error-vibrant transition-all p-0.5"
+                        className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-white/60 transition-all text-lg leading-none"
                         title="Remove application"
                       >
-                        <Trash2 size={13} />
+                        ×
                       </button>
                     </div>
 
-                    {/* Title (clickable) */}
+                    {/* Title */}
                     <Link href={`/applications/${app.id}`}>
-                      <p className="text-sm font-semibold text-on-surface line-clamp-2 leading-snug mb-1 hover:text-primary transition-colors">
+                      <p className="text-xs font-semibold text-white line-clamp-2 leading-snug mb-1 hover:text-white/70 transition-colors">
                         {job?.title ?? 'Manual Entry'}
                       </p>
                     </Link>
 
                     {/* Location + Date */}
                     {job?.location && (
-                      <p className="text-xs text-on-surface-variant/60 mb-1 truncate">{job.location}</p>
+                      <p className="text-[11px] text-white/40 mb-1 truncate">{job.location}</p>
                     )}
                     {app.applied_at && (
-                      <p className="text-xs text-on-surface-variant/40 mb-3">
+                      <p className="text-[10px] text-white/30 mb-3 font-mono">
                         {new Date(app.applied_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </p>
                     )}
@@ -151,7 +130,7 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
                       {next && (
                         <button
                           onClick={() => onStatusChange(app.id, next)}
-                          className="flex-1 text-xs py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors text-center"
+                          className="flex-1 text-[10px] py-1.5 rounded bg-[#141414] hover:bg-[#1a1a1a] border border-white/5 hover:border-white/15 text-white/50 hover:text-white transition-all text-center font-medium uppercase tracking-widest"
                         >
                           {next.replace('_', ' ')} →
                         </button>
@@ -159,7 +138,7 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
                       {app.status !== 'rejected' && app.status !== 'ghosted' && (
                         <button
                           onClick={() => onStatusChange(app.id, 'rejected')}
-                          className="text-xs py-1.5 px-2.5 rounded-xl bg-surface-container hover:bg-error-vibrant/10 text-on-surface-variant/50 hover:text-error-vibrant transition-colors"
+                          className="text-[10px] py-1.5 px-2.5 rounded bg-[#141414] hover:bg-white/5 border border-white/5 text-white/30 hover:text-white/60 transition-all"
                           title="Mark as rejected"
                         >
                           ✕
@@ -171,7 +150,7 @@ export function ApplicationKanban({ applications, onStatusChange, onDelete }: Pr
               })}
 
               {cards.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-on-surface/10 p-6 text-center text-xs text-on-surface-variant/40">
+                <div className="rounded-xl border border-dashed border-white/5 p-6 text-center text-[10px] text-white/25 uppercase tracking-widest">
                   Empty
                 </div>
               )}
