@@ -29,15 +29,10 @@ export interface ProfileDetails {
   portfolio_url: string | null
 }
 
-export interface UserPreferences {
-  job_types: JobType[]; locations: string[]
-  remote_ok: boolean; min_salary: number | null
-}
-
 export interface Profile {
   id: string; user_id: string; details: ProfileDetails
   skills: string[]; education: EducationEntry[]
-  experience: ExperienceEntry[]; preferences: UserPreferences
+  experience: ExperienceEntry[]
 }
 
 export interface JobSource {
@@ -187,16 +182,6 @@ export interface ApplicationProfile {
   skills: string[]
   certifications: CertificationEntry[]
   languages: LanguageEntry[]
-
-  // EEO / Demographics (per-profile per D-02, encrypted at rest per PROF-06)
-  eeo_gender: string | null
-  eeo_race: string | null
-  eeo_veteran_status: string | null
-  eeo_disability_status: string | null
-
-  // Work Authorization (encrypted at rest)
-  work_authorization: string | null
-  sponsorship_required: boolean | null
 
   // Files (Supabase Storage paths per D-06)
   resume_path: string | null

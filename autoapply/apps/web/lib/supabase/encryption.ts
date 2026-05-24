@@ -29,10 +29,4 @@ export async function decryptPii(supabase: Awaited<ReturnType<typeof createClien
 }
 
 /** Fields on ApplicationProfile that require PII encryption */
-export const PII_FIELDS = [
-  'eeo_gender',
-  'eeo_race',
-  'eeo_veteran_status',
-  'eeo_disability_status',
-  'work_authorization',
-] as const
+export const PII_FIELDS: readonly string[] = [] as const
