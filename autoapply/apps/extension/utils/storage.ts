@@ -29,6 +29,28 @@ export async function setStoredAuth(auth: StoredAuth): Promise<void> {
   await chrome.storage.local.set(auth)
 }
 
+export interface StoredApplicationProfile {
+  id: string
+  name: string
+  is_default: boolean
+  resume_path: string | null
+  cover_letter_path: string | null
+  experience: unknown[]
+  education: unknown[]
+  skills: string[]
+  certifications: unknown[]
+  languages: unknown[]
+}
+
+export async function getApplicationProfiles(): Promise<StoredApplicationProfile[]> {
+  const r = await chrome.storage.local.get(['applicationProfiles'])
+  return (r.applicationProfiles as StoredApplicationProfile[] | undefined) ?? []
+}
+
+export async function setApplicationProfiles(profiles: StoredApplicationProfile[]): Promise<void> {
+  await chrome.storage.local.set({ applicationProfiles: profiles })
+}
+
 export async function clearStoredAuth(): Promise<void> {
   await chrome.storage.local.remove([
     'accessToken',
@@ -40,6 +62,7 @@ export async function clearStoredAuth(): Promise<void> {
     'userIdentity',
     'baseIdentity',
     'regionalIdentities',
+    'applicationProfiles',
   ])
 }
 
