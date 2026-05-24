@@ -39,23 +39,42 @@ export function TopHeader({ title }: Props) {
       </div>
 
       <div className="flex items-center gap-3 ml-auto">
-        {/* Sync indicator */}
-        <span className="relative flex h-2 w-2" title="Sync active">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-vibrant opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-success-vibrant" />
-        </span>
+        {/* Sync status */}
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-success-vibrant/10 text-success-vibrant">
+          <span className="w-1.5 h-1.5 rounded-full bg-success-vibrant animate-pulse" />
+          <span className="text-[11px] font-semibold uppercase tracking-wider">Sync Active</span>
+        </div>
+
+        <div className="w-px h-5 bg-outline-variant" />
+
+        {/* Notifications */}
+        <button
+          className="relative w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+          aria-label="Notifications"
+        >
+          <MatIcon size={18}>notifications</MatIcon>
+          <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-error-vibrant" />
+        </button>
+
+        {/* Keyboard shortcut */}
+        <button
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+          aria-label="Command menu"
+        >
+          <MatIcon size={18}>keyboard_command_key</MatIcon>
+        </button>
 
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           <MatIcon size={18}>{theme === 'dark' ? 'light_mode' : 'dark_mode'}</MatIcon>
         </button>
 
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-electric-indigo flex items-center justify-center text-white text-xs font-semibold cursor-pointer select-none">
+        <div className="w-8 h-8 rounded-full bg-electric-indigo flex items-center justify-center text-white text-xs font-semibold cursor-pointer select-none border border-electric-indigo/30">
           A
         </div>
       </div>

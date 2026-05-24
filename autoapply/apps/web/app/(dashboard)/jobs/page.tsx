@@ -3,22 +3,17 @@ import { JobCard } from '@/components/jobs/JobCard'
 import { JobFiltersClient } from '@/components/jobs/JobFiltersClient'
 import { SortControl } from '@/components/jobs/SortControl'
 import { FilterDropdowns } from '@/components/jobs/FilterDropdowns'
-import { MatIcon } from '@/components/ui/mat-icon'
 import type { JobType, JobWithScore } from '@/lib/types'
 
 interface Props {
   searchParams: Promise<{ type?: string; sort?: string; role?: string; country?: string }>
 }
 
-// --- Server-side filter helpers ---
-
 const COUNTRY_MATCHERS: Record<string, (loc: string) => boolean> = {
   usa: (loc) => {
     const l = loc.toLowerCase()
-    // US state abbreviations after comma
     if (/,\s*(ca|ny|tx|wa|il|ma|co|fl|nc|md|va|or|ga|pa|mn|ct|nj|oh|az|ut|mo|tn|mi|wi|ne|sc|dc)\b/i.test(loc)) return true
     if (l.includes('united states')) return true
-    // Major US cities
     return ['san francisco', 'new york', 'los angeles', 'seattle', 'austin', 'chicago', 'boston', 'denver',
       'houston', 'dallas', 'atlanta', 'portland', 'phoenix', 'san jose', 'san diego', 'redwood city',
       'menlo park', 'mountain view', 'palo alto', 'sunnyvale', 'cupertino', 'irvine', 'el segundo',
@@ -92,50 +87,50 @@ export default async function JobsPage({ searchParams }: Props) {
   const { data: jobs } = await query
   let list = (jobs ?? []) as JobWithScore[]
 
-  // Apply country filter in JS (avoids Supabase .or() comma escaping issues)
   if (country && country !== 'all' && COUNTRY_MATCHERS[country]) {
     list = list.filter(j => j.location && COUNTRY_MATCHERS[country](j.location))
   }
 
-  // Apply role filter in JS
   if (role && role !== 'all') {
     list = list.filter(j => matchesRole(j.title, role))
   }
 
-  // Cap at 100 for display
   list = list.slice(0, 100)
-
   const curatorsPick = list[0] ?? null
   const rest = list.slice(1)
 
   return (
     <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold font-display text-on-surface">Job Feed</h1>
-          <p className="text-sm text-on-surface-variant mt-1">
-            {list.length} opportunities matching your profile
-          </p>
+      {/* Filter header */}
+      <section>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface-container rounded-xl p-6 border border-outline-variant mesh-gradient">
+          <div className="space-y-4">
+            <h2 className="text-[18px] font-semibold text-on-surface">Explore Opportunities</h2>
+            <div className="flex flex-wrap items-end gap-4">
+              <JobFiltersClient active={(type as JobType) ?? 'all'} />
+              <FilterDropdowns />
+              <SortControl />
+            </div>
+          </div>
+          <div className="flex items-center gap-4 shrink-0">
+            <span className="text-[12px] text-on-surface-variant">
+              {list.length} active match{list.length !== 1 ? 'es' : ''} found
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <FilterDropdowns />
-          <SortControl />
-        </div>
-      </div>
-
-      <JobFiltersClient active={(type as JobType) ?? 'all'} />
+      </section>
 
       {/* Masonry grid */}
-      <div className="columns-1 md:columns-2 xl:columns-3 gap-4 space-y-4">
-        {curatorsPick && <JobCard job={curatorsPick} featured />}
-        {rest.map(job => (
-          <JobCard key={job.id} job={job} />
-        ))}
-      </div>
-
-      {list.length === 0 && (
+      {list.length > 0 ? (
+        <div className="columns-1 md:columns-2 xl:columns-3 gap-4 space-y-4">
+          {curatorsPick && <JobCard job={curatorsPick} featured />}
+          {rest.map(job => (
+            <JobCard key={job.id} job={job} />
+          ))}
+        </div>
+      ) : (
         <div className="py-20 text-center">
-          <p className="text-5xl font-light text-on-surface-variant/30 tracking-tight">No jobs yet</p>
+          <p className="text-[48px] font-light text-on-surface-variant/30 tracking-tight">No jobs yet</p>
           <p className="text-sm text-on-surface-variant mt-3">Sync will populate this feed automatically every 6 hours.</p>
         </div>
       )}
@@ -143,10 +138,10 @@ export default async function JobsPage({ searchParams }: Props) {
       {/* FAB */}
       <a
         href="/applications/new"
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-br from-primary-container to-electric-indigo shadow-lg hover:scale-110 active:scale-95 transition-transform flex items-center justify-center text-white z-50"
+        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-br from-primary-container to-electric-indigo shadow-[0_8px_24px_rgba(99,102,241,0.4)] flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-all group"
         title="New Application"
       >
-        <MatIcon size={24}>add</MatIcon>
+        <span className="material-symbols-outlined text-white text-[28px] group-hover:rotate-12 transition-transform">bolt</span>
       </a>
     </div>
   )
