@@ -8,7 +8,8 @@ import type { ExtensionMessage } from '@/utils/messages'
 import { isGreenhouseApplicationPage } from '@/lib/greenhouse/page-detector'
 import { detectJobCountry } from '@/lib/greenhouse/country-detector'
 import { selectRegionalIdentity } from '@/lib/greenhouse/regional-selection'
-import { getBaseIdentity, getRegionalIdentities } from '@/utils/storage'
+import { getBaseIdentity, getRegionalIdentities, getApplicationProfiles } from '@/utils/storage'
+import type { StoredApplicationProfile } from '@/utils/storage'
 import { mergeActiveIdentity } from '@/utils/identity'
 import type { StoredRegionalIdentity } from '@/utils/identity'
 
@@ -29,7 +30,7 @@ type FillProfileResponse = {
   userIdentity: unknown | null
 }
 
-async function sendMessage<T>(message: ExtensionMessage | { type: 'FILL_STARTED'; payload: { profileId?: string | null } }) {
+async function sendMessage<T>(message: ExtensionMessage) {
   return (await chrome.runtime.sendMessage(message)) as T
 }
 
@@ -115,12 +116,8 @@ export default defineContentScript({
       })
     }
 
-    async function showPreview(profileId?: string | null) {
-      const [fillData, _mappings, duplicateInfo, base, regional] = await Promise.all([
-        sendMessage<FillProfileResponse>({
-          action: 'getProfileForFill',
-          payload: { profileId: profileId ?? null },
-        }),
+    async function showPreview(profileId?: string | null, regionalId?: string | null) {
+      const [_mappings, duplicateInfo, base, regional, appProfiles] = await Promise.all([
         sendMessage({
           action: 'getFieldMappings',
           payload: { platform: 'greenhouse' },
@@ -131,19 +128,18 @@ export default defineContentScript({
         }),
         getBaseIdentity(),
         getRegionalIdentities(),
+        getApplicationProfiles(),
       ])
 
-      const applicationProfile = fillData.profile
-      if (!applicationProfile?.id) return
-
       let userProfile: Record<string, unknown>
+      let applicationProfile: StoredApplicationProfile | undefined
 
       if (base?.firstName) {
         // New 02-07 path: merge base + regional
         const selection = selectRegionalIdentity({
           blocks: regional,
           detectedCountry: detectJobCountry(document),
-          chosenId: window.__autoapplyRegionalBlockId ?? null,
+          chosenId: regionalId ?? window.__autoapplyRegionalBlockId ?? null,
         })
 
         if (selection.reason === 'none') {
@@ -165,17 +161,69 @@ export default defineContentScript({
           return
         }
 
-        let chosen = selection.selected
-        if (!chosen && selection.candidates) {
-          chosen = await promptRegionPicker(selection.candidates)
-          window.__autoapplyRegionalBlockId = chosen.id
+        let chosenRegional = selection.selected
+        if (!chosenRegional && selection.candidates) {
+          chosenRegional = await promptRegionPicker(selection.candidates)
+          window.__autoapplyRegionalBlockId = chosenRegional.id
         }
 
-        userProfile = mergeActiveIdentity(base, chosen!) as unknown as Record<string, unknown>
+        userProfile = mergeActiveIdentity(base, chosenRegional!) as unknown as Record<string, unknown>
+
+        // Resolve application profile using priority chain
+        const resolvedProfileId =
+          profileId ??
+          chosenRegional!.defaultProfileId ??
+          appProfiles.find((p) => p.is_default)?.id ??
+          appProfiles[0]?.id ??
+          null
+
+        if (!resolvedProfileId) {
+          // No application profile found — show blocker
+          if (!ui.mounted) ui.mount()
+          root?.render(
+            <React.StrictMode>
+              <div className="fixed right-4 top-1/2 z-[2147483647] w-[400px] max-w-[calc(100vw-32px)] -translate-y-1/2 rounded-xl border border-outline-variant bg-surface p-4 font-body text-on-surface shadow-[0_24px_80px_rgba(0,0,0,0.16)]">
+                <p className="text-sm">
+                  No application profile found. Create one at{' '}
+                  <a href="https://autoapply.app/profile" className="text-primary underline">
+                    autoapply.app/profile
+                  </a>{' '}
+                  before filling.
+                </p>
+              </div>
+            </React.StrictMode>
+          )
+          return
+        }
+
+        applicationProfile = appProfiles.find((p) => p.id === resolvedProfileId)
+        if (!applicationProfile) return
       } else {
         // Legacy fallback: use old userIdentity from storage
         const storageData = await chrome.storage.local.get(['userIdentity'])
+        const fillData = await sendMessage<FillProfileResponse>({
+          action: 'getProfileForFill',
+          payload: { profileId: profileId ?? null },
+        })
         userProfile = (fillData.userIdentity ?? storageData.userIdentity ?? {}) as Record<string, unknown>
+
+        const legacyProfile = fillData.profile
+        if (!legacyProfile?.id) return
+
+        // Wrap legacy profile shape to satisfy StoredApplicationProfile for mapper
+        applicationProfile = {
+          id: legacyProfile.id,
+          name: (legacyProfile.name as string | null | undefined) ?? '',
+          is_default: false,
+          resume_path: null,
+          cover_letter_path: null,
+          experience: [],
+          education: [],
+          skills: [],
+          certifications: [],
+          languages: [],
+          ...legacyProfile,
+        } as StoredApplicationProfile
       }
 
       const mappedFields = mapProfileToFields(
@@ -200,9 +248,9 @@ export default defineContentScript({
       )
     }
 
-    chrome.runtime.onMessage.addListener((message: { type?: string; payload?: { profileId?: string | null } }) => {
+    chrome.runtime.onMessage.addListener((message: { type?: string; payload?: { profileId?: string | null; regionalId?: string | null } }) => {
       if (message.type === 'FILL_STARTED') {
-        void showPreview(message.payload?.profileId ?? null)
+        void showPreview(message.payload?.profileId ?? null, message.payload?.regionalId ?? null)
       }
     })
   },
