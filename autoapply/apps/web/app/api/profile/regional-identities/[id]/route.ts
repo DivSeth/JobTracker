@@ -32,6 +32,23 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     throw err
   }
 
+  // Validate default_profile_id belongs to this user
+  if (parsed.default_profile_id) {
+    const { data: profileCheck } = await supabase
+      .from('application_profiles')
+      .select('id')
+      .eq('id', parsed.default_profile_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!profileCheck) {
+      return NextResponse.json(
+        { error: 'Invalid default_profile_id' },
+        { status: 400 }
+      )
+    }
+  }
+
   // New fields (eeo_gender, eeo_race, eeo_veteran_status, eeo_disability_status, default_profile_id)
   // flow through via parsed — no allowlist to update here.
   const { data, error } = await supabase
