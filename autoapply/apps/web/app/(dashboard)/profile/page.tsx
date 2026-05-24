@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { BaseIdentityForm } from '@/components/profile/BaseIdentityForm'
 import { RegionalIdentityList } from '@/components/profile/RegionalIdentityList'
-import { ProfileForm } from '@/components/profile/ProfileForm'
 import { redirect } from 'next/navigation'
 
 export default async function ProfilePage() {
@@ -66,17 +65,6 @@ export default async function ProfilePage() {
           )}
         </div>
         <RegionalIdentityList initial={regional} />
-      </section>
-
-      {/* FILL PREFERENCES */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-white/40 text-[18px]">tune</span>
-          <h3 className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">FILL PREFERENCES</h3>
-        </div>
-        <div className="bg-[#0a0a0a] rounded-xl p-8 border border-white/5">
-          <ProfileForm initialProfile={profileRes.data ?? {}} />
-        </div>
       </section>
 
       {/* Readiness / Encryption footer */}
