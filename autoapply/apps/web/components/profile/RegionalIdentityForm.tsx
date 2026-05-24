@@ -7,14 +7,36 @@ import { CountryCodeChipInput } from './CountryCodeChipInput'
 import { COUNTRY_CODES } from '@/lib/profile/country-codes'
 import type { RegionalIdentityUpdate } from '@/lib/schemas/regional-identity'
 
+const EEO_GENDERS = ['Male', 'Female', 'Non-binary', 'Prefer not to say', 'Decline to self-identify']
+const EEO_RACES = [
+  'American Indian or Alaskan Native',
+  'Asian',
+  'Black or African American',
+  'Hispanic or Latino',
+  'Native Hawaiian or Other Pacific Islander',
+  'Two or more races',
+  'White',
+  'Prefer not to say',
+  'Decline to self-identify',
+]
+const EEO_VETERAN_STATUSES = ['Not a veteran', 'Protected veteran', 'Prefer not to say', 'Decline to self-identify']
+const EEO_DISABILITY_STATUSES = ['Yes', 'No', 'Prefer not to say', 'Decline to self-identify']
+
 type Stored = RegionalIdentityUpdate & { id: string }
+
+interface AppProfileOption {
+  id: string
+  name: string
+  is_default: boolean
+}
 
 interface Props {
   initial: Stored
   onDeleted: (id: string) => void
+  appProfiles: AppProfileOption[]
 }
 
-export function RegionalIdentityForm({ initial, onDeleted }: Props) {
+export function RegionalIdentityForm({ initial, onDeleted, appProfiles }: Props) {
   const [values, setValues] = useState<Stored>(initial)
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
@@ -262,6 +284,82 @@ export function RegionalIdentityForm({ initial, onDeleted }: Props) {
             onChange={(e) => set('notice_period_weeks', e.target.value ? Number(e.target.value) : null)}
             onBlur={() => commit('notice_period_weeks')}
           />
+        </Field>
+      </Section>
+
+      <Section title="EEO / Self-Identification">
+        <Field label="Gender" id={`eeo_gender-${initial.id}`}>
+          <select
+            id={`eeo_gender-${initial.id}`}
+            value={values.eeo_gender ?? ''}
+            onChange={(e) => set('eeo_gender', e.target.value || null)}
+            onBlur={() => commit('eeo_gender')}
+            className="w-full bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20"
+          >
+            <option value="">— select —</option>
+            {EEO_GENDERS.map(g => <option key={g} value={g}>{g}</option>)}
+          </select>
+        </Field>
+        <Field label="Race / Ethnicity" id={`eeo_race-${initial.id}`}>
+          <select
+            id={`eeo_race-${initial.id}`}
+            value={values.eeo_race ?? ''}
+            onChange={(e) => set('eeo_race', e.target.value || null)}
+            onBlur={() => commit('eeo_race')}
+            className="w-full bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20"
+          >
+            <option value="">— select —</option>
+            {EEO_RACES.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </Field>
+        <Field label="Veteran Status" id={`eeo_veteran-${initial.id}`}>
+          <select
+            id={`eeo_veteran-${initial.id}`}
+            value={values.eeo_veteran_status ?? ''}
+            onChange={(e) => set('eeo_veteran_status', e.target.value || null)}
+            onBlur={() => commit('eeo_veteran_status')}
+            className="w-full bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20"
+          >
+            <option value="">— select —</option>
+            {EEO_VETERAN_STATUSES.map(v => <option key={v} value={v}>{v}</option>)}
+          </select>
+        </Field>
+        <Field label="Disability Status" id={`eeo_disability-${initial.id}`}>
+          <select
+            id={`eeo_disability-${initial.id}`}
+            value={values.eeo_disability_status ?? ''}
+            onChange={(e) => set('eeo_disability_status', e.target.value || null)}
+            onBlur={() => commit('eeo_disability_status')}
+            className="w-full bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20"
+          >
+            <option value="">— select —</option>
+            {EEO_DISABILITY_STATUSES.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+        </Field>
+      </Section>
+
+      <Section title="Autofill">
+        <Field label="Default Application Profile" id={`default_profile-${initial.id}`}>
+          <select
+            id={`default_profile-${initial.id}`}
+            value={values.default_profile_id ?? ''}
+            onChange={(e) => {
+              const val = e.target.value || null
+              set('default_profile_id', val)
+              patch({ default_profile_id: val })
+            }}
+            className="w-full bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20"
+          >
+            <option value="">— none (use global default) —</option>
+            {appProfiles.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.name}{p.is_default ? ' (default)' : ''}
+              </option>
+            ))}
+          </select>
+          <p className="text-[10px] text-white/35 mt-1">
+            Extension auto-selects this profile when filling jobs in this region.
+          </p>
         </Field>
       </Section>
 

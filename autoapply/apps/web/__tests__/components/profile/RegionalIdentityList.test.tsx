@@ -33,12 +33,12 @@ afterEach(() => vi.unstubAllGlobals())
 
 describe('RegionalIdentityList', () => {
   it('renders existing regional cards', () => {
-    render(<RegionalIdentityList initial={existing} />)
+    render(<RegionalIdentityList initial={existing} appProfiles={[]} />)
     expect(screen.getByText(/US student/)).toBeInTheDocument()
   })
 
   it('POSTs /api/profile/regional-identities on +Add region', async () => {
-    render(<RegionalIdentityList initial={existing} />)
+    render(<RegionalIdentityList initial={existing} appProfiles={[]} />)
     fireEvent.click(screen.getByRole('button', { name: /add region/i }))
     await waitFor(() =>
       expect(fetch).toHaveBeenCalledWith(

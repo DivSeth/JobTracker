@@ -6,8 +6,15 @@ import type { RegionalIdentityUpdate } from '@/lib/schemas/regional-identity'
 
 type Stored = RegionalIdentityUpdate & { id: string }
 
+interface AppProfileOption {
+  id: string
+  name: string
+  is_default: boolean
+}
+
 interface Props {
   initial: Stored[]
+  appProfiles: AppProfileOption[]
 }
 
 const DEFAULT_NEW: Omit<Stored, 'id'> = {
@@ -18,7 +25,7 @@ const DEFAULT_NEW: Omit<Stored, 'id'> = {
   country: 'US',
 }
 
-export function RegionalIdentityList({ initial }: Props) {
+export function RegionalIdentityList({ initial, appProfiles }: Props) {
   const [items, setItems] = useState<Stored[]>(initial)
   const [creating, setCreating] = useState(false)
 
@@ -53,7 +60,7 @@ export function RegionalIdentityList({ initial }: Props) {
       </div>
       <div className="space-y-4">
         {items.map((it) => (
-          <RegionalIdentityCard key={it.id} identity={it} onDeleted={handleDeleted} />
+          <RegionalIdentityCard key={it.id} identity={it} onDeleted={handleDeleted} appProfiles={appProfiles} />
         ))}
         {items.length === 0 && (
           <p className="rounded-lg border border-dashed p-6 text-center text-sm text-on-surface-muted">
