@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
 import type { ApplicationWithJob } from '@/lib/types'
 
 function timeAgo(date: string): string {
@@ -10,42 +9,6 @@ function timeAgo(date: string): string {
   if (days < 7) return `${days}d ago`
   if (days < 30) return `${Math.floor(days / 7)}w ago`
   return `${Math.floor(days / 30)}mo ago`
-}
-
-const CARD_GRADIENTS = [
-  'from-blue-600 to-indigo-800',
-  'from-emerald-600 to-teal-800',
-  'from-purple-600 to-pink-800',
-  'from-orange-500 to-red-700',
-  'from-cyan-500 to-blue-700',
-  'from-violet-600 to-purple-800',
-  'from-rose-600 to-pink-800',
-  'from-amber-500 to-orange-700',
-]
-
-function companyGradient(company: string) {
-  let hash = 0
-  for (const c of company) hash = ((hash << 5) - hash) + c.charCodeAt(0)
-  return CARD_GRADIENTS[Math.abs(hash) % CARD_GRADIENTS.length]
-}
-
-const STATUS_BADGE: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  applied:      { bg: 'bg-secondary/20',        text: 'text-secondary',        border: 'border-secondary/30',        label: 'Applied' },
-  oa:           { bg: 'bg-warning-vibrant/20',   text: 'text-warning-vibrant',  border: 'border-warning-vibrant/30',  label: 'OA' },
-  interviewing: { bg: 'bg-deep-violet/20',       text: 'text-deep-violet',      border: 'border-deep-violet/30',      label: 'Interview' },
-  offer:        { bg: 'bg-success-vibrant/20',   text: 'text-success-vibrant',  border: 'border-success-vibrant/30',  label: 'Offer' },
-  rejected:     { bg: 'bg-error-vibrant/20',     text: 'text-error-vibrant',    border: 'border-error-vibrant/30',    label: 'Rejected' },
-  saved:        { bg: 'bg-outline/20',           text: 'text-outline',          border: 'border-outline/30',          label: 'Saved' },
-  ghosted:      { bg: 'bg-outline/20',           text: 'text-outline',          border: 'border-outline/30',          label: 'Ghosted' },
-}
-
-const ACTIVITY_META: Record<string, { dot: string; category: string; label: (c: string) => string }> = {
-  applied:      { dot: 'bg-electric-indigo', category: 'Submission',  label: c => `Applied to ${c}` },
-  oa:           { dot: 'bg-warning-vibrant', category: 'Assessment',  label: c => `OA from ${c}` },
-  interviewing: { dot: 'bg-deep-violet',     category: 'Interview',   label: c => `Interview at ${c}` },
-  offer:        { dot: 'bg-success-vibrant', category: 'Offer',       label: c => `Offer from ${c}` },
-  rejected:     { dot: 'bg-error-vibrant',   category: 'Rejection',   label: c => `Rejected by ${c}` },
-  saved:        { dot: 'bg-outline',         category: 'Saved',       label: c => `Saved ${c}` },
 }
 
 const BASE_FIELDS = [
@@ -81,148 +44,174 @@ export default async function DashboardPage() {
   const recentApps = applications.slice(0, 6)
   const activityApps = applications.slice(0, 8)
 
-  const statCards = [
-    {
-      label: 'Active Applications', value: total, sub: readinessPct > 0 ? `${readinessPct}% ready` : null,
-      icon: 'near_me', color: 'text-primary-container',
-      barColor: '#4d9fff', barBg: 'rgba(77,159,255,0.15)', barGlow: 'rgba(77,159,255,0.5)',
-      pct: Math.min((total / 200) * 100, 100),
-    },
-    {
-      label: 'OAs Received', value: oas, sub: total > 0 ? `${Math.round(oas / total * 100)}% rate` : 'No apps yet',
-      icon: 'code', color: 'text-electric-indigo',
-      barColor: '#6366f1', barBg: 'rgba(99,102,241,0.15)', barGlow: 'rgba(99,102,241,0.5)',
-      pct: total > 0 ? Math.round(oas / total * 100) : 0,
-    },
-    {
-      label: 'Interviews', value: interviews, sub: interviews > 0 ? `+${interviews} this cycle` : 'None yet',
-      icon: 'event_repeat', color: 'text-deep-violet',
-      barColor: '#a855f7', barBg: 'rgba(168,85,247,0.15)', barGlow: 'rgba(168,85,247,0.5)',
-      pct: total > 0 ? Math.round(interviews / total * 100) : 0,
-    },
-    {
-      label: 'Offers', value: offers, sub: offers > 0 ? 'In review' : 'None yet',
-      icon: 'verified', color: 'text-success-vibrant',
-      barColor: '#22c55e', barBg: 'rgba(34,197,94,0.15)', barGlow: 'rgba(34,197,94,0.5)',
-      pct: total > 0 ? Math.round(offers / total * 100) : 0,
-    },
-  ]
+  // Stage badge styles — monochrome jobos style
+  function getStageBadge(status: string): { bg: string; text: string; border: string; label: string } {
+    switch (status) {
+      case 'oa':          return { bg: 'bg-white/10', text: 'text-white/90', border: 'border-white/20', label: 'OA' }
+      case 'interviewing':return { bg: 'bg-white/15', text: 'text-white', border: 'border-white/25', label: 'Interview' }
+      case 'offer':       return { bg: 'bg-white', text: 'text-black', border: 'border-transparent', label: 'Offer' }
+      case 'rejected':    return { bg: 'bg-[#151515]', text: 'text-white/35', border: 'border-white/5', label: 'Rejected' }
+      default:            return { bg: 'bg-white/5', text: 'text-white/80', border: 'border-white/10', label: 'Applied' }
+    }
+  }
 
   return (
-    <div className="p-8 space-y-6">
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map(({ label, value, sub, icon, color, barColor, barBg, barGlow, pct }) => (
-          <div key={label} className="bg-surface-card border border-white/5 p-4 rounded-xl mesh-gradient group border-glow-hover transition-all duration-300">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-on-surface-variant text-[11px] font-semibold uppercase tracking-wider">{label}</p>
-              <span className={`material-symbols-outlined ${color} text-[20px]`}>{icon}</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <h3 className="text-[28px] font-bold text-on-surface">{value}</h3>
-              {sub && <span className="text-[10px] font-bold text-on-surface-variant">{sub}</span>}
-            </div>
-            <div className="mt-4 h-1 w-full rounded-full overflow-hidden relative" style={{ background: barBg }}>
-              <div
-                className="absolute top-0 left-0 h-full rounded-full transition-all"
-                style={{ width: `${pct}%`, background: barColor, boxShadow: `0 0 8px ${barGlow}` }}
-              />
-            </div>
-          </div>
-        ))}
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div>
+        <h2 className="text-3xl lg:text-4xl font-light font-serif-lux italic text-white tracking-wide">
+          Identity Dashboard
+        </h2>
+        <p className="text-xs text-white/45 mt-1 uppercase tracking-wider">
+          Precision overview of active job applications, interview sequences, and portfolio configurations.
+        </p>
       </div>
 
-      {/* Main grid */}
-      <div className="grid grid-cols-12 gap-6">
+      {/* KPI Stats Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-[#0a0a0a] p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all group relative overflow-hidden">
+          <div className="flex justify-between items-start">
+            <span className="text-white/40 text-[10px] font-medium uppercase tracking-wider">Active Applications</span>
+            <span className="material-symbols-outlined text-white/55 group-hover:scale-105 transition-transform text-[18px]">description</span>
+          </div>
+          <div className="mt-4 flex items-baseline">
+            <span className="text-3xl font-light font-serif-lux text-white">{total}</span>
+            {readinessPct > 0 && <span className="text-white/40 text-[9px] font-medium ml-2.5 bg-white/5 px-2 py-0.5 rounded border border-white/5">{readinessPct}% READY</span>}
+          </div>
+        </div>
+
+        <div className="bg-[#0a0a0a] p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all group relative">
+          <div className="flex justify-between items-start">
+            <span className="text-white/40 text-[10px] font-medium uppercase tracking-wider">Interviews Status</span>
+            <span className="material-symbols-outlined text-white/55 group-hover:scale-105 transition-transform text-[18px]">groups</span>
+          </div>
+          <div className="mt-4 flex items-baseline">
+            <span className="text-3xl font-light font-serif-lux text-white">{interviews}</span>
+            <span className="text-white/40 text-[9px] font-medium ml-2.5 bg-white/5 px-2 py-0.5 rounded border border-white/5">{interviews > 0 ? `+${interviews} SCHEDULED` : 'NONE YET'}</span>
+          </div>
+        </div>
+
+        <div className="bg-[#0a0a0a] p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all group relative">
+          <div className="flex justify-between items-start">
+            <span className="text-white/40 text-[10px] font-medium uppercase tracking-wider">OAs Pending</span>
+            <span className="material-symbols-outlined text-white/55 group-hover:scale-105 transition-transform text-[18px]">code</span>
+          </div>
+          <div className="mt-4 flex items-baseline">
+            <span className="text-3xl font-light font-serif-lux text-white">{oas}</span>
+            <span className="text-white/35 text-[9px] ml-2 font-mono">DUE SOON</span>
+          </div>
+        </div>
+
+        <div className="bg-[#0a0a0a] p-5 rounded-xl border border-white/5 hover:border-white/10 transition-all group relative">
+          <div className="flex justify-between items-start">
+            <span className="text-white/40 text-[10px] font-medium uppercase tracking-wider">Active Offers</span>
+            <span className="material-symbols-outlined text-white/55 group-hover:scale-105 transition-transform text-[18px]">military_tech</span>
+          </div>
+          <div className="mt-4 flex items-baseline">
+            <span className="text-3xl font-light font-serif-lux text-white">{offers}</span>
+            <span className="text-white/30 text-[9px] font-medium ml-2.5 uppercase tracking-wide">CYCLE RECORD</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Two-Column View */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Recent Applications — 8 cols */}
-        <div className="col-span-12 lg:col-span-8">
-          <div className="flex items-center justify-between mb-3 px-1">
-            <h2 className="text-[18px] font-semibold text-on-surface">Recent Applications</h2>
-            <Link href="/applications" className="text-[12px] text-primary hover:underline font-medium">
-              View detailed log
-            </Link>
+        <div className="lg:col-span-8 space-y-4">
+          <div className="flex justify-between items-center pb-2 border-b border-white/5">
+            <h2 className="text-sm font-medium text-white tracking-widest uppercase flex items-center gap-2.5">
+              <span>RECENT APPLICATION FEEDS</span>
+              <span className="bg-white/5 text-white/70 text-[8px] px-2 py-0.5 rounded border border-white/10 font-bold tracking-widest animate-pulse">
+                LIVE PIPELINE
+              </span>
+            </h2>
           </div>
 
           {recentApps.length === 0 ? (
-            <div className="bg-surface-card border border-white/5 rounded-xl p-10 text-center">
-              <p className="text-on-surface-variant text-sm">No applications yet. Use the extension to auto-fill your first one.</p>
+            <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-10 text-center">
+              <p className="text-white/40 text-sm">No applications yet. Use the extension to auto-fill your first one.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
               {recentApps.map((app) => {
                 const company = (app.job as { company?: string } | null)?.company ?? 'Unknown'
                 const title = (app.job as { title?: string } | null)?.title ?? 'Unknown Role'
-                const badge = STATUS_BADGE[app.status] ?? STATUS_BADGE.saved
-                const grad = companyGradient(company)
+                const badge = getStageBadge(app.status)
                 const initial = company.replace(/↳/g, '').trim().slice(0, 1).toUpperCase() || '?'
                 return (
-                  <Link
+                  <div
                     key={app.id}
-                    href={`/applications/${app.id}`}
-                    className="bg-surface-card border border-white/5 rounded-xl flex flex-col border-glow-hover group transition-all duration-300"
+                    className="bg-[#0a0a0a] border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#0f0f0f] hover:border-white/10 transition-all cursor-pointer group"
                   >
-                    <div className="p-3 bg-surface-container rounded-t-xl flex items-start justify-between gap-3">
-                      <div className="flex gap-3 min-w-0">
-                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${grad} flex items-center justify-center font-bold text-[18px] text-white shrink-0`}>
-                          {initial}
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="font-semibold text-on-surface text-[14px] leading-tight truncate">{title}</h4>
-                          <p className="text-[12px] text-on-surface-variant mt-0.5 truncate">{company}</p>
-                        </div>
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-[#151515] border border-white/5 flex items-center justify-center font-bold text-sm text-white/80 shrink-0">
+                        {initial}
                       </div>
-                      <span className={`${badge.bg} ${badge.text} border ${badge.border} px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest shrink-0`}>
-                        {badge.label}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center px-3 py-2">
-                      <span className="text-[12px] text-outline">{app.applied_at ? timeAgo(app.applied_at) : '—'}</span>
-                      <div className="flex gap-1">
-                        <div className="p-1.5 hover:bg-surface-variant rounded transition-colors text-on-surface-variant">
-                          <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium text-xs text-white">{title}</span>
+                          <span className="text-[10px] text-white/30">•</span>
+                          <span className="text-xs text-white/70 font-semibold">{company}</span>
                         </div>
-                        <div className="p-1.5 hover:bg-surface-variant rounded transition-colors text-on-surface-variant">
-                          <span className="material-symbols-outlined text-[16px]">more_vert</span>
-                        </div>
+                        <p className="text-[11px] text-white/45 mt-0.5">
+                          Active tracking enabled
+                        </p>
                       </div>
                     </div>
-                  </Link>
+
+                    <div className="flex items-center gap-3 self-end sm:self-auto">
+                      <div className="text-right">
+                        <span className={`text-[8px] uppercase font-bold tracking-widest px-2 py-0.5 rounded border ${badge.bg} ${badge.text} ${badge.border}`}>
+                          {badge.label}
+                        </span>
+                        <p className="text-[9px] text-white/35 mt-1 tracking-wider">
+                          {timeAgo(app.applied_at ?? app.last_activity_at ?? new Date().toISOString())}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 )
               })}
             </div>
           )}
         </div>
 
-        {/* Live Activity — 4 cols */}
-        <div className="col-span-12 lg:col-span-4">
-          <div className="bg-surface-container rounded-xl border border-white/5 p-5 flex flex-col" style={{ maxHeight: '520px' }}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[18px] font-semibold text-on-surface">Live Activity</h2>
-              <span className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-success-vibrant">
-                <span className="w-2 h-2 rounded-full bg-success-vibrant animate-pulse" />
-                Live Sync
-              </span>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-4" style={{ overflowY: 'auto' }}>
+        {/* Activity Registry — 4 cols */}
+        <div className="lg:col-span-4 space-y-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-white/60">Activity Registry</h2>
+          <div className="bg-[#0a0a0a] rounded-xl border border-white/5 p-4 flex flex-col h-[400px]">
+            <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
               {activityApps.length === 0 ? (
-                <p className="text-[12px] text-on-surface-variant text-center py-6">No activity yet.</p>
+                <p className="text-[11px] text-white/30 italic text-center py-8">No activity yet.</p>
               ) : activityApps.map((app, i) => {
                 const company = (app.job as { company?: string } | null)?.company ?? 'Unknown'
-                const meta = ACTIVITY_META[app.status] ?? ACTIVITY_META.saved
+                const status = app.status ?? 'applied'
+                const labels: Record<string, string> = {
+                  applied: `Applied to ${company}`,
+                  oa: `OA from ${company}`,
+                  interviewing: `Interview at ${company}`,
+                  offer: `Offer from ${company}`,
+                  rejected: `Rejected by ${company}`,
+                  saved: `Saved ${company}`,
+                }
                 return (
-                  <div key={i} className="border-l border-white/10 pl-4 relative py-1">
-                    <div className={`absolute -left-[5px] top-2 w-2 h-2 rounded-full ${meta.dot}`} />
-                    <p className="text-[12px] text-on-surface font-medium">{meta.label(company)}</p>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-[10px] text-outline uppercase font-bold">{meta.category}</span>
-                      <span className="text-[10px] text-outline">
+                  <div key={i} className="flex gap-2.5 relative pb-2.5 border-b border-white/[0.03]">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/40 mt-1.5 shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-[11px] text-white/80 leading-relaxed">{labels[status] ?? `Updated ${company}`}</p>
+                      <span className="text-[9px] text-white/30 font-mono block mt-1">
                         {timeAgo(app.applied_at ?? app.last_activity_at ?? new Date().toISOString())}
                       </span>
                     </div>
                   </div>
                 )
               })}
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-white/5 font-mono text-[9px] text-white/30 space-y-0.5">
+              <p className="text-white/40">[SYS] Sync channel authorized.</p>
+              <p>[SYS] Port 3000 SSL certificate secure.</p>
+              <p className="text-white/40">[SYS] Standard client sync complete.</p>
             </div>
           </div>
         </div>

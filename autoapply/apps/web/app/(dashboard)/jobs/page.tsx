@@ -100,27 +100,29 @@ export default async function JobsPage({ searchParams }: Props) {
   const rest = list.slice(1)
 
   return (
-    <div className="p-8 space-y-6">
-      {/* Filter header */}
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-3xl lg:text-4xl font-light font-serif-lux italic text-white tracking-wide">
+          Explore Opportunities
+        </h2>
+        <p className="text-xs text-white/45 mt-1 uppercase tracking-wider">
+          {list.length} active match{list.length !== 1 ? 'es' : ''} found
+        </p>
+      </div>
+
+      {/* Filter bar */}
       <section>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-surface-container rounded-xl p-6 border border-outline-variant mesh-gradient">
-          <div className="space-y-4">
-            <h2 className="text-[18px] font-semibold text-on-surface">Explore Opportunities</h2>
-            <div className="flex flex-wrap items-end gap-4">
-              <JobFiltersClient active={(type as JobType) ?? 'all'} />
-              <FilterDropdowns />
-              <SortControl />
-            </div>
-          </div>
-          <div className="flex items-center gap-4 shrink-0">
-            <span className="text-[12px] text-on-surface-variant">
-              {list.length} active match{list.length !== 1 ? 'es' : ''} found
-            </span>
+        <div className="flex flex-col md:flex-row md:items-center gap-4 bg-[#0a0a0a] rounded-xl p-5 border border-white/5">
+          <div className="flex flex-wrap items-end gap-4">
+            <JobFiltersClient active={(type as JobType) ?? 'all'} />
+            <FilterDropdowns />
+            <SortControl />
           </div>
         </div>
       </section>
 
-      {/* Masonry grid */}
+      {/* Grid */}
       {list.length > 0 ? (
         <div className="columns-1 md:columns-2 xl:columns-3 gap-4 space-y-4">
           {curatorsPick && <JobCard job={curatorsPick} featured />}
@@ -130,18 +132,18 @@ export default async function JobsPage({ searchParams }: Props) {
         </div>
       ) : (
         <div className="py-20 text-center">
-          <p className="text-[48px] font-light text-on-surface-variant/30 tracking-tight">No jobs yet</p>
-          <p className="text-sm text-on-surface-variant mt-3">Sync will populate this feed automatically every 6 hours.</p>
+          <p className="text-[48px] font-light font-serif-lux italic text-white/20 tracking-tight">No jobs yet</p>
+          <p className="text-xs text-white/35 mt-3 uppercase tracking-wider">Sync will populate this feed automatically every 6 hours.</p>
         </div>
       )}
 
       {/* FAB */}
       <a
         href="/applications/new"
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-br from-primary-container to-electric-indigo shadow-[0_8px_24px_rgba(99,102,241,0.4)] flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-all group"
+        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-white shadow-[0_8px_24px_rgba(255,255,255,0.15)] flex items-center justify-center z-50 hover:scale-110 active:scale-95 transition-all group"
         title="New Application"
       >
-        <span className="material-symbols-outlined text-white text-[28px] group-hover:rotate-12 transition-transform">bolt</span>
+        <span className="material-symbols-outlined text-black text-[28px] group-hover:rotate-12 transition-transform">bolt</span>
       </a>
     </div>
   )

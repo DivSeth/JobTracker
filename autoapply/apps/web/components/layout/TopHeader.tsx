@@ -1,81 +1,58 @@
 'use client'
 
-import { MatIcon } from '@/components/ui/mat-icon'
 import { useTheme } from '@/components/providers/ThemeProvider'
-import { cn } from '@/lib/utils'
 
-interface Props {
-  title?: string
-}
-
-export function TopHeader({ title }: Props) {
+export function TopHeader() {
   const { theme, toggleTheme } = useTheme()
 
   return (
-    <header className="h-14 bg-background/70 backdrop-blur-xl sticky top-0 z-40 border-b border-white/5 flex items-center px-8 gap-4">
-      {title && (
-        <h2 className="text-sm font-semibold text-on-surface font-display shrink-0">{title}</h2>
-      )}
-
+    <header className="fixed top-0 right-0 left-[220px] h-14 backdrop-blur-xl bg-[#050505]/85 border-b border-white/5 flex justify-between items-center px-6 z-40">
       {/* Search */}
-      <div className="relative flex-1 max-w-sm">
-        <MatIcon
-          size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none"
-        >
-          search
-        </MatIcon>
-        <input
-          type="text"
-          placeholder="Search..."
-          aria-label="Search"
-          className={cn(
-            'w-full bg-surface-container-high border-none rounded-lg py-1.5 pl-9 pr-4',
-            'text-sm text-on-surface placeholder:text-outline',
-            'focus:outline-none focus:ring-1 focus:ring-electric-indigo/40',
-            'transition-colors'
-          )}
-        />
+      <div className="flex items-center gap-4 flex-1">
+        <div className="relative w-full max-w-md">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-[16px]">
+            search
+          </span>
+          <input
+            type="text"
+            className="w-full bg-[#0d0d0d] border border-white/5 rounded-lg py-1.5 pl-9 pr-4 text-xs focus:border-white/20 outline-none transition-all text-white placeholder:text-white/30"
+            placeholder="Search applications, roles, or companies..."
+            aria-label="Search"
+          />
+        </div>
       </div>
 
-      <div className="flex items-center gap-3 ml-auto">
+      {/* Right controls */}
+      <div className="flex items-center gap-4">
         {/* Sync status */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-success-vibrant/10 text-success-vibrant">
-          <span className="w-1.5 h-1.5 rounded-full bg-success-vibrant animate-pulse" />
-          <span className="text-[11px] font-semibold uppercase tracking-wider">Sync Active</span>
-        </div>
-
-        <div className="w-px h-5 bg-outline-variant" />
-
-        {/* Notifications */}
-        <button
-          className="relative w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
-          aria-label="Notifications"
-        >
-          <MatIcon size={18}>notifications</MatIcon>
-          <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-error-vibrant" />
+        <button className="flex items-center gap-2 bg-white/5 text-white/80 border border-white/10 px-3 py-1 rounded-full text-[9px] font-medium tracking-wider hover:bg-white/10 transition-all">
+          <span className="material-symbols-outlined text-[13px] text-white/60 animate-pulse">check_circle</span>
+          <span>GOOGLE CALENDAR SYNCED</span>
         </button>
 
-        {/* Keyboard shortcut */}
-        <button
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
-          aria-label="Command menu"
-        >
-          <MatIcon size={18}>keyboard_command_key</MatIcon>
-        </button>
+        <div className="flex items-center gap-3 border-l border-white/5 pl-4">
+          {/* Notifications */}
+          <button
+            className="relative text-white/50 hover:text-white transition-all p-1.5 focus:outline-none"
+            aria-label="Notifications"
+          >
+            <span className="material-symbols-outlined text-[20px]">notifications</span>
+            <span className="absolute top-1.5 right-1.5 w-1 h-1 bg-white/80 rounded-full animate-ping" />
+          </button>
 
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
-          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-          <MatIcon size={18}>{theme === 'dark' ? 'light_mode' : 'dark_mode'}</MatIcon>
-        </button>
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="text-white/50 hover:text-white transition-all p-1.5 focus:outline-none"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            <span className="material-symbols-outlined text-[19px]">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+          </button>
 
-        {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-electric-indigo flex items-center justify-center text-white text-xs font-semibold cursor-pointer select-none border border-electric-indigo/30">
-          A
+          {/* Avatar */}
+          <div className="h-7 w-7 rounded-full overflow-hidden border border-white/10 hover:border-white/30 transition-all cursor-pointer bg-[#1a1a1a] flex items-center justify-center">
+            <span className="material-symbols-outlined text-[16px] text-white/60">person</span>
+          </div>
         </div>
       </div>
     </header>

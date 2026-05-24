@@ -1,9 +1,6 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { Star, MoreVertical, Trash2, Copy } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import type { ApplicationProfile } from '@/lib/types'
 
 interface Props {
@@ -47,137 +44,82 @@ function countFields(profile: ApplicationProfile): { filled: number; total: numb
 export function ProfileCard({ profile, onSetDefault, onDuplicate, onDelete }: Props) {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
-
   const { filled, total } = countFields(profile)
-
-  function handleCardClick() {
-    router.push(`/profiles/${profile.id}`)
-  }
-
-  function handleStarClick(e: React.MouseEvent) {
-    e.stopPropagation()
-    onSetDefault(profile.id)
-  }
-
-  function handleMenuClick(e: React.MouseEvent) {
-    e.stopPropagation()
-    setMenuOpen(open => !open)
-  }
-
-  function handleDuplicate(e: React.MouseEvent) {
-    e.stopPropagation()
-    setMenuOpen(false)
-    onDuplicate(profile.id)
-  }
-
-  function handleDelete(e: React.MouseEvent) {
-    e.stopPropagation()
-    setMenuOpen(false)
-    onDelete(profile.id)
-  }
+  const completionPct = Math.round((filled / total) * 100)
 
   return (
-    <motion.div
-      className="relative"
-      whileHover={{ scale: 1.01 }}
-      transition={{ duration: 0.15, ease: 'easeOut' }}
-    >
+    <div className="relative">
       <div
-        className={cn(
-          'bg-surface-card rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden flex border',
-          profile.is_default ? 'border-beam-active border-electric-indigo/40' : 'border-outline-variant'
-        )}
-        onClick={handleCardClick}
+        className={`bg-[#0a0a0a] rounded-xl border ${profile.is_default ? 'border-white/20' : 'border-white/5'} p-5 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center hover:border-white/15 transition-all cursor-pointer`}
+        onClick={() => router.push(`/profiles/${profile.id}`)}
       >
-        {/* Left indicator strip */}
-        <div
-          className={cn(
-            'w-1 self-stretch shrink-0',
-            profile.is_default ? 'bg-primary' : 'bg-outline-variant/15'
-          )}
-        />
-
-        {/* Content area */}
-        <div className="flex-1 p-4">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-lg font-semibold font-display text-on-surface truncate">
-                  {profile.name}
-                </h3>
-                {profile.is_default && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-primary text-on-primary shrink-0">
-                    Default
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-on-surface-variant mt-1">
-                {filled}/{total} fields &middot; {formatRelativeTime(profile.updated_at)}
-              </p>
+        {/* Profile info */}
+        <div className="flex items-start gap-4 flex-1">
+          <div className="w-10 h-10 rounded bg-[#121212] border border-white/5 flex items-center justify-center text-white/80">
+            <span className="material-symbols-outlined text-[20px]">description</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h4 className="font-semibold text-xs text-white">{profile.name}</h4>
+              {profile.is_default && (
+                <span className="bg-white text-black text-[7px] font-bold px-1.5 py-0.5 rounded tracking-widest uppercase">
+                  DEFAULT PRIMARY
+                </span>
+              )}
             </div>
+            <p className="text-[10px] text-white/40 mt-1">
+              {filled}/{total} fields · {formatRelativeTime(profile.updated_at)}
+            </p>
+            <div className="mt-2 h-[2px] w-32 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-full bg-white" style={{ width: `${completionPct}%` }} />
+            </div>
+          </div>
+        </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                aria-label={
-                  profile.is_default
-                    ? `Remove ${profile.name} as default profile`
-                    : `Set ${profile.name} as default profile`
-                }
-                onClick={handleStarClick}
-                className={cn(
-                  'p-1.5 rounded-lg transition-colors hover:bg-surface-container',
-                  profile.is_default ? 'text-primary' : 'text-on-surface-variant'
-                )}
-              >
-                <Star
-                  size={16}
-                  fill={profile.is_default ? 'currentColor' : 'none'}
-                />
-              </button>
-              <div className="relative">
+        {/* Actions */}
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={e => { e.stopPropagation(); onSetDefault(profile.id) }}
+            className="text-[10px] text-white/50 hover:text-white uppercase tracking-widest font-medium transition-colors"
+          >
+            {profile.is_default ? 'Default' : 'Set Default'}
+          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={e => { e.stopPropagation(); setMenuOpen(o => !o) }}
+              className="w-9 h-9 flex items-center justify-center border border-white/5 hover:border-white/20 transition-all rounded text-white/50 hover:text-white"
+            >
+              <span className="material-symbols-outlined text-[16px]">more_vert</span>
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full mt-1 w-36 bg-[#121212] rounded-lg border border-white/10 z-10 py-1">
                 <button
                   type="button"
-                  aria-label={`More actions for ${profile.name}`}
-                  onClick={handleMenuClick}
-                  className="p-1.5 rounded-lg transition-colors hover:bg-surface-container text-on-surface-variant"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                  onClick={e => { e.stopPropagation(); setMenuOpen(false); onDuplicate(profile.id) }}
                 >
-                  <MoreVertical size={16} />
+                  <span className="material-symbols-outlined text-[14px]">content_copy</span>
+                  Duplicate
                 </button>
-                {menuOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-36 bg-surface-card rounded-xl shadow-md z-10 py-1 border border-on-surface/5">
-                    <button
-                      type="button"
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-on-surface hover:bg-surface-container transition-colors"
-                      onClick={handleDuplicate}
-                    >
-                      <Copy size={14} />
-                      Duplicate
-                    </button>
-                    <button
-                      type="button"
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error hover:bg-surface-container transition-colors"
-                      onClick={handleDelete}
-                    >
-                      <Trash2 size={14} />
-                      Delete
-                    </button>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[11px] text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                  onClick={e => { e.stopPropagation(); setMenuOpen(false); onDelete(profile.id) }}
+                >
+                  <span className="material-symbols-outlined text-[14px]">delete</span>
+                  Delete
+                </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Close menu on outside click */}
       {menuOpen && (
-        <div
-          className="fixed inset-0 z-0"
-          onClick={() => setMenuOpen(false)}
-        />
+        <div className="fixed inset-0 z-0" onClick={() => setMenuOpen(false)} />
       )}
-    </motion.div>
+    </div>
   )
 }
