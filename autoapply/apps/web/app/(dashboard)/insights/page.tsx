@@ -39,7 +39,6 @@ export default async function InsightsPage() {
     { label: 'Assessment', count: all.filter(a => a.status === 'oa').length },
     { label: 'Rejected', count: all.filter(a => a.status === 'rejected').length },
   ].filter(s => s.count > 0)
-  const totalForDonut = statusBreakdown.reduce((s, x) => s + x.count, 0) || 1
 
   const sourceStats = [
     { source: 'Direct Apply', icon: 'rocket_launch', volume: applied, conversion: responseRate != null ? `${responseRate}%` : '—', efficiency: responseRate ?? 0 },
