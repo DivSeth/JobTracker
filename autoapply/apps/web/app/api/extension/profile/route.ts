@@ -15,28 +15,46 @@ export async function GET() {
 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: HEADERS })
 
-  const { data: baseIdentity, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const [
+    { data: baseIdentity, error: profileError },
+    { data: regionalIdentities, error: regionalError },
+    appProfilesResult,
+  ] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('user_regional_identities')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('is_default', { ascending: false }),
+    supabase
+      .from('application_profiles')
+      .select('id, name, is_default, resume_path, cover_letter_path, experience, education, skills, certifications, languages')
+      .eq('user_id', user.id)
+      .order('is_default', { ascending: false }),
+  ])
 
   if (profileError) {
     return NextResponse.json({ error: profileError.message }, { status: 500, headers: HEADERS })
   }
 
-  const { data: regionalIdentities, error: regionalError } = await supabase
-    .from('user_regional_identities')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('is_default', { ascending: false })
-
   if (regionalError) {
     return NextResponse.json({ error: regionalError.message }, { status: 500, headers: HEADERS })
   }
 
+  if (appProfilesResult.error) {
+    console.error('[extension/profile] application_profiles fetch failed (non-fatal):', appProfilesResult.error.message)
+  }
+
   return NextResponse.json(
-    { baseIdentity: baseIdentity ?? null, regionalIdentities: regionalIdentities ?? [] },
+    {
+      baseIdentity: baseIdentity ?? null,
+      regionalIdentities: regionalIdentities ?? [],
+      applicationProfiles: appProfilesResult.data ?? [],
+    },
     { headers: HEADERS }
   )
 }
