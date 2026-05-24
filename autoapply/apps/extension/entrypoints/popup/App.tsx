@@ -79,14 +79,27 @@ export default function App() {
         }
       }
       if (message.type === 'PROFILES_SYNCED') {
-        chrome.storage.local.get(['profiles', 'activeProfileId', 'lastSync'], (result) => {
-          setProfiles(result.profiles || [])
-          setActiveProfileId(
-            result.activeProfileId ||
-            result.profiles?.find((p: StoredProfile) => p.is_default)?.id ||
-            result.profiles?.[0]?.id ||
+        chrome.storage.local.get(['profiles', 'activeProfileId', 'activeRegionalId', 'regionalIdentities', 'lastSync'], (result) => {
+          const profs = (result.profiles || []) as StoredProfile[]
+          setProfiles(profs)
+
+          const regions = (result.regionalIdentities || []) as StoredRegionalIdentity[]
+          setRegionalIdentities(regions)
+          const storedRegionalId = result.activeRegionalId as string | undefined
+          const defaultRegion = regions.find(r => r.isDefault) ?? regions[0] ?? null
+          const resolvedRegionalId = storedRegionalId ?? defaultRegion?.id ?? null
+          setActiveRegionalId(resolvedRegionalId)
+
+          const region = regions.find(r => r.id === resolvedRegionalId)
+          const storedProfileId = result.activeProfileId as string | undefined
+          const resolvedProfileId =
+            storedProfileId ??
+            (region?.defaultProfileId ? profs.find(p => p.id === region.defaultProfileId)?.id : null) ??
+            profs.find(p => p.is_default)?.id ??
+            profs[0]?.id ??
             null
-          )
+          setActiveProfileId(resolvedProfileId ?? null)
+
           setLastSync(result.lastSync || null)
           setSyncError(null)
           setSyncing(false)
