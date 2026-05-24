@@ -34,9 +34,6 @@ export function ProfileForm({ initialProfile }: Props) {
   const [education, setEducation] = useState<EducationEntry[]>(
     initialProfile.education ?? []
   )
-  const [prefs, setPrefs] = useState(
-    initialProfile.preferences ?? { job_types: [], locations: [], remote_ok: false, min_salary: null }
-  )
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
@@ -64,7 +61,6 @@ export function ProfileForm({ initialProfile }: Props) {
         skills,
         experience,
         education,
-        preferences: prefs,
       }),
     })
     setSaving(false)
@@ -273,21 +269,6 @@ export function ProfileForm({ initialProfile }: Props) {
           <h2 className="text-base font-semibold text-on-surface">Skills</h2>
           <TagInput value={skills} onChange={setSkills} />
           <p className="text-xs text-on-surface-muted">Type and press Enter or comma to add. Use exact tech names for better job matching.</p>
-        </section>
-
-        {/* Preferences */}
-        <section className="space-y-4">
-          <h2 className="text-base font-semibold text-on-surface">Preferences</h2>
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="remote_ok"
-              className="w-4 h-4 rounded accent-primary"
-              checked={prefs.remote_ok}
-              onChange={e => setPrefs(p => ({ ...p, remote_ok: e.target.checked }))}
-            />
-            <label htmlFor="remote_ok" className="text-sm text-on-surface">Open to remote</label>
-          </div>
         </section>
 
         <Button type="submit" variant="primary" size="lg" disabled={saving}>

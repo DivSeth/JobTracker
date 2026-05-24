@@ -22,7 +22,7 @@ function formatRelativeTime(dateStr: string): string {
 }
 
 function countFields(profile: ApplicationProfile): { filled: number; total: number } {
-  const total = 18
+  const total = 8
   let filled = 0
   if (profile.name) filled++
   if (profile.experience.length > 0) filled++
@@ -30,12 +30,6 @@ function countFields(profile: ApplicationProfile): { filled: number; total: numb
   if (profile.skills.length > 0) filled++
   if (profile.certifications.length > 0) filled++
   if (profile.languages.length > 0) filled++
-  if (profile.eeo_gender) filled++
-  if (profile.eeo_race) filled++
-  if (profile.eeo_veteran_status) filled++
-  if (profile.eeo_disability_status) filled++
-  if (profile.work_authorization) filled++
-  if (profile.sponsorship_required !== null) filled++
   if (profile.resume_path) filled++
   if (profile.cover_letter_path) filled++
   return { filled, total }

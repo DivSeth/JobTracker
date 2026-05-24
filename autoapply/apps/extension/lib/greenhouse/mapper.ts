@@ -42,6 +42,11 @@ type UserProfile = {
   salary_cadence?: string | null
   current_compensation?: number | null
   notice_period_weeks?: number | null
+  // EEO fields (from regional identity)
+  eeo_gender?: string | null
+  eeo_race?: string | null
+  eeo_veteran_status?: string | null
+  eeo_disability_status?: string | null
   // Legacy fields
   location?: string | null
 }
@@ -52,11 +57,6 @@ type ApplicationProfile = {
   skills?: string[]
   resume_path?: string | null
   cover_letter_path?: string | null
-  work_authorization?: string | null
-  eeo_gender?: string | null
-  eeo_race?: string | null
-  eeo_veteran_status?: string | null
-  eeo_disability_status?: string | null
 }
 
 type FillProfile = {
@@ -103,10 +103,10 @@ const DEFAULT_RULES: FieldMappingRule[] = [
   { field_pattern: 'company|employer', profile_path: 'experience[0].company', source: 'application_profile' },
   { field_pattern: 'title|role|position', profile_path: 'experience[0].role', source: 'application_profile' },
   { field_pattern: 'skill', profile_path: 'skills', source: 'application_profile', transform: 'join_skills' },
-  { field_pattern: 'gender', profile_path: 'eeo_gender', source: 'application_profile' },
-  { field_pattern: 'race|ethnicity', profile_path: 'eeo_race', source: 'application_profile' },
-  { field_pattern: 'veteran', profile_path: 'eeo_veteran_status', source: 'application_profile' },
-  { field_pattern: 'disability', profile_path: 'eeo_disability_status', source: 'application_profile' },
+  { field_pattern: 'gender', profile_path: 'eeo_gender', source: 'user_profile' },
+  { field_pattern: 'race|ethnicity', profile_path: 'eeo_race', source: 'user_profile' },
+  { field_pattern: 'veteran', profile_path: 'eeo_veteran_status', source: 'user_profile' },
+  { field_pattern: 'disability', profile_path: 'eeo_disability_status', source: 'user_profile' },
 ]
 
 function splitFullName(fullName: string | null | undefined): { first: string | null; last: string | null } {

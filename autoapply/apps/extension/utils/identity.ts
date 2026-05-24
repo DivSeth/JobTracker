@@ -37,6 +37,11 @@ export interface StoredRegionalIdentity {
   salaryCadence: 'annual' | 'monthly' | 'hourly' | 'lpa' | null
   currentCompensation: number | null
   noticePeriodWeeks: number | null
+  eeoGender: string | null
+  eeoRace: string | null
+  eeoVeteranStatus: string | null
+  eeoDisabilityStatus: string | null
+  defaultProfileId: string | null
 }
 
 export interface MergedIdentity {
@@ -73,6 +78,10 @@ export interface MergedIdentity {
   salary_cadence: string | null
   current_compensation: number | null
   notice_period_weeks: number | null
+  eeo_gender: string | null
+  eeo_race: string | null
+  eeo_veteran_status: string | null
+  eeo_disability_status: string | null
 }
 
 function formatPhone(e164: string | null): string | null {
@@ -124,6 +133,10 @@ export function mergeActiveIdentity(
     salary_cadence: regional.salaryCadence,
     current_compensation: regional.currentCompensation,
     notice_period_weeks: regional.noticePeriodWeeks,
+    eeo_gender: regional.eeoGender,
+    eeo_race: regional.eeoRace,
+    eeo_veteran_status: regional.eeoVeteranStatus,
+    eeo_disability_status: regional.eeoDisabilityStatus,
   }
 }
 
@@ -172,5 +185,10 @@ export function fromApiRegional(row: Record<string, unknown>): StoredRegionalIde
       (row.salary_cadence as StoredRegionalIdentity['salaryCadence']) ?? null,
     currentCompensation: (row.current_compensation as number | null) ?? null,
     noticePeriodWeeks: (row.notice_period_weeks as number | null) ?? null,
+    eeoGender: (row.eeo_gender as string | null) ?? null,
+    eeoRace: (row.eeo_race as string | null) ?? null,
+    eeoVeteranStatus: (row.eeo_veteran_status as string | null) ?? null,
+    eeoDisabilityStatus: (row.eeo_disability_status as string | null) ?? null,
+    defaultProfileId: (row.default_profile_id as string | null) ?? null,
   }
 }

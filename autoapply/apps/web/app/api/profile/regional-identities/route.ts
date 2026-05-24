@@ -18,6 +18,8 @@ export async function POST(request: Request) {
     throw err
   }
 
+  // New fields (eeo_gender, eeo_race, eeo_veteran_status, eeo_disability_status, default_profile_id)
+  // flow through via parsed — no allowlist to update here.
   const { data, error } = await supabase
     .from('user_regional_identities')
     .insert({ ...parsed, user_id: user.id })

@@ -38,7 +38,7 @@ afterEach(() => vi.unstubAllGlobals())
 
 describe('RegionalIdentityForm', () => {
   it('renders label, contact, address, work-auth and compensation fields', () => {
-    render(<RegionalIdentityForm initial={valid} onDeleted={vi.fn()} />)
+    render(<RegionalIdentityForm initial={valid} onDeleted={vi.fn()} appProfiles={[]} />)
     expect(screen.getByLabelText(/label/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/phone/i)).toBeInTheDocument()
@@ -52,7 +52,7 @@ describe('RegionalIdentityForm', () => {
   })
 
   it('PATCHes on blur', async () => {
-    render(<RegionalIdentityForm initial={valid} onDeleted={vi.fn()} />)
+    render(<RegionalIdentityForm initial={valid} onDeleted={vi.fn()} appProfiles={[]} />)
     const label = screen.getByLabelText(/label/i) as HTMLInputElement
     fireEvent.change(label, { target: { value: 'US school' } })
     fireEvent.blur(label)
@@ -67,7 +67,7 @@ describe('RegionalIdentityForm', () => {
   it('DELETEs and calls onDeleted when user confirms delete', async () => {
     const onDeleted = vi.fn()
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
-    render(<RegionalIdentityForm initial={valid} onDeleted={onDeleted} />)
+    render(<RegionalIdentityForm initial={valid} onDeleted={onDeleted} appProfiles={[]} />)
     fireEvent.click(screen.getByRole('button', { name: /delete region/i }))
     await waitFor(() =>
       expect(fetch).toHaveBeenCalledWith(

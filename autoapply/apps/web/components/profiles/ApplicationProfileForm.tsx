@@ -33,20 +33,6 @@ const emptyLanguage = (): LanguageEntry => ({
   language: '', proficiency: 'professional',
 })
 
-const EEO_GENDERS = ['Male', 'Female', 'Non-binary', 'Prefer not to say', 'Other']
-const EEO_RACES = [
-  'American Indian or Alaskan Native',
-  'Asian',
-  'Black or African American',
-  'Hispanic or Latino',
-  'Native Hawaiian or Other Pacific Islander',
-  'Two or more races',
-  'White',
-  'Prefer not to say',
-]
-const EEO_VETERAN_STATUSES = ['Not a veteran', 'Protected veteran', 'Prefer not to say']
-const EEO_DISABILITY_STATUSES = ['Yes', 'No', 'Prefer not to say']
-const WORK_AUTHORIZATIONS = ['US Citizen', 'Green Card', 'H1B', 'OPT', 'CPT', 'Other']
 
 export function ApplicationProfileForm({ profile }: Props) {
   const router = useRouter()
@@ -56,12 +42,6 @@ export function ApplicationProfileForm({ profile }: Props) {
   const [skills, setSkills] = useState<string[]>(profile.skills ?? [])
   const [certifications, setCertifications] = useState<CertificationEntry[]>(profile.certifications ?? [])
   const [languages, setLanguages] = useState<LanguageEntry[]>(profile.languages ?? [])
-  const [eeoGender, setEeoGender] = useState(profile.eeo_gender ?? '')
-  const [eeoRace, setEeoRace] = useState(profile.eeo_race ?? '')
-  const [eeoVeteranStatus, setEeoVeteranStatus] = useState(profile.eeo_veteran_status ?? '')
-  const [eeoDisabilityStatus, setEeoDisabilityStatus] = useState(profile.eeo_disability_status ?? '')
-  const [workAuthorization, setWorkAuthorization] = useState(profile.work_authorization ?? '')
-  const [sponsorshipRequired, setSponsorshipRequired] = useState(profile.sponsorship_required ?? false)
   const [resumePath, setResumePath] = useState(profile.resume_path)
   const [coverLetterPath, setCoverLetterPath] = useState(profile.cover_letter_path)
   const [parsedData, setParsedData] = useState<ResumeParseData | null>(null)
@@ -99,12 +79,6 @@ export function ApplicationProfileForm({ profile }: Props) {
       skills,
       certifications,
       languages,
-      eeo_gender: eeoGender || null,
-      eeo_race: eeoRace || null,
-      eeo_veteran_status: eeoVeteranStatus || null,
-      eeo_disability_status: eeoDisabilityStatus || null,
-      work_authorization: workAuthorization || null,
-      sponsorship_required: sponsorshipRequired,
       resume_path: resumePath,
       cover_letter_path: coverLetterPath,
     }
@@ -117,7 +91,7 @@ export function ApplicationProfileForm({ profile }: Props) {
         if (path === 'experience' || path === 'name') errors['experience'] = true
         if (path === 'education') errors['education'] = true
         if (path === 'skills' || path === 'certifications' || path === 'languages') errors['skills'] = true
-        if (path?.toString().startsWith('eeo') || path === 'work_authorization' || path === 'sponsorship_required') errors['eeo'] = true
+
       })
       setTabErrors(errors)
       return
@@ -183,12 +157,6 @@ export function ApplicationProfileForm({ profile }: Props) {
           <TabsTrigger value="skills" className="relative">
             Skills &amp; Certs
             {tabErrors['skills'] && (
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-error" />
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="eeo" className="relative">
-            EEO &amp; Authorization
-            {tabErrors['eeo'] && (
               <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-error" />
             )}
           </TabsTrigger>
@@ -481,93 +449,6 @@ export function ApplicationProfileForm({ profile }: Props) {
             >
               + Add Language
             </Button>
-          </div>
-        </TabsContent>
-
-        {/* EEO & Authorization Tab */}
-        <TabsContent value="eeo" className="space-y-6">
-          <p className="text-sm text-on-surface-muted">
-            This information is encrypted and used only for auto-filling EEO sections of job applications.
-          </p>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label htmlFor="eeo-gender" className="block label-sm text-on-surface-muted">Gender</label>
-              <select
-                id="eeo-gender"
-                value={eeoGender}
-                onChange={e => { setEeoGender(e.target.value); markDirty() }}
-                className="w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">Select...</option>
-                {EEO_GENDERS.map(g => <option key={g} value={g}>{g}</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="eeo-race" className="block label-sm text-on-surface-muted">Race / Ethnicity</label>
-              <select
-                id="eeo-race"
-                value={eeoRace}
-                onChange={e => { setEeoRace(e.target.value); markDirty() }}
-                className="w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">Select...</option>
-                {EEO_RACES.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="eeo-veteran" className="block label-sm text-on-surface-muted">Veteran Status</label>
-              <select
-                id="eeo-veteran"
-                value={eeoVeteranStatus}
-                onChange={e => { setEeoVeteranStatus(e.target.value); markDirty() }}
-                className="w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">Select...</option>
-                {EEO_VETERAN_STATUSES.map(v => <option key={v} value={v}>{v}</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="eeo-disability" className="block label-sm text-on-surface-muted">Disability Status</label>
-              <select
-                id="eeo-disability"
-                value={eeoDisabilityStatus}
-                onChange={e => { setEeoDisabilityStatus(e.target.value); markDirty() }}
-                className="w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">Select...</option>
-                {EEO_DISABILITY_STATUSES.map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="work-auth" className="block label-sm text-on-surface-muted">Work Authorization</label>
-              <select
-                id="work-auth"
-                value={workAuthorization}
-                onChange={e => { setWorkAuthorization(e.target.value); markDirty() }}
-                className="w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">Select...</option>
-                {WORK_AUTHORIZATIONS.map(w => <option key={w} value={w}>{w}</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="block label-sm text-on-surface-muted">Sponsorship</label>
-              <label className="flex items-center gap-2 cursor-pointer py-2.5">
-                <input
-                  type="checkbox"
-                  checked={sponsorshipRequired}
-                  onChange={e => { setSponsorshipRequired(e.target.checked); markDirty() }}
-                  className="w-4 h-4 rounded accent-primary"
-                />
-                <span className="text-sm text-on-surface">Will you now or in the future require sponsorship?</span>
-              </label>
-            </div>
           </div>
         </TabsContent>
 

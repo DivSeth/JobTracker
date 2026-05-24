@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { BaseIdentityForm } from '@/components/profile/BaseIdentityForm'
 import { RegionalIdentityList } from '@/components/profile/RegionalIdentityList'
-import { ProfileForm } from '@/components/profile/ProfileForm'
 import { redirect } from 'next/navigation'
 
 export default async function ProfilePage() {
@@ -9,17 +8,23 @@ export default async function ProfilePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [profileRes, regionalRes] = await Promise.all([
+  const [profileRes, regionalRes, appProfilesRes] = await Promise.all([
     supabase.from('profiles').select('*').eq('user_id', user.id).single(),
     supabase
       .from('user_regional_identities')
       .select('*')
       .eq('user_id', user.id)
       .order('is_default', { ascending: false }),
+    supabase
+      .from('application_profiles')
+      .select('id, name, is_default')
+      .eq('user_id', user.id)
+      .order('is_default', { ascending: false }),
   ])
 
   const baseIdentity = profileRes.data ?? {}
   const regional = regionalRes.data ?? []
+  const appProfiles = appProfilesRes.data ?? []
   const hasName = !!(baseIdentity as { first_name?: string | null }).first_name
   const hasRegional = regional.length > 0
 
@@ -65,18 +70,7 @@ export default async function ProfilePage() {
             <span className="text-[10px] text-white/35 uppercase tracking-widest">{regional.length} Active Region{regional.length !== 1 ? 's' : ''}</span>
           )}
         </div>
-        <RegionalIdentityList initial={regional} />
-      </section>
-
-      {/* FILL PREFERENCES */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-white/40 text-[18px]">tune</span>
-          <h3 className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">FILL PREFERENCES</h3>
-        </div>
-        <div className="bg-[#0a0a0a] rounded-xl p-8 border border-white/5">
-          <ProfileForm initialProfile={profileRes.data ?? {}} />
-        </div>
+        <RegionalIdentityList initial={regional} appProfiles={appProfiles} />
       </section>
 
       {/* Readiness / Encryption footer */}

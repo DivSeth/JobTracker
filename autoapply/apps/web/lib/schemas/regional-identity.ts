@@ -40,6 +40,12 @@ export const regionalIdentityCreateSchema = z.object({
   current_compensation: z.number().int().nonnegative().nullable().optional(),
 
   notice_period_weeks: z.number().int().min(0).max(52).nullable().optional(),
+
+  eeo_gender: z.string().max(100).nullable().optional(),
+  eeo_race: z.string().max(100).nullable().optional(),
+  eeo_veteran_status: z.string().max(100).nullable().optional(),
+  eeo_disability_status: z.string().max(100).nullable().optional(),
+  default_profile_id: z.string().uuid().nullable().optional(),
 })
 
 export const regionalIdentityUpdateSchema = regionalIdentityCreateSchema.partial()

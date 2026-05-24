@@ -8,6 +8,8 @@ import {
   setBaseIdentity,
   setRegionalIdentities,
   clearLegacyUserIdentity,
+  setApplicationProfiles,
+  type StoredApplicationProfile,
 } from '../utils/storage'
 import { fromApiBase, fromApiRegional } from '../utils/identity'
 import { createExtensionClient } from '../utils/supabase'
@@ -81,7 +83,7 @@ export default defineBackground(() => {
             return true
 
           case 'startFill':
-            startFill(message.payload?.profileId ?? null, message.payload?.platform ?? 'greenhouse').then(sendResponse)
+            startFill(message.payload?.profileId ?? null, message.payload?.regionalId ?? null, message.payload?.platform ?? 'greenhouse').then(sendResponse)
             return true
         }
       }
@@ -268,20 +270,25 @@ export default defineBackground(() => {
           location: null,
         }
 
-        const profilesForStorage = profiles.map((p) => ({
-          ...p,
-          // Strip encrypted BYTEA fields — extension can't decrypt them
-          // These will be fetched fresh via API at fill time
-          eeo_gender: null,
-          eeo_race: null,
-          eeo_veteran_status: null,
-          eeo_disability_status: null,
-          work_authorization: null,
-          sponsorship_required: null,
-        }))
+        const appProfilesForStorage: StoredApplicationProfile[] = profiles.map((p) => {
+          const profile = p as Record<string, unknown>
+          return {
+            id: profile.id as string,
+            name: (profile.name as string) ?? '',
+            is_default: Boolean(profile.is_default),
+            resume_path: (profile.resume_path as string | null) ?? null,
+            cover_letter_path: (profile.cover_letter_path as string | null) ?? null,
+            experience: (profile.experience as unknown[]) ?? [],
+            education: (profile.education as unknown[]) ?? [],
+            skills: (profile.skills as string[]) ?? [],
+            certifications: (profile.certifications as unknown[]) ?? [],
+            languages: (profile.languages as unknown[]) ?? [],
+          }
+        })
         await setUserIdentity(userIdentity)
+        await setApplicationProfiles(appProfilesForStorage)
         await chrome.storage.local.set({
-          profiles: profilesForStorage,
+          profiles: appProfilesForStorage,
           userIdentity,
           lastSync: Date.now(),
         })
@@ -343,7 +350,7 @@ export default defineBackground(() => {
     return fetchFromWebApi(`/api/extension/field-mappings?platform=${encodeURIComponent(platform)}`)
   }
 
-  async function startFill(profileId?: string | null, platform: 'greenhouse' | 'workday' = 'greenhouse') {
+  async function startFill(profileId?: string | null, regionalId?: string | null, platform: 'greenhouse' | 'workday' = 'greenhouse') {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
       if (!tab?.id) {
@@ -354,6 +361,7 @@ export default defineBackground(() => {
         type: 'FILL_STARTED',
         payload: {
           profileId: profileId ?? null,
+          regionalId: regionalId ?? null,
           platform,
         },
       })

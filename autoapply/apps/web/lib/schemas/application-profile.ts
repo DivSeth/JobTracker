@@ -37,12 +37,6 @@ export const applicationProfileSchema = z.object({
   skills: z.array(z.string()).default([]),
   certifications: z.array(certificationEntrySchema).default([]),
   languages: z.array(languageEntrySchema).default([]),
-  eeo_gender: z.string().nullable().default(null),
-  eeo_race: z.string().nullable().default(null),
-  eeo_veteran_status: z.string().nullable().default(null),
-  eeo_disability_status: z.string().nullable().default(null),
-  work_authorization: z.string().nullable().default(null),
-  sponsorship_required: z.boolean().nullable().default(null),
   resume_path: z.string().nullable().default(null),
   cover_letter_path: z.string().nullable().default(null),
 })
