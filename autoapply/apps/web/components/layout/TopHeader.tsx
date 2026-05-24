@@ -45,27 +45,17 @@ export function TopHeader({ title }: Props) {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-success-vibrant" />
         </span>
 
-        {/* Notification bell */}
-        <button
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
-          title="Notifications"
-          aria-label="Notifications"
-        >
-          <MatIcon size={18}>notifications</MatIcon>
-        </button>
-
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
           className="w-8 h-8 rounded-lg flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
-          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           <MatIcon size={18}>{theme === 'dark' ? 'light_mode' : 'dark_mode'}</MatIcon>
         </button>
 
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-container to-electric-indigo flex items-center justify-center text-white text-xs font-semibold cursor-pointer">
+        <div className="w-8 h-8 rounded-full bg-electric-indigo flex items-center justify-center text-white text-xs font-semibold cursor-pointer select-none">
           A
         </div>
       </div>

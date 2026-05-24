@@ -27,13 +27,14 @@ function computeReadinessPct(base: Record<string, unknown>, hasRegional: boolean
   return Math.round(((filled + (hasRegional ? 1 : 0)) / total) * 100)
 }
 
-const ACTIVITY_LOG = [
-  { icon: 'check_circle', color: 'bg-success-vibrant', label: 'Applied to Stripe', time: '2h ago' },
-  { icon: 'mail', color: 'bg-primary-container', label: 'OA invite from Rippling', time: '5h ago' },
-  { icon: 'videocam', color: 'bg-tertiary-container', label: 'Interview scheduled', time: '1d ago' },
-  { icon: 'star', color: 'bg-warning-vibrant', label: 'Profile updated', time: '2d ago' },
-  { icon: 'sync', color: 'bg-outline', label: 'Feed synced — 24 new jobs', time: '3d ago' },
-]
+const STATUS_ACTIVITY: Record<string, { icon: string; color: string; label: (company: string) => string }> = {
+  applied:      { icon: 'check_circle', color: 'bg-success-vibrant',   label: c => `Applied to ${c}` },
+  oa:           { icon: 'assignment',   color: 'bg-warning-vibrant',    label: c => `OA from ${c}` },
+  interviewing: { icon: 'videocam',     color: 'bg-secondary',          label: c => `Interview at ${c}` },
+  offer:        { icon: 'celebration',  color: 'bg-success-vibrant',    label: c => `Offer from ${c}` },
+  rejected:     { icon: 'cancel',       color: 'bg-error-vibrant',      label: c => `Rejected by ${c}` },
+  saved:        { icon: 'bookmark',     color: 'bg-outline',            label: c => `Saved ${c}` },
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -141,22 +142,30 @@ export default async function DashboardPage() {
         <div className="col-span-4 space-y-3">
           <h2 className="text-base font-semibold font-display text-on-surface">Activity</h2>
           <div className="bg-surface-card rounded-xl border border-outline-variant p-5">
-            <div className="relative space-y-0">
-              {/* Vertical connector */}
-              <div className="absolute left-[11px] top-4 bottom-4 w-[1px] bg-outline-variant/40" />
-
-              {ACTIVITY_LOG.map((item, i) => (
-                <div key={i} className="relative flex items-start gap-3 py-3">
-                  <div className={`relative z-10 w-5 h-5 rounded-full ${item.color} flex items-center justify-center shrink-0 border-2 border-surface-card`}>
-                    <MatIcon size={11} className="text-white">{item.icon}</MatIcon>
-                  </div>
-                  <div className="flex-1 min-w-0 pt-0.5">
-                    <p className="text-sm text-on-surface leading-snug">{item.label}</p>
-                    <p className="text-xs text-outline mt-0.5">{item.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {applications.length === 0 ? (
+              <p className="text-sm text-on-surface-variant text-center py-6">No activity yet.</p>
+            ) : (
+              <div className="relative">
+                <div className="absolute left-[11px] top-4 bottom-4 w-[1px] bg-outline-variant/40" />
+                {applications.slice(0, 6).map((app, i) => {
+                  const company = (app.job as { company?: string } | null)?.company ?? 'Unknown'
+                  const meta = STATUS_ACTIVITY[app.status] ?? STATUS_ACTIVITY.saved
+                  return (
+                    <div key={i} className="relative flex items-start gap-3 py-3">
+                      <div className={`relative z-10 w-5 h-5 rounded-full ${meta.color} flex items-center justify-center shrink-0 border-2 border-surface-card`}>
+                        <MatIcon size={11} className="text-white">{meta.icon}</MatIcon>
+                      </div>
+                      <div className="flex-1 min-w-0 pt-0.5">
+                        <p className="text-sm text-on-surface leading-snug">{meta.label(company)}</p>
+                        <p className="text-xs text-outline mt-0.5">
+                          {app.applied_at ? timeAgo(app.applied_at) : timeAgo(app.last_activity_at ?? '')}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
