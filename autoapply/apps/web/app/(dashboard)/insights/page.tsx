@@ -23,7 +23,6 @@ export default async function InsightsPage() {
 
   const responseRate = applied > 0 ? Math.round((responded / applied) * 100) : null
   const oaRate = applied > 0 ? Math.round((all.filter(a => ['oa', 'interviewing', 'offer'].includes(a.status)).length / applied) * 100) : null
-  const offerRate = applied > 0 ? Math.round((offers / applied) * 100) : null
 
   // Monthly buckets for bar chart (last 10 months)
   const monthBuckets: number[] = Array(10).fill(0)
