@@ -10,6 +10,14 @@ interface StoredProfile {
   is_default: boolean
 }
 
+interface StoredRegionalIdentity {
+  id: string
+  label: string
+  countryCodes: string[]
+  isDefault: boolean
+  defaultProfileId: string | null
+}
+
 interface AtsDetection {
   platform: 'workday' | 'greenhouse'
   url: string
@@ -22,22 +30,38 @@ export default function App() {
   const [syncError, setSyncError] = useState<string | null>(null)
   const [profiles, setProfiles] = useState<StoredProfile[]>([])
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
+  const [regionalIdentities, setRegionalIdentities] = useState<StoredRegionalIdentity[]>([])
+  const [activeRegionalId, setActiveRegionalId] = useState<string | null>(null)
   const [atsDetected, setAtsDetected] = useState<AtsDetection | null>(null)
   const [lastSync, setLastSync] = useState<number | null>(null)
 
   useEffect(() => {
     // Load initial state from storage
     chrome.storage.local.get(
-      ['accessToken', 'profiles', 'activeProfileId', 'atsDetected', 'lastSync'],
+      ['accessToken', 'profiles', 'activeProfileId', 'activeRegionalId', 'regionalIdentities', 'atsDetected', 'lastSync'],
       (result) => {
         setConnected(!!result.accessToken)
-        setProfiles(result.profiles || [])
-        setActiveProfileId(
-          result.activeProfileId ||
-          result.profiles?.find((p: StoredProfile) => p.is_default)?.id ||
-          result.profiles?.[0]?.id ||
+        const profs = (result.profiles || []) as StoredProfile[]
+        setProfiles(profs)
+
+        const regions = (result.regionalIdentities || []) as StoredRegionalIdentity[]
+        setRegionalIdentities(regions)
+        const storedRegionalId = result.activeRegionalId as string | undefined
+        const defaultRegion = regions.find(r => r.isDefault) ?? regions[0] ?? null
+        const resolvedRegionalId = storedRegionalId ?? defaultRegion?.id ?? null
+        setActiveRegionalId(resolvedRegionalId)
+
+        // Update profile resolution to consider regional default:
+        const region = regions.find(r => r.id === resolvedRegionalId)
+        const storedProfileId = result.activeProfileId as string | undefined
+        const resolvedProfileId =
+          storedProfileId ??
+          (region?.defaultProfileId ? profs.find(p => p.id === region.defaultProfileId)?.id : null) ??
+          profs.find(p => p.is_default)?.id ??
+          profs[0]?.id ??
           null
-        )
+        setActiveProfileId(resolvedProfileId ?? null)
+
         setAtsDetected(result.atsDetected || null)
         setLastSync(result.lastSync || null)
         setSyncError(null)
@@ -123,9 +147,27 @@ export default function App() {
     chrome.storage.local.set({ activeProfileId: id })
   }
 
+  function handleRegionSelect(id: string) {
+    setActiveRegionalId(id)
+    chrome.storage.local.set({ activeRegionalId: id })
+
+    // Auto-update profile to that region's default
+    const region = regionalIdentities.find(r => r.id === id)
+    if (region?.defaultProfileId) {
+      const matchingProfile = profiles.find(p => p.id === region.defaultProfileId)
+      if (matchingProfile) {
+        setActiveProfileId(matchingProfile.id)
+        chrome.storage.local.set({ activeProfileId: matchingProfile.id })
+      }
+    }
+  }
+
   function handleFill() {
     if (!activeProfileId) return
-    chrome.runtime.sendMessage({ action: 'startFill', payload: { profileId: activeProfileId } })
+    chrome.runtime.sendMessage({
+      action: 'startFill',
+      payload: { profileId: activeProfileId, regionalId: activeRegionalId },
+    })
   }
 
   const activeProfile = profiles.find((p) => p.id === activeProfileId)
@@ -174,7 +216,22 @@ export default function App() {
 
       <ConnectionStatus connected={true} onSignOut={handleSignOut} />
 
+      {/* Region Selector */}
       <ProfileSelector
+        label="Region"
+        profiles={regionalIdentities.map(r => ({
+          id: r.id,
+          name: r.label,
+          is_default: r.isDefault,
+        }))}
+        activeProfileId={activeRegionalId}
+        onSelect={handleRegionSelect}
+        disabled={syncing}
+      />
+
+      {/* Profile Selector */}
+      <ProfileSelector
+        label="Application Profile"
         profiles={profiles}
         activeProfileId={activeProfileId}
         onSelect={handleProfileSelect}

@@ -9,9 +9,10 @@ interface Props {
   activeProfileId: string | null
   onSelect: (id: string) => void
   disabled?: boolean
+  label?: string
 }
 
-export function ProfileSelector({ profiles, activeProfileId, onSelect, disabled }: Props) {
+export function ProfileSelector({ profiles, activeProfileId, onSelect, disabled, label = 'Active Profile' }: Props) {
   if (profiles.length === 0) {
     return (
       <div className="py-3 text-center">
@@ -26,7 +27,7 @@ export function ProfileSelector({ profiles, activeProfileId, onSelect, disabled 
   return (
     <div className="space-y-1.5">
       <label className="text-[11px] uppercase tracking-wider text-on-surface-muted font-normal">
-        Active Profile
+        {label}
       </label>
       <select
         value={activeProfileId || ''}

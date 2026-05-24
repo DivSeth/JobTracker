@@ -83,7 +83,7 @@ export default defineBackground(() => {
             return true
 
           case 'startFill':
-            startFill(message.payload?.profileId ?? null, message.payload?.platform ?? 'greenhouse').then(sendResponse)
+            startFill(message.payload?.profileId ?? null, message.payload?.regionalId ?? null, message.payload?.platform ?? 'greenhouse').then(sendResponse)
             return true
         }
       }
@@ -350,7 +350,7 @@ export default defineBackground(() => {
     return fetchFromWebApi(`/api/extension/field-mappings?platform=${encodeURIComponent(platform)}`)
   }
 
-  async function startFill(profileId?: string | null, platform: 'greenhouse' | 'workday' = 'greenhouse') {
+  async function startFill(profileId?: string | null, regionalId?: string | null, platform: 'greenhouse' | 'workday' = 'greenhouse') {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
       if (!tab?.id) {
@@ -361,6 +361,7 @@ export default defineBackground(() => {
         type: 'FILL_STARTED',
         payload: {
           profileId: profileId ?? null,
+          regionalId: regionalId ?? null,
           platform,
         },
       })
