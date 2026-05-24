@@ -26,10 +26,7 @@ Location: ${job.location ?? 'Not specified'}
 Type: ${job.job_type ?? 'Not specified'}
 
 Candidate:
-Skills: ${profile.skills.join(', ')}
-Preferred Job Types: ${profile.preferences.job_types.join(', ')}
-Preferred Locations: ${profile.preferences.locations.join(', ')}
-Remote OK: ${profile.preferences.remote_ok}`
+Skills: ${profile.skills.join(', ')}`
 
   const { text, inputTokens, outputTokens } = await callGemini(prompt, SYSTEM_PROMPT)
 
