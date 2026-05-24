@@ -164,6 +164,12 @@
     background-image: radial-gradient(at top right, rgba(99, 102, 241, 0.02) 0%, transparent 60%);
   }
 
+  /* Border glow — active state */
+  .border-glow {
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
+    border-color: rgba(99, 102, 241, 0.4) !important;
+  }
+
   /* Border glow on hover */
   .border-glow-hover:hover {
     box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
