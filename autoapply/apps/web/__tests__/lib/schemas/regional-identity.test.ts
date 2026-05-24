@@ -57,4 +57,39 @@ describe('regionalIdentityCreateSchema', () => {
       regionalIdentityCreateSchema.parse({ ...valid, phone_e164: '415-555-1234' })
     ).toThrow()
   })
+
+  it('accepts eeo fields', () => {
+    const withEeo = {
+      ...valid,
+      eeo_gender: 'Male',
+      eeo_race: 'Asian',
+      eeo_veteran_status: 'Not a veteran',
+      eeo_disability_status: 'No',
+    }
+    expect(() => regionalIdentityCreateSchema.parse(withEeo)).not.toThrow()
+  })
+
+  it('accepts null eeo fields', () => {
+    const withNullEeo = {
+      ...valid,
+      eeo_gender: null,
+      eeo_race: null,
+      eeo_veteran_status: null,
+      eeo_disability_status: null,
+    }
+    expect(() => regionalIdentityCreateSchema.parse(withNullEeo)).not.toThrow()
+  })
+
+  it('accepts default_profile_id as uuid', () => {
+    const withProfileId = {
+      ...valid,
+      default_profile_id: '550e8400-e29b-41d4-a716-446655440000',
+    }
+    expect(() => regionalIdentityCreateSchema.parse(withProfileId)).not.toThrow()
+  })
+
+  it('accepts null default_profile_id', () => {
+    const withNullId = { ...valid, default_profile_id: null }
+    expect(() => regionalIdentityCreateSchema.parse(withNullId)).not.toThrow()
+  })
 })
