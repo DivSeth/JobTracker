@@ -17,6 +17,7 @@ const emptyExp = (): ExperienceEntry => ({
 
 const emptyEdu = (): EducationEntry => ({
   school: '', degree: '', major: '', graduation_year: new Date().getFullYear(),
+  graduation_month: null,
 })
 
 export function ProfileForm({ initialProfile }: Props) {

@@ -13,6 +13,7 @@ export interface User {
 export interface EducationEntry {
   school: string; degree: string; major: string
   gpa?: number; graduation_year: number
+  graduation_month: number | null
 }
 
 export interface ExperienceEntry {

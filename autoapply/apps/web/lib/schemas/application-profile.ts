@@ -27,6 +27,7 @@ export const educationEntrySchema = z.object({
   major: z.string().min(1, 'Major is required'),
   gpa: z.number().min(0).max(4.0).optional(),
   graduation_year: z.number().int().min(1950).max(2035),
+  graduation_month: z.number().int().min(1).max(12).nullable().default(null),
 })
 
 export const applicationProfileSchema = z.object({
