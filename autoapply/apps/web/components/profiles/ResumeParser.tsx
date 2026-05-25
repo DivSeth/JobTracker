@@ -25,7 +25,7 @@ const emptyExperience = (): ExperienceEntry => ({
 })
 
 const emptyEducation = (): EducationEntry => ({
-  school: '', degree: '', major: '', graduation_year: new Date().getFullYear(),
+  school: '', degree: '', major: '', graduation_year: new Date().getFullYear(), graduation_month: null,
 })
 
 const emptyCertification = (): CertificationEntry => ({
@@ -194,6 +194,23 @@ export function ResumeParser({ data, onApply, onDismiss }: Props) {
                 value={edu.gpa ?? ''}
                 onChange={e => setEducation(ed => ed.map((x, j) => j === i ? { ...x, gpa: e.target.value ? Number(e.target.value) : undefined } : x))}
               />
+              <div className="space-y-1.5">
+                <label htmlFor={`re-edu-gm-${i}`} className="block label-sm text-on-surface-muted">Graduation Month</label>
+                <select
+                  id={`re-edu-gm-${i}`}
+                  value={edu.graduation_month ?? ''}
+                  onChange={e => {
+                    const val = e.target.value ? Number(e.target.value) : null
+                    setEducation(ed => ed.map((x, j) => j === i ? { ...x, graduation_month: val } : x))
+                  }}
+                  className="w-full bg-surface-card text-on-surface text-sm px-3 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  <option value="">— Month —</option>
+                  {['January','February','March','April','May','June','July','August','September','October','November','December'].map((m, idx) => (
+                    <option key={m} value={idx + 1}>{m}</option>
+                  ))}
+                </select>
+              </div>
               <Input
                 label="Graduation Year"
                 id={`re-edu-year-${i}`}
