@@ -103,6 +103,7 @@ const DEFAULT_RULES: FieldMappingRule[] = [
   { field_pattern: 'company|employer', profile_path: 'experience[0].company', source: 'application_profile' },
   { field_pattern: 'title|role|position', profile_path: 'experience[0].role', source: 'application_profile' },
   { field_pattern: 'skill', profile_path: 'skills', source: 'application_profile', transform: 'join_skills' },
+  { field_pattern: 'gender.?identity|gender.?expression', profile_path: 'eeo_gender', source: 'user_profile', isEeo: true },
   { field_pattern: 'gender', profile_path: 'eeo_gender', source: 'user_profile', isEeo: true },
   { field_pattern: 'race|ethnicity', profile_path: 'eeo_race', source: 'user_profile', isEeo: true },
   { field_pattern: 'veteran', profile_path: 'eeo_veteran_status', source: 'user_profile', isEeo: true },

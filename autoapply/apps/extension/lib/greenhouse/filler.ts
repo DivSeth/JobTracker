@@ -1,4 +1,4 @@
-import { fillCheckbox, fillComboboxField, fillSelectField, fillTextField } from '@/lib/form-fill/events'
+import { fillCheckbox, fillComboboxField, fillRadioGroup, fillSelectField, fillTextField } from '@/lib/form-fill/events'
 import { EEO_ALIASES } from '@/lib/greenhouse/eeo-aliases'
 import type { FillFieldResult, FillResult, MappedField } from '@/lib/greenhouse/types'
 
@@ -62,6 +62,13 @@ export async function fillForm(
           case 'select':
             fillSelectField(
               target as HTMLSelectElement,
+              mappedField.profileValue ?? '',
+              mappedField.isEeo ? EEO_ALIASES : undefined
+            )
+            break
+          case 'radio':
+            fillRadioGroup(
+              target as HTMLInputElement,
               mappedField.profileValue ?? '',
               mappedField.isEeo ? EEO_ALIASES : undefined
             )

@@ -53,7 +53,7 @@ export function fillSelectField(
     }
   }
 
-  const match = Array.from(el.options).find((option) => {
+  let match = Array.from(el.options).find((option) => {
     const optionText = option.text.trim().toLowerCase()
     const optionValue = option.value.trim().toLowerCase()
     return candidates.some(
@@ -65,12 +65,101 @@ export function fillSelectField(
     )
   })
 
+  // Word-overlap fallback when no exact/alias match found
+  if (!match) {
+    const words = candidates[0].split(/\s+/).filter((w) => w.length > 2)
+    if (words.length > 0) {
+      let best = { option: null as HTMLOptionElement | null, score: 0 }
+      for (const option of Array.from(el.options)) {
+        const optionText = option.text.trim().toLowerCase()
+        if (!optionText) continue
+        const score = words.filter((w) => optionText.includes(w)).length / words.length
+        if (score > best.score) best = { option, score }
+      }
+      if (best.score >= 0.4 && best.option) match = best.option
+    }
+  }
+
   if (match) {
     el.value = match.value
   }
 
   dispatchChange(el)
   dispatchBlur(el)
+}
+
+export function fillRadioGroup(
+  el: HTMLInputElement,
+  value: string,
+  aliases?: Record<string, string[]>
+): void {
+  const escaped = el.name.replace(/"/g, '\\"')
+  const radios = Array.from(
+    document.querySelectorAll<HTMLInputElement>(`input[type="radio"][name="${escaped}"]`)
+  )
+  if (radios.length === 0) return
+
+  const normalized = value.trim().toLowerCase()
+  const candidates: string[] = [normalized]
+  if (aliases) {
+    for (const [canonical, aliasList] of Object.entries(aliases)) {
+      if (canonical.trim().toLowerCase() === normalized) {
+        candidates.push(...aliasList.map((a) => a.toLowerCase()))
+        break
+      }
+    }
+  }
+
+  function getRadioLabel(radio: HTMLInputElement): string {
+    if (radio.id) {
+      const labelEl = document.querySelector<HTMLLabelElement>(`label[for="${radio.id}"]`)
+      if (labelEl) return labelEl.textContent?.trim().toLowerCase() ?? ''
+    }
+    const parent = radio.closest('label')
+    if (parent) return parent.textContent?.trim().toLowerCase() ?? ''
+    return radio.value.trim().toLowerCase()
+  }
+
+  let match: HTMLInputElement | null = null
+
+  for (const radio of radios) {
+    const labelText = getRadioLabel(radio)
+    const radioValue = radio.value.trim().toLowerCase()
+    const found = candidates.some(
+      (c) =>
+        labelText === c ||
+        radioValue === c ||
+        labelText.includes(c) ||
+        (labelText !== '' && c.includes(labelText))
+    )
+    if (found) {
+      match = radio
+      break
+    }
+  }
+
+  // Word-overlap fallback
+  if (!match) {
+    const words = candidates[0].split(/\s+/).filter((w) => w.length > 2)
+    if (words.length > 0) {
+      let best = { radio: null as HTMLInputElement | null, score: 0 }
+      for (const radio of radios) {
+        const labelText = getRadioLabel(radio)
+        const score = words.filter((w) => labelText.includes(w)).length / words.length
+        if (score > best.score) best = { radio, score }
+      }
+      if (best.score >= 0.4 && best.radio) match = best.radio
+    }
+  }
+
+  if (match) {
+    match.focus()
+    dispatchFocus(match)
+    match.checked = true
+    dispatchSyntheticInput(match)
+    dispatchChange(match)
+    dispatchBlur(match)
+  }
 }
 
 export function fillCheckbox(el: HTMLInputElement, checked: boolean): void {
