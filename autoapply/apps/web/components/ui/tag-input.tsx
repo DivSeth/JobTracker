@@ -1,15 +1,6 @@
 'use client'
 import { useState, KeyboardEvent } from 'react'
-
-const SKILL_SUGGESTIONS = [
-  'React', 'TypeScript', 'JavaScript', 'Python', 'Go', 'Java', 'C++', 'C#', 'Rust',
-  'Node.js', 'Next.js', 'Vue', 'Angular', 'Svelte', 'SQL', 'PostgreSQL', 'MongoDB',
-  'Redis', 'AWS', 'GCP', 'Azure', 'Docker', 'Kubernetes', 'Git', 'Linux', 'GraphQL',
-  'REST', 'gRPC', 'Terraform', 'CI/CD', 'Machine Learning', 'PyTorch', 'TensorFlow',
-  'Pandas', 'NumPy', 'R', 'Swift', 'Kotlin', 'Flutter', 'React Native', 'Figma',
-  'HTML', 'CSS', 'Tailwind CSS', 'Express', 'FastAPI', 'Django', 'Spring Boot',
-  'Scala', 'Haskell', 'MATLAB', 'Julia', 'Bash', 'PowerShell',
-]
+import { SKILLS } from '@/lib/profile/skills-list'
 
 interface TagInputProps {
   value: string[]
@@ -61,7 +52,7 @@ export function TagInput({ value, onChange, placeholder = 'Add skill...' }: TagI
         className="flex-1 min-w-[120px] bg-transparent text-sm text-on-surface outline-none placeholder:text-on-surface-muted/50"
       />
       <datalist id="skill-suggestions">
-        {SKILL_SUGGESTIONS.map(s => <option key={s} value={s} />)}
+        {SKILLS.map(s => <option key={s} value={s} />)}
       </datalist>
     </div>
   )
