@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { BaseIdentityForm } from '@/components/profile/BaseIdentityForm'
 import { RegionalIdentityList } from '@/components/profile/RegionalIdentityList'
+import { ExportButton } from '@/components/profile/ExportButton'
 import { redirect } from 'next/navigation'
 
 export default async function ProfilePage() {
@@ -41,10 +42,7 @@ export default async function ProfilePage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-1.5 border border-white/10 hover:bg-white/5 transition-all rounded text-[10px] font-semibold text-white uppercase tracking-widest flex items-center gap-2">
-            <span className="material-symbols-outlined text-[16px]">file_download</span>
-            Export Data
-          </button>
+          <ExportButton />
         </div>
       </div>
 
