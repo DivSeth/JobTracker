@@ -216,11 +216,17 @@ function findComboboxOption(input: HTMLInputElement, value: string): HTMLElement
 export async function fillComboboxField(
   el: HTMLInputElement,
   value: string,
-  { openDelayMs = 120 }: { openDelayMs?: number } = {}
+  { openDelayMs = 300 }: { openDelayMs?: number } = {}
 ): Promise<void> {
   el.focus()
   dispatchFocus(el)
-  el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+
+  // Click the React Select control wrapper to open the dropdown, not just the inner input
+  const control = el.closest('[class*="__control"], [class*="select-shell"], [class*="select__"]') ?? el
+  control.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
+  control.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }))
+
+  await new Promise((resolve) => setTimeout(resolve, 80))
 
   setNativeInputValue(el, value)
   dispatchSyntheticInput(el)
