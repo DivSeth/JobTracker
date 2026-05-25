@@ -181,22 +181,40 @@ function setNativeInputValue(input: HTMLInputElement, value: string): void {
   }
 }
 
-function findComboboxOption(input: HTMLInputElement, value: string): HTMLElement | null {
+function findComboboxOption(
+  input: HTMLInputElement,
+  value: string,
+  aliases?: Record<string, string[]>
+): HTMLElement | null {
   const listboxId = input.getAttribute('aria-controls') ?? input.getAttribute('aria-owns')
   const root: ParentNode =
     listboxId != null ? (document.getElementById(listboxId) ?? document) : document
   const options = root.querySelectorAll<HTMLElement>('[role="option"]')
   const target = value.trim().toLowerCase()
 
-  // Pass 1: exact match
-  for (const option of options) {
-    const text = (option.textContent ?? '').trim().toLowerCase()
-    if (text === target) return option
+  // Build candidates: canonical value + all aliases for this value
+  const candidates: string[] = [target]
+  if (aliases) {
+    for (const [canonical, aliasList] of Object.entries(aliases)) {
+      if (
+        canonical.trim().toLowerCase() === target ||
+        aliasList.some((a) => a.toLowerCase() === target)
+      ) {
+        candidates.push(canonical.trim().toLowerCase(), ...aliasList.map((a) => a.toLowerCase()))
+        break
+      }
+    }
   }
-  // Pass 2: substring match (either direction)
+
+  // Pass 1: exact match against all candidates
   for (const option of options) {
     const text = (option.textContent ?? '').trim().toLowerCase()
-    if (text.includes(target) || (target.length > 4 && target.includes(text))) return option
+    if (candidates.some((c) => text === c)) return option
+  }
+  // Pass 2: substring match (either direction) against all candidates
+  for (const option of options) {
+    const text = (option.textContent ?? '').trim().toLowerCase()
+    if (candidates.some((c) => text.includes(c) || (c.length > 4 && c.includes(text)))) return option
   }
   // Pass 3: word-overlap fallback (≥50% of query words found in option text)
   const words = target.split(/\s+/).filter((w) => w.length > 2)
@@ -216,24 +234,32 @@ function findComboboxOption(input: HTMLInputElement, value: string): HTMLElement
 export async function fillComboboxField(
   el: HTMLInputElement,
   value: string,
-  { openDelayMs = 300 }: { openDelayMs?: number } = {}
+  { openDelayMs = 300, aliases }: { openDelayMs?: number; aliases?: Record<string, string[]> } = {}
 ): Promise<void> {
   el.focus()
   dispatchFocus(el)
 
-  // Click the React Select control wrapper to open the dropdown, not just the inner input
+  // Click the React Select control wrapper to open the dropdown
   const control = el.closest('[class*="__control"], [class*="select-shell"], [class*="select__"]') ?? el
   control.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
   control.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }))
-
-  await new Promise((resolve) => setTimeout(resolve, 80))
-
-  setNativeInputValue(el, value)
-  dispatchSyntheticInput(el)
+  el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
+  el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }))
+  el.click()
 
   await new Promise((resolve) => setTimeout(resolve, openDelayMs))
 
-  const option = findComboboxOption(el, value)
+  // First pass: search all options without filtering (so aliases can match any visible option)
+  let option = findComboboxOption(el, value, aliases)
+
+  // Second pass: type the value to filter options, then search again
+  if (!option) {
+    setNativeInputValue(el, value)
+    dispatchSyntheticInput(el)
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    option = findComboboxOption(el, value, aliases)
+  }
+
   if (!option) {
     throw new Error(`No combobox option matched "${value}"`)
   }

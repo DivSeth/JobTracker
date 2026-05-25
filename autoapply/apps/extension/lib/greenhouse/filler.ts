@@ -74,10 +74,9 @@ export async function fillForm(
             )
             break
           case 'combobox':
-            await fillComboboxField(
-              target as HTMLInputElement,
-              mappedField.profileValue ?? ''
-            )
+            await fillComboboxField(target as HTMLInputElement, mappedField.profileValue ?? '', {
+              aliases: mappedField.isEeo ? EEO_ALIASES : undefined,
+            })
             break
           case 'checkbox':
             fillCheckbox(target as HTMLInputElement, mappedField.profileValue === 'true')
