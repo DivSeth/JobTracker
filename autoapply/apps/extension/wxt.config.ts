@@ -54,6 +54,8 @@ export default defineConfig(() => {
       host_permissions: [
         '*://*.myworkdayjobs.com/*',
         '*://boards.greenhouse.io/*',
+        '*://job-boards.greenhouse.io/*',
+        '*://autoapply-seven.vercel.app/*',
       ],
     },
     runner: {

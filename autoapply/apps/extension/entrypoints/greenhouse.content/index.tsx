@@ -66,6 +66,7 @@ export default defineContentScript({
     '*://boards.greenhouse.io/*/jobs/*',
     '*://boards.greenhouse.io/*/apply/*',
     '*://job-boards.greenhouse.io/*/jobs/*',
+    '*://job-boards.greenhouse.io/embed/*',
   ],
   runAt: 'document_idle',
   cssInjectionMode: 'ui',
