@@ -7,6 +7,7 @@ export interface GreenhouseField {
   required: boolean
   options?: string[]        // for select/radio: available option texts
   value?: string            // current value if pre-filled
+  isEeo?: boolean
 }
 
 /** A single mapping rule from the remote config */
@@ -15,6 +16,7 @@ export interface FieldMappingRule {
   profile_path: string      // dot-notation path into profile data (e.g., "education[0].school")
   source: 'application_profile' | 'user_profile'
   transform?: 'first_name' | 'last_name' | 'file_upload' | 'join_skills' | 'format_phone' | 'first_name_or_split' | 'last_name_or_split' | 'yes_no'
+  isEeo?: boolean
 }
 
 /** Remote field mapping configuration fetched from Supabase */
@@ -33,6 +35,7 @@ export interface MappedField {
   source: 'application_profile' | 'user_profile' | null
   transform?: string | null
   isMasked: boolean                // true for EEO/work_auth fields (shown as "[protected]")
+  isEeo?: boolean
 }
 
 /** Status of filling a single field */

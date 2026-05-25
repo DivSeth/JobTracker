@@ -103,10 +103,10 @@ const DEFAULT_RULES: FieldMappingRule[] = [
   { field_pattern: 'company|employer', profile_path: 'experience[0].company', source: 'application_profile' },
   { field_pattern: 'title|role|position', profile_path: 'experience[0].role', source: 'application_profile' },
   { field_pattern: 'skill', profile_path: 'skills', source: 'application_profile', transform: 'join_skills' },
-  { field_pattern: 'gender', profile_path: 'eeo_gender', source: 'user_profile' },
-  { field_pattern: 'race|ethnicity', profile_path: 'eeo_race', source: 'user_profile' },
-  { field_pattern: 'veteran', profile_path: 'eeo_veteran_status', source: 'user_profile' },
-  { field_pattern: 'disability', profile_path: 'eeo_disability_status', source: 'user_profile' },
+  { field_pattern: 'gender', profile_path: 'eeo_gender', source: 'user_profile', isEeo: true },
+  { field_pattern: 'race|ethnicity', profile_path: 'eeo_race', source: 'user_profile', isEeo: true },
+  { field_pattern: 'veteran', profile_path: 'eeo_veteran_status', source: 'user_profile', isEeo: true },
+  { field_pattern: 'disability', profile_path: 'eeo_disability_status', source: 'user_profile', isEeo: true },
 ]
 
 function splitFullName(fullName: string | null | undefined): { first: string | null; last: string | null } {
@@ -245,6 +245,7 @@ export function mapProfileToFields(profile: FillProfile, fields: GreenhouseField
         source: null,
         transform: null,
         isMasked: isMaskedField(field),
+        isEeo: false,
       }
     }
 
@@ -255,6 +256,7 @@ export function mapProfileToFields(profile: FillProfile, fields: GreenhouseField
       source: rule.source,
       transform: rule.transform ?? null,
       isMasked: isMaskedField(field),
+      isEeo: rule.isEeo ?? false,
     }
   })
 }

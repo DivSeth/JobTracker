@@ -32,19 +32,36 @@ export function fillTextField(
   dispatchBlur(el)
 }
 
-export function fillSelectField(el: HTMLSelectElement, value: string): void {
+export function fillSelectField(
+  el: HTMLSelectElement,
+  value: string,
+  aliases?: Record<string, string[]>
+): void {
   el.focus()
   dispatchFocus(el)
 
   const normalized = value.trim().toLowerCase()
+
+  // Build list of candidate strings to match against option text/value
+  const candidates: string[] = [normalized]
+  if (aliases) {
+    for (const [canonical, aliasList] of Object.entries(aliases)) {
+      if (canonical.trim().toLowerCase() === normalized) {
+        candidates.push(...aliasList.map((a) => a.toLowerCase()))
+        break
+      }
+    }
+  }
+
   const match = Array.from(el.options).find((option) => {
     const optionText = option.text.trim().toLowerCase()
     const optionValue = option.value.trim().toLowerCase()
-    return (
-      optionText === normalized ||
-      optionValue === normalized ||
-      optionText.includes(normalized) ||
-      (optionText !== '' && normalized.includes(optionText))
+    return candidates.some(
+      (c) =>
+        optionText === c ||
+        optionValue === c ||
+        optionText.includes(c) ||
+        (optionText !== '' && c.includes(optionText))
     )
   })
 
