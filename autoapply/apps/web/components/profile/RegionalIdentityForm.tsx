@@ -292,8 +292,11 @@ export function RegionalIdentityForm({ initial, onDeleted, appProfiles }: Props)
           <select
             id={`eeo_gender-${initial.id}`}
             value={values.eeo_gender ?? ''}
-            onChange={(e) => set('eeo_gender', e.target.value || null)}
-            onBlur={() => commit('eeo_gender')}
+            onChange={(e) => {
+              const val = e.target.value || null
+              set('eeo_gender', val)
+              patch({ eeo_gender: val })
+            }}
             className="w-full bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20"
           >
             <option value="">— select —</option>
@@ -304,8 +307,11 @@ export function RegionalIdentityForm({ initial, onDeleted, appProfiles }: Props)
           <select
             id={`eeo_race-${initial.id}`}
             value={values.eeo_race ?? ''}
-            onChange={(e) => set('eeo_race', e.target.value || null)}
-            onBlur={() => commit('eeo_race')}
+            onChange={(e) => {
+              const val = e.target.value || null
+              set('eeo_race', val)
+              patch({ eeo_race: val })
+            }}
             className="w-full bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20"
           >
             <option value="">— select —</option>
@@ -316,8 +322,11 @@ export function RegionalIdentityForm({ initial, onDeleted, appProfiles }: Props)
           <select
             id={`eeo_veteran-${initial.id}`}
             value={values.eeo_veteran_status ?? ''}
-            onChange={(e) => set('eeo_veteran_status', e.target.value || null)}
-            onBlur={() => commit('eeo_veteran_status')}
+            onChange={(e) => {
+              const val = e.target.value || null
+              set('eeo_veteran_status', val)
+              patch({ eeo_veteran_status: val })
+            }}
             className="w-full bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20"
           >
             <option value="">— select —</option>
@@ -328,8 +337,11 @@ export function RegionalIdentityForm({ initial, onDeleted, appProfiles }: Props)
           <select
             id={`eeo_disability-${initial.id}`}
             value={values.eeo_disability_status ?? ''}
-            onChange={(e) => set('eeo_disability_status', e.target.value || null)}
-            onBlur={() => commit('eeo_disability_status')}
+            onChange={(e) => {
+              const val = e.target.value || null
+              set('eeo_disability_status', val)
+              patch({ eeo_disability_status: val })
+            }}
             className="w-full bg-[#0d0d0d] border border-white/5 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-white/20"
           >
             <option value="">— select —</option>
