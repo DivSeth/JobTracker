@@ -188,13 +188,27 @@ function findComboboxOption(input: HTMLInputElement, value: string): HTMLElement
   const options = root.querySelectorAll<HTMLElement>('[role="option"]')
   const target = value.trim().toLowerCase()
 
+  // Pass 1: exact match
   for (const option of options) {
     const text = (option.textContent ?? '').trim().toLowerCase()
     if (text === target) return option
   }
+  // Pass 2: substring match (either direction)
   for (const option of options) {
     const text = (option.textContent ?? '').trim().toLowerCase()
-    if (text.includes(target)) return option
+    if (text.includes(target) || (target.length > 4 && target.includes(text))) return option
+  }
+  // Pass 3: word-overlap fallback (≥50% of query words found in option text)
+  const words = target.split(/\s+/).filter((w) => w.length > 2)
+  if (words.length > 0) {
+    let best = { option: null as HTMLElement | null, score: 0 }
+    for (const option of options) {
+      const text = (option.textContent ?? '').trim().toLowerCase()
+      if (!text) continue
+      const score = words.filter((w) => text.includes(w)).length / words.length
+      if (score > best.score) best = { option, score }
+    }
+    if (best.score >= 0.5 && best.option) return best.option
   }
   return null
 }

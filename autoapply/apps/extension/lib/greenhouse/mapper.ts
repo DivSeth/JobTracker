@@ -76,6 +76,7 @@ const DEFAULT_RULES: FieldMappingRule[] = [
   { field_pattern: 'github', profile_path: 'github_url', source: 'user_profile' },
   { field_pattern: 'portfolio|website|personal site', profile_path: 'portfolio_url', source: 'user_profile' },
   { field_pattern: 'pronoun', profile_path: 'pronouns', source: 'user_profile' },
+  { field_pattern: 'phone.*country|country.*code|dial.*code|calling.*code', profile_path: 'country', source: 'user_profile', transform: 'country_name' },
   { field_pattern: '^country$|country of residence|primary country', profile_path: 'country', source: 'user_profile', transform: 'country_name' },
   { field_pattern: 'address.*1|street address', profile_path: 'address_line_1', source: 'user_profile' },
   { field_pattern: 'address.*2|apartment|\\bunit\\b', profile_path: 'address_line_2', source: 'user_profile' },
@@ -98,7 +99,7 @@ const DEFAULT_RULES: FieldMappingRule[] = [
   { field_pattern: 'resume|cv', profile_path: 'resume_path', source: 'application_profile', transform: 'file_upload' },
   { field_pattern: 'cover[_ ]?letter', profile_path: 'cover_letter_path', source: 'application_profile', transform: 'file_upload' },
   { field_pattern: 'school|university|college', profile_path: 'education[0].school', source: 'application_profile' },
-  { field_pattern: 'degree', profile_path: 'education[0].degree', source: 'application_profile' },
+  { field_pattern: 'degree', profile_path: 'education[0].degree', source: 'application_profile', transform: 'degree_type' },
   { field_pattern: 'major|field of study', profile_path: 'education[0].major', source: 'application_profile' },
   { field_pattern: 'company|employer', profile_path: 'experience[0].company', source: 'application_profile' },
   { field_pattern: 'title|role|position', profile_path: 'experience[0].role', source: 'application_profile' },
@@ -201,6 +202,17 @@ function applyTransform(
     if (value === true) return matchYesNoOption(field, 'yes') ?? 'Yes'
     if (value === false) return matchYesNoOption(field, 'no') ?? 'No'
     return null
+  }
+
+  if (transform === 'degree_type') {
+    const d = typeof value === 'string' ? value : ''
+    if (/\bph\.?d\.?\b|doctor of phil/i.test(d)) return 'Ph.D.'
+    if (/\bm\.?b\.?a\.?\b|\bmba\b/i.test(d)) return 'MBA'
+    if (/\bm\.?s\.?\b|msc\b|m\.eng|m\.tech|\bmaster/i.test(d)) return "Master's"
+    if (/\bb\.?s\.?\b|bsc\b|b\.eng|b\.tech|b\.?a\.?\b|\bbachelor/i.test(d)) return "Bachelor's"
+    if (/\bassociate/i.test(d)) return "Associate's"
+    if (/\bhigh.?school\b|diploma\b|\bged\b/i.test(d)) return 'High School'
+    return typeof value === 'string' ? value : null
   }
 
   if (value == null) return null

@@ -15,7 +15,7 @@ export interface FieldMappingRule {
   field_pattern: string     // regex pattern to match against field name or label
   profile_path: string      // dot-notation path into profile data (e.g., "education[0].school")
   source: 'application_profile' | 'user_profile'
-  transform?: 'first_name' | 'last_name' | 'file_upload' | 'join_skills' | 'format_phone' | 'first_name_or_split' | 'last_name_or_split' | 'yes_no'
+  transform?: 'first_name' | 'last_name' | 'file_upload' | 'join_skills' | 'format_phone' | 'first_name_or_split' | 'last_name_or_split' | 'yes_no' | 'country_name' | 'degree_type'
   isEeo?: boolean
 }
 
