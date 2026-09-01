@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Node version
+        run: npm run check:node
+
+      - name: Web typecheck
+        run: npm exec --workspace=apps/web -- tsc --noEmit --pretty false --types vitest/globals
+
+      - name: Web lint
+        run: npm run lint --workspace=apps/web
+
+      - name: Web tests
+        run: npm run test:web
+
+      - name: Extension tests
+        run: npm run test:extension
+
+      - name: Prepare extension types
+        run: npm exec --workspace=apps/extension -- wxt prepare
+
+      - name: Extension typecheck
+        run: npm exec --workspace=apps/extension -- tsc --noEmit --pretty false

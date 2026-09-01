@@ -153,6 +153,8 @@ CREATE INDEX idx_jobs_active_type        ON jobs(is_active, job_type);
 -- ============================================================
 -- RLS — enabled on all user-scoped tables
 -- jobs and job_sources are intentionally PUBLIC (no RLS)
+-- Edge Functions write using service role (bypasses RLS).
+-- All Edge Function writes MUST include user_id explicitly.
 -- ============================================================
 ALTER TABLE users        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles     ENABLE ROW LEVEL SECURITY;

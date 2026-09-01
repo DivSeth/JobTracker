@@ -1,0 +1,26 @@
+{
+  "name": "autoapply",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "check:node": "node scripts/check-node-version.mjs",
+    "predev": "npm run check:node",
+    "dev": "npm run dev --workspace=apps/web",
+    "prebuild": "npm run check:node",
+    "build": "npm run build --workspace=apps/web",
+    "pretest": "npm run check:node",
+    "test": "npm run test --workspace=apps/web",
+    "pretest:web": "npm run check:node",
+    "test:web": "npm run test --workspace=apps/web",
+    "pretest:extension": "npm run check:node",
+    "test:extension": "npm run test --workspace=apps/extension"
+  },
+  "devDependencies": {
+    "supabase": "^2.83.0"
+  }
+}

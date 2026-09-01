@@ -1,0 +1,90 @@
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+import { isDevAuthBypassEnabled } from '@/lib/auth/dev-bypass'
+import { SUPABASE_AUTH_COOKIE_OPTIONS } from '@/lib/supabase/auth-cookie'
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+}
+
+export async function middleware(request: NextRequest) {
+  // Handle CORS preflight for extension API routes
+  if (
+    request.method === 'OPTIONS' &&
+    request.nextUrl.pathname.startsWith('/api/extension/')
+  ) {
+    return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
+  }
+
+  if (isDevAuthBypassEnabled()) {
+    const response = NextResponse.next({ request })
+    if (request.nextUrl.pathname.startsWith('/api/extension/')) {
+      Object.entries(CORS_HEADERS).forEach(([k, v]) => response.headers.set(k, v))
+    }
+    return response
+  }
+
+  let supabaseResponse = NextResponse.next({ request })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookieOptions: SUPABASE_AUTH_COOKIE_OPTIONS,
+      cookies: {
+        getAll() { return request.cookies.getAll() },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const isPublicPath =
+    request.nextUrl.pathname.startsWith('/login') ||
+    request.nextUrl.pathname.startsWith('/api/auth') ||
+    request.nextUrl.pathname.startsWith('/api/jobs/sync') ||
+    request.nextUrl.pathname.startsWith('/api/jobs/check-links') ||
+    request.nextUrl.pathname.startsWith('/api/jobs/enrich') ||
+    request.nextUrl.pathname.startsWith('/api/companies/seed') ||
+    request.nextUrl.pathname.startsWith('/api/gmail/webhook') ||
+    request.nextUrl.pathname.startsWith('/api/jobs/score') ||
+    request.nextUrl.pathname.startsWith('/api/applications/ghost-detect') ||
+    request.nextUrl.pathname.startsWith('/api/insights/generate') ||
+    request.nextUrl.pathname.startsWith('/api/extension/')
+
+  if (!user && !isPublicPath) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // Onboarding gate: redirect / → /profile when base identity not yet set.
+  if (user && request.nextUrl.pathname === '/') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('first_name')
+      .eq('user_id', user.id)
+      .single()
+    if (!profile?.first_name) {
+      return NextResponse.redirect(new URL('/profile', request.url))
+    }
+  }
+
+  // Add CORS headers to all extension API responses
+  if (request.nextUrl.pathname.startsWith('/api/extension/')) {
+    Object.entries(CORS_HEADERS).forEach(([k, v]) => supabaseResponse.headers.set(k, v))
+  }
+
+  return supabaseResponse
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+}

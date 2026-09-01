@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "types": ["chrome", "vite/client"]
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".wxt/wxt.d.ts", ".wxt/types/**/*.d.ts"],
+  "exclude": ["node_modules", ".output"]
+}

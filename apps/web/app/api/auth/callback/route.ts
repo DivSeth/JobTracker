@@ -1,0 +1,62 @@
+import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
+import { extractTokensFromSession, storeGmailTokens } from '@/lib/gmail/vault'
+
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url)
+  const code = searchParams.get('code')
+  const source = searchParams.get('source')
+
+  if (!code) {
+    return NextResponse.redirect(`${origin}/login?error=missing_code`, { status: 302 })
+  }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+  if (error || !data.session || !data.user) {
+    console.error('[auth/callback] exchangeCodeForSession failed:', error)
+    return NextResponse.redirect(`${origin}/login?error=auth_failed`, { status: 302 })
+  }
+
+  // Store Gmail + Calendar OAuth tokens in Vault (encrypted at rest)
+  // Only store if provider_token present (user granted Gmail scope)
+  if (data.session.provider_token) {
+    try {
+      const adminClient = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+      const tokens = extractTokensFromSession(data.session)
+      await storeGmailTokens(adminClient, data.user.id, tokens)
+    } catch (vaultErr) {
+      // Non-fatal: log and continue — user can reconnect Gmail later
+      console.error('Failed to store Gmail tokens in Vault:', vaultErr)
+    }
+  }
+
+  if (source === 'extension') {
+    // SEC-01: tokens never touch the URL — generate a 30-second single-use code.
+    const adminClient = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    const { data: codeRow, error: codeErr } = await adminClient
+      .from('auth_exchange_codes')
+      .insert({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      })
+      .select('code')
+      .single()
+
+    if (codeErr || !codeRow) {
+      return NextResponse.redirect(`${origin}/login?error=exchange_failed`, { status: 302 })
+    }
+
+    return NextResponse.redirect(`${origin}/login?exchange_code=${codeRow.code}`, { status: 302 })
+  }
+
+  return NextResponse.redirect(`${origin}/`, { status: 302 })
+}
