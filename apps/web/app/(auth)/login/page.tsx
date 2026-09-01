@@ -1,5 +1,5 @@
-import { MatIcon } from '@/components/ui/mat-icon'
 import { SignInButton } from '@/components/auth/SignInButton'
+import { CheckCircle } from 'lucide-react'
 
 const VALUE_PROPS = [
   'Auto-fill any ATS form in one click',
@@ -23,7 +23,7 @@ export default function LoginPage() {
           <ul className="space-y-4">
             {VALUE_PROPS.map(item => (
               <li key={item} className="flex items-center gap-3">
-                <MatIcon size={18} className="text-success-vibrant shrink-0">check_circle</MatIcon>
+                <CheckCircle size={18} className="text-success-vibrant shrink-0" aria-hidden="true" />
                 <span className="text-sm text-on-surface-variant">{item}</span>
               </li>
             ))}

@@ -52,7 +52,7 @@ flowchart LR
   Extension --> ATS["Greenhouse and Workday pages"]
   Extension --> API["Next.js API routes"]
   Web --> API
-  API --> Supabase[("Supabase Postgres and Storage")]
+  API --> Supabase["Supabase Postgres and Storage"]
   API --> Gateway["Model gateway"]
   Gateway --> Local["Local deterministic fallback"]
   Gateway --> Providers["Gemini or DashScope when configured"]

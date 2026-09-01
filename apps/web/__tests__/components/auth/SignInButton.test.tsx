@@ -16,6 +16,7 @@ describe('SignInButton', () => {
     createClient.mockReset()
     vi.restoreAllMocks()
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://ekrohnxccdxpnpctzlst.supabase.co'
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key'
     process.env.NEXT_PUBLIC_WEBAPP_URL = ''
     window.history.replaceState(null, '', '/login')
   })
@@ -35,12 +36,20 @@ describe('SignInButton', () => {
   it('starts Google OAuth when Supabase Auth is reachable', async () => {
     const signInWithOAuth = vi.fn().mockResolvedValue({ data: {}, error: null })
     createClient.mockReturnValue({ auth: { signInWithOAuth } })
-    vi.spyOn(global, 'fetch').mockResolvedValue({ ok: true } as Response)
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({ ok: true } as Response)
 
     render(<SignInButton />)
     fireEvent.click(screen.getByRole('button', { name: /continue with google/i }))
 
     await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        'https://ekrohnxccdxpnpctzlst.supabase.co/auth/v1/health',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            apikey: 'anon-key',
+          }),
+        })
+      )
       expect(signInWithOAuth).toHaveBeenCalledWith({
         provider: 'google',
         options: expect.objectContaining({

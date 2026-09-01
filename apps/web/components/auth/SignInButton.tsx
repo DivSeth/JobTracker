@@ -5,7 +5,11 @@ import { buildOAuthRedirectTo } from '@/lib/auth/oauth'
 
 async function assertSupabaseAuthReachable() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!supabaseUrl) {
+    throw new Error('Auth service is not configured.')
+  }
+  if (!supabaseAnonKey) {
     throw new Error('Auth service is not configured.')
   }
 
@@ -13,6 +17,9 @@ async function assertSupabaseAuthReachable() {
   try {
     response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/auth/v1/health`, {
       cache: 'no-store',
+      headers: {
+        apikey: supabaseAnonKey,
+      },
     })
   } catch {
     throw new Error('Auth service is not reachable.')
