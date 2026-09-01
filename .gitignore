@@ -44,5 +44,5 @@ supabase/.branches/
 *.sql.gz
 screenshots/
 docs/screenshots/
-artifacts/
-generated-artifacts/
+/artifacts/
+/generated-artifacts/
