@@ -23,7 +23,7 @@ Current supported surfaces:
 - Testable system design: 87 test files currently cover web APIs, schema validation, knowledge ingestion, model gateway fallback behavior, extension scanner/mapper/filler behavior, auth helpers, and UI components.
 - Practical observability: critical extension tracking now emits structured server logs with event names, application ids, and non-sensitive workflow flags.
 
-## Stripe-Relevant Systems Work
+## Relevant Systems Work
 
 - APIs: authenticated REST-like Next.js route handlers for applications, profiles, job analyses, knowledge ingestion, generated artifacts, Gmail ingestion hooks, and extension integration.
 - Idempotency/retries: application tracking combines preflight duplicate reads, a `user_id,apply_url` unique index, upsert conflict handling, replay response metadata, and extension-side retry-friendly calls.
@@ -47,15 +47,15 @@ At a high level:
 
 ```mermaid
 flowchart LR
-  User[Candidate] --> Web[Next.js web app]
-  User --> Extension[WXT browser extension]
-  Extension --> ATS[Greenhouse / Workday pages]
-  Extension --> API[Next.js API routes]
+  User["Candidate"] --> Web["Next.js web app"]
+  User --> Extension["WXT browser extension"]
+  Extension --> ATS["Greenhouse and Workday pages"]
+  Extension --> API["Next.js API routes"]
   Web --> API
-  API --> Supabase[(Supabase Postgres + Storage)]
-  API --> Gateway[Model gateway]
-  Gateway --> Local[Local deterministic fallback]
-  Gateway --> Providers[Gemini / DashScope when configured]
+  API --> Supabase[("Supabase Postgres and Storage")]
+  API --> Gateway["Model gateway"]
+  Gateway --> Local["Local deterministic fallback"]
+  Gateway --> Providers["Gemini or DashScope when configured"]
 ```
 
 ## Repo Structure
