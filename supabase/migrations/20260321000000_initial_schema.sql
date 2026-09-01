@@ -91,7 +91,7 @@ CREATE TABLE applications (
   source TEXT DEFAULT 'manual'
 );
 -- Prevent duplicates: same user applying to same job twice
-CREATE UNIQUE INDEX idx_applications_unique_job
+CREATE UNIQUE INDEX IF NOT EXISTS idx_applications_unique_job
   ON applications(user_id, job_id) WHERE job_id IS NOT NULL;
 
 -- ============================================================
@@ -143,12 +143,12 @@ CREATE TABLE ai_logs (
 -- ============================================================
 -- Indexes (critical for page-load queries)
 -- ============================================================
-CREATE INDEX idx_applications_user_id    ON applications(user_id);
-CREATE INDEX idx_email_events_user_id    ON email_events(user_id);
-CREATE INDEX idx_email_events_gmail_id   ON email_events(gmail_message_id);
-CREATE INDEX idx_job_scores_user_score   ON job_scores(user_id, score DESC);
-CREATE INDEX idx_deadlines_user_datetime ON deadlines(user_id, datetime);
-CREATE INDEX idx_jobs_active_type        ON jobs(is_active, job_type);
+CREATE INDEX IF NOT EXISTS idx_applications_user_id    ON applications(user_id);
+CREATE INDEX IF NOT EXISTS idx_email_events_user_id    ON email_events(user_id);
+CREATE INDEX IF NOT EXISTS idx_email_events_gmail_id   ON email_events(gmail_message_id);
+CREATE INDEX IF NOT EXISTS idx_job_scores_user_score   ON job_scores(user_id, score DESC);
+CREATE INDEX IF NOT EXISTS idx_deadlines_user_datetime ON deadlines(user_id, datetime);
+CREATE INDEX IF NOT EXISTS idx_jobs_active_type        ON jobs(is_active, job_type);
 
 -- ============================================================
 -- RLS — enabled on all user-scoped tables

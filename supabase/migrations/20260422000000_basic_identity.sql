@@ -60,8 +60,8 @@ CREATE TABLE user_regional_identities (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_regional_identities_user ON user_regional_identities(user_id);
-CREATE INDEX idx_regional_identities_default
+CREATE INDEX IF NOT EXISTS idx_regional_identities_user ON user_regional_identities(user_id);
+CREATE INDEX IF NOT EXISTS idx_regional_identities_default
   ON user_regional_identities(user_id, is_default)
   WHERE is_default = TRUE;
 

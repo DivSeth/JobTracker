@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS companies (
   UNIQUE(ats_platform, slug)
 );
 
-CREATE INDEX idx_companies_active_platform ON companies(is_active, ats_platform);
+CREATE INDEX IF NOT EXISTS idx_companies_active_platform ON companies(is_active, ats_platform);
 
 -- Jobs table additions
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS company_id UUID REFERENCES companies(id);

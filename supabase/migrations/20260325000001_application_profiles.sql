@@ -43,8 +43,8 @@ CREATE TABLE application_profiles (
 );
 
 -- Indexes
-CREATE INDEX idx_app_profiles_user ON application_profiles(user_id);
-CREATE INDEX idx_app_profiles_default ON application_profiles(user_id, is_default) WHERE is_default = TRUE;
+CREATE INDEX IF NOT EXISTS idx_app_profiles_user ON application_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_app_profiles_default ON application_profiles(user_id, is_default) WHERE is_default = TRUE;
 
 -- Row Level Security
 ALTER TABLE application_profiles ENABLE ROW LEVEL SECURITY;

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS email_queue (
   processed_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_email_queue_user_status ON email_queue(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_email_queue_user_status ON email_queue(user_id, status);
 
 -- Deadlines extracted from emails
 CREATE TABLE IF NOT EXISTS deadlines (
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS deadlines (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_deadlines_user ON deadlines(user_id, datetime);
+CREATE INDEX IF NOT EXISTS idx_deadlines_user ON deadlines(user_id, datetime);
 
 -- AI-generated weekly insights
 CREATE TABLE IF NOT EXISTS insights (
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS ai_logs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_ai_logs_user ON ai_logs(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_logs_user ON ai_logs(user_id, created_at DESC);
 
 -- RLS policies
 ALTER TABLE email_queue ENABLE ROW LEVEL SECURITY;
